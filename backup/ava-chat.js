@@ -50,7 +50,6 @@ const loginSubmit  = $('#loginSubmitBtn');
 
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded', () => {
-  setGreeting();
   initSidebar();
   initChat();
   initLeadModal();
@@ -67,15 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============ UTILS ============
 function genId() {
   return 'ava_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
-}
-
-function setGreeting() {
-  const h = new Date().getHours();
-  let g = 'Bom dia';
-  if (h >= 12 && h < 18) g = 'Boa tarde';
-  else if (h >= 18) g = 'Boa noite';
-  const el = $('#welcomeGreeting');
-  if (el) el.textContent = g + ', o que posso fazer por você?';
 }
 
 // ============ SIDEBAR ============
