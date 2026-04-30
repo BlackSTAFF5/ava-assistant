@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AvaAssistant — Painel de Leads</title>
+  <meta name="description" content="Painel administrativo para gerenciar leads capturados pelo AvaAssistant.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="ava-chat.css">
+  <style>
+    /* ========== ADMIN OVERRIDES ========== */
+    body {
+      flex-direction: column;
+      overflow: auto;
+    }
+
+    .admin-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .admin-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .admin-header-left a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .admin-header-left a:hover {
+      background: var(--bg-hover);
+      color: var(--accent);
+      border-color: var(--accent-border);
+    }
+
+    .admin-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .admin-header h1 span {
+      color: var(--accent);
+    }
+
+    .admin-header-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--border-hover);
+    }
+    .refresh-btn.loading svg {
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover {
+      border-color: var(--accent-border);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .stat-value.accent { color: var(--accent); }
+
+    /* Search & Filter */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 14px 10px 40px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 12px center;
+    }
+    .search-input:focus {
+      border-color: var(--accent-border);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+
+    .filter-select {
+      padding: 10px 36px 10px 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .filter-select:focus {
+      border-color: var(--accent-border);
+    }
+    .filter-select option {
+      background: var(--bg-tertiary);
+    }
+
+    /* Table */
+    .table-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .leads-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .leads-table th {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .leads-table td {
+      padding: 14px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .leads-table tbody tr {
+      transition: background 0.15s;
+    }
+    .leads-table tbody tr:hover {
+      background: rgba(255,255,255,0.02);
+    }
+    .leads-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .lead-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .lead-company {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .lead-whatsapp {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent-soft);
+    }
+
+    .lead-segment {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+    }
+
+    .lead-date {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .lead-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .lead-status.new {
+      background: rgba(34, 197, 94, 0.12);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+    .lead-status.contacted {
+      background: rgba(59, 130, 246, 0.12);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.25);
+    }
+    .lead-status.meeting {
+      background: rgba(168, 85, 247, 0.12);
+      color: #a855f7;
+      border: 1px solid rgba(168, 85, 247, 0.25);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .no-leads {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+    }
+    .no-leads svg {
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+    .no-leads p {
+      font-size: 14px;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .table-action-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .table-action-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--border-hover);
+    }
+    .table-action-btn.whatsapp:hover {
+      color: #25d366;
+      border-color: rgba(37, 211, 102, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .admin-container { padding: 16px; }
+      .leads-table { font-size: 13px; }
+      .leads-table th, .leads-table td { padding: 10px 12px; }
+      .stat-value { font-size: 24px; }
+      .admin-header h1 { font-size: 20px; }
+
+      /* Make table horizontally scrollable */
+      .table-container { overflow-x: auto; }
+      .leads-table { min-width: 700px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="admin-header-left">
+        <a href="ava-assistant.html" title="Voltar ao Chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
+        <h1><span>Ava</span>Assistant — Leads</h1>
+      </div>
+      <div class="admin-header-right">
+        <button class="refresh-btn" id="refreshBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Atualizar
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-label">Total de Leads</div>
+        <div class="stat-value" id="statTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Novos (Hoje)</div>
+        <div class="stat-value accent" id="statNew">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Contatados</div>
+        <div class="stat-value" id="statContacted">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Reuniões Marcadas</div>
+        <div class="stat-value" id="statMeetings">—</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nome, empresa ou WhatsApp...">
+      <select class="filter-select" id="segmentFilter">
+        <option value="">Todos os segmentos</option>
+        <option value="automotivo">Automotivo</option>
+        <option value="saude">Saúde / Estética</option>
+        <option value="tecnologia">Tecnologia</option>
+        <option value="servicos">Serviços</option>
+        <option value="varejo">Varejo</option>
+        <option value="outro">Outro</option>
+      </select>
+      <select class="filter-select" id="statusFilter">
+        <option value="">Todos os status</option>
+        <option value="new">Novo</option>
+        <option value="contacted">Contatado</option>
+        <option value="meeting">Reunião Marcada</option>
+      </select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table class="leads-table">
+        <thead>
+          <tr>
+            <th>Nome / Empresa</th>
+            <th>WhatsApp</th>
+            <th>E-mail</th>
+            <th>Segmento</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="leadsTableBody">
+          <tr>
+            <td colspan="7">
+              <div class="no-leads">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <p>Carregando leads...</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // ============ CONFIG ============
+    const LEADS_LIST_URL = 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-leads-list';
+
+    let allLeads = [];
+
+    // ============ INIT ============
+    document.addEventListener('DOMContentLoaded', () => {
+      loadLeads();
+
+      document.getElementById('refreshBtn').addEventListener('click', loadLeads);
+      document.getElementById('searchInput').addEventListener('input', filterLeads);
+      document.getElementById('segmentFilter').addEventListener('change', filterLeads);
+      document.getElementById('statusFilter').addEventListener('change', filterLeads);
+    });
+
+    // ============ LOAD LEADS ============
+    async function loadLeads() {
+      const btn = document.getElementById('refreshBtn');
+      btn.classList.add('loading');
+
+      try {
+        const res = await fetch(LEADS_LIST_URL, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+        });
+
+        if (!res.ok) throw new Error('Falha ao carregar');
+
+        const data = await res.json();
+        allLeads = Array.isArray(data) ? data : (data.leads || data.data || []);
+        renderLeads(allLeads);
+        updateStats(allLeads);
+
+      } catch (error) {
+        console.error('Error loading leads:', error);
+        // Show demo data if webhook not ready
+        allLeads = getDemoLeads();
+        renderLeads(allLeads);
+        updateStats(allLeads);
+      } finally {
+        btn.classList.remove('loading');
+      }
+    }
+
+    // ============ RENDER ============
+    function renderLeads(leads) {
+      const tbody = document.getElementById('leadsTableBody');
+
+      if (leads.length === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="7">
+            <div class="no-leads">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <p>Nenhum lead encontrado.</p>
+            </div>
+          </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = leads.map(lead => {
+        const statusClass = lead.status || 'new';
+        const statusLabel = { new: 'Novo', contacted: 'Contatado', meeting: 'Reunião' }[statusClass] || 'Novo';
+        const date = lead.timestamp ? new Date(lead.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+        const whatsappClean = (lead.whatsapp || '').replace(/\D/g, '');
+
+        return `
+          <tr>
+            <td>
+              <div class="lead-name">${escapeHtml(lead.name || '—')}</div>
+              <div class="lead-company">${escapeHtml(lead.company || '')}</div>
+            </td>
+            <td><span class="lead-whatsapp">${escapeHtml(lead.whatsapp || '—')}</span></td>
+            <td>${escapeHtml(lead.email || '—')}</td>
+            <td>${lead.segment ? `<span class="lead-segment">${escapeHtml(lead.segment)}</span>` : '—'}</td>
+            <td><span class="lead-date">${date}</span></td>
+            <td><span class="lead-status ${statusClass}"><span class="status-dot"></span>${statusLabel}</span></td>
+            <td>
+              <div class="table-actions">
+                <a href="https://wa.me/${whatsappClean}" target="_blank" class="table-action-btn whatsapp" title="Abrir WhatsApp">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                </a>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    // ============ STATS ============
+    function updateStats(leads) {
+      const today = new Date().toDateString();
+      const newToday = leads.filter(l => l.timestamp && new Date(l.timestamp).toDateString() === today).length;
+      const contacted = leads.filter(l => l.status === 'contacted').length;
+      const meetings = leads.filter(l => l.status === 'meeting').length;
+
+      document.getElementById('statTotal').textContent = leads.length;
+      document.getElementById('statNew').textContent = newToday;
+      document.getElementById('statContacted').textContent = contacted;
+      document.getElementById('statMeetings').textContent = meetings;
+    }
+
+    // ============ FILTER ============
+    function filterLeads() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const segment = document.getElementById('segmentFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      const filtered = allLeads.filter(lead => {
+        const matchSearch = !search ||
+          (lead.name || '').toLowerCase().includes(search) ||
+          (lead.company || '').toLowerCase().includes(search) ||
+          (lead.whatsapp || '').includes(search);
+        const matchSegment = !segment || lead.segment === segment;
+        const matchStatus = !status || (lead.status || 'new') === status;
+        return matchSearch && matchSegment && matchStatus;
+      });
+
+      renderLeads(filtered);
+    }
+
+    // ============ UTILS ============
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function getDemoLeads() {
+      return [
+        { name: 'João Silva', company: 'TechStart Ltda', whatsapp: '(41) 99999-1234', email: 'joao@techstart.com', segment: 'tecnologia', status: 'new', timestamp: new Date().toISOString(), message: 'Quero saber mais sobre automação' },
+        { name: 'Maria Santos', company: 'Clínica Beleza', whatsapp: '(41) 98888-5678', email: 'maria@clinicabeleza.com', segment: 'saude', status: 'contacted', timestamp: new Date(Date.now() - 86400000).toISOString(), message: 'Preciso de um chatbot para agendamento' },
+        { name: 'Carlos Oliveira', company: 'Auto Center PR', whatsapp: '(41) 97777-9012', email: '', segment: 'automotivo', status: 'meeting', timestamp: new Date(Date.now() - 172800000).toISOString(), message: 'Quero implementar IA no atendimento' },
+      ];
+    }
+  </script>
+</body>
+</html>

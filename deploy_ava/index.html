@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AvaAssistant</title>
+  <meta name="description" content="AvaAssistant - Assistente inteligente com IA">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="ava-chat.css">
+</head>
+<body>
+  <!-- ========== SIDEBAR (Desktop / Mobile overlay) ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <button class="sidebar-close" id="sidebarClose" aria-label="Fechar menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <button class="new-chat-btn" id="newChatBtn" aria-label="Nova conversa">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-history">
+      <p class="history-label">Hoje</p>
+      <ul class="history-list" id="chatHistory"></ul>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Configurações</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ========== MAIN ========== -->
+  <main class="main" id="main">
+    
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <!-- Ícone do Hamburger -->
+        <button class="topbar-btn" id="menuBtn" aria-label="Abrir menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <!-- Linha superior mais longa, inferior mais curta conforme o print -->
+            <path d="M4 8h16M4 16h10"/>
+          </svg>
+        </button>
+        
+        <!-- LOGO & TEXTO -->
+        <div class="topbar-brand" id="brandBtn">
+          <!-- 
+            =================================================
+            COLOQUE A SUA LOGO AQUI:
+            Substitua a div abaixo por:
+            <img src="sua-logo.png" alt="Ava Logo" style="height: 24px; width: auto; object-fit: contain;">
+            =================================================
+          -->
+          
+          <span class="brand-name">AvaAssistant</span>
+          <!-- Chevron (setinha para baixo) -->
+          <svg class="brand-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+      
+      <div class="topbar-right">
+        <button class="topbar-login" id="loginBtn">Entrar</button>
+      </div>
+    </header>
+
+    <!-- Chat content area -->
+    <div class="chat-scroll" id="chatScroll">
+      
+      <!-- Welcome Greeting (Centered) -->
+      <div class="welcome" id="welcome">
+        <h1 class="welcome-greeting" id="welcomeGreeting">O que tem na agenda de hoje?</h1>
+      </div>
+
+      <!-- Messages container -->
+      <div class="messages" id="messages"></div>
+    </div>
+
+    <!-- Input bar -->
+    <div class="input-area">
+      <form class="input-bar" id="chatForm" autocomplete="off">
+        
+        <!-- Botão '+' -->
+        <button type="button" class="input-plus" id="plusBtn" aria-label="Anexar">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        
+        <!-- Caixa de texto -->
+        <textarea id="chatInput" class="input-field" rows="1" placeholder="Pergunte alguma coisa" maxlength="4000"></textarea>
+        
+        <!-- Botão Microfone -->
+        <button type="button" class="input-icon-btn mic-btn" id="micBtn" aria-label="Microfone">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+          </svg>
+        </button>
+        
+        <!-- Botão Voz (Pílula) -->
+        <button type="button" class="input-voice" id="voiceBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 4v16M8 9v6M4 12v0M16 7v10M20 12v0"/>
+          </svg>
+          <span>Voz</span>
+        </button>
+
+        <!-- Botão Enviar (Seta para cima em círculo preto) -->
+        <button type="submit" class="input-send" id="sendBtn" aria-label="Enviar" style="display:none;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="none">
+            <circle cx="12" cy="12" r="12" fill="black" />
+            <path d="M12 16V8M8 12l4-4 4 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+
+      </form>
+      
+      <!-- Disclaimer -->
+      <p class="disclaimer">Ao enviar mensagens para o AvaAssistant, um chatbot de IA, você aceita nossos <a href="#">Termos</a> e reconhece nossa <a href="#">Política de Privacidade</a>. Confira as <a href="#">Preferências de cookies</a>.</p>
+    </div>
+  </main>
+
+  <!-- ========== LEAD MODAL (mantido do original) ========== -->
+  <div class="modal-overlay" id="leadModal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose" aria-label="Fechar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <h2 class="modal-title">📅 Agendar Reunião</h2>
+      <p class="modal-desc">Preencha seus dados e entraremos em contato.</p>
+      <form class="lead-form" id="leadForm">
+        <label>Seu nome <input type="text" id="leadName" name="name" required placeholder="Ex: João Silva"></label>
+        <label>Empresa <input type="text" id="leadCompany" name="company" placeholder="Ex: Minha Empresa"></label>
+        <label>WhatsApp <input type="tel" id="leadWhatsapp" name="whatsapp" required placeholder="(41) 99999-9999"></label>
+        <label>E-mail <input type="email" id="leadEmail" name="email" placeholder="joao@empresa.com"></label>
+        <label>Segmento
+          <select id="leadSegment" name="segment">
+            <option value="">Selecione</option>
+            <option value="automotivo">Automotivo</option>
+            <option value="saude">Saúde / Estética</option>
+            <option value="tecnologia">Tecnologia</option>
+            <option value="servicos">Serviços</option>
+            <option value="varejo">Varejo</option>
+            <option value="outro">Outro</option>
+          </select>
+        </label>
+        <label>Mensagem <textarea id="leadMessage" name="message" rows="2" placeholder="O que deseja discutir?"></textarea></label>
+        <button type="submit" class="lead-submit" id="leadSubmitBtn">Solicitar Reunião</button>
+      </form>
+      <div class="lead-success" id="leadSuccess" style="display:none;">
+        <p>✅ Reunião solicitada com sucesso!</p>
+        <button class="lead-ok" id="closeSuccessBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== LOGIN MODAL ========== -->
+  <div class="modal-overlay" id="loginModalOverlay">
+    <div class="modal-box">
+      <button class="modal-close" id="loginModalClose" aria-label="Fechar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <h2 class="modal-title">Entrar ou Cadastrar</h2>
+      <p class="modal-desc">Crie sua conta para salvar suas conversas.</p>
+      <form class="lead-form" id="loginForm">
+        <label>Nome completo <input type="text" id="loginName" required placeholder="Seu nome"></label>
+        <label>E-mail <input type="email" id="loginEmail" required placeholder="seu@email.com"></label>
+        <label>Senha <input type="password" id="loginPassword" required placeholder="••••••••"></label>
+        <button type="submit" class="lead-submit" id="loginSubmitBtn">Acessar</button>
+      </form>
+      <div class="lead-success" id="loginSuccess" style="display:none;">
+        <p>✅ Login efetuado com sucesso!</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="ava-chat.js"></script>
+</body>
+</html>
