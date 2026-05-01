@@ -669,10 +669,6 @@ body {
     padding: 24px; 
     width: calc(100% - 32px);
   }
-
-  /* Melhoria no botão de voz no mobile */
-  .input-voice span { display: none; }
-  .input-voice { padding: 0 10px; width: 36px; }
 }
 
 /* Safe areas for notched phones */
