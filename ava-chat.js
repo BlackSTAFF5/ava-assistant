@@ -70,10 +70,10 @@ function genId() {
 
 // ============ SIDEBAR ============
 function initSidebar() {
-  menuBtn.addEventListener('click', openSidebar);
-  sidebarClose.addEventListener('click', closeSidebar);
-  sidebarOver.addEventListener('click', closeSidebar);
-  newChatBtn.addEventListener('click', startNewChat);
+  menuBtn?.addEventListener('click', openSidebar);
+  sidebarClose?.addEventListener('click', closeSidebar);
+  sidebarOver?.addEventListener('click', closeSidebar);
+  newChatBtn?.addEventListener('click', startNewChat);
 }
 
 function openSidebar() {
@@ -331,12 +331,12 @@ async function onLeadSubmit(e) {
 
 // ============ LOGIN MODAL ============
 function initLoginModal() {
-  loginBtn.addEventListener('click', (e) => {
+  loginBtn?.addEventListener('click', (e) => {
     e.preventDefault();
     openLoginModal();
   });
-  loginClose.addEventListener('click', closeLoginModal);
-  loginModal.addEventListener('click', e => { if (e.target === loginModal) closeLoginModal(); });
+  loginClose?.addEventListener('click', closeLoginModal);
+  loginModal?.addEventListener('click', e => { if (e.target === loginModal) closeLoginModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLoginModal(); });
   
   loginForm.addEventListener('submit', (e) => {
