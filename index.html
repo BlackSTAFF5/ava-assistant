@@ -41,14 +41,32 @@
     <header class="topbar">
       <div class="topbar-left">
         <!-- LOGO & TEXTO -->
-        <div class="topbar-brand" id="brandBtn">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-1.6996 4.661 6.0462 6.0462 0 0 0-1.6108 6.9157 6.0651 6.0651 0 0 0 5.7351 3.5243 5.9847 5.9847 0 0 0 4.7709 2.502 6.0462 6.0462 0 0 0 6.5109-2.9 6.0651 6.0651 0 0 0 4.2952-4.1818 5.9847 5.9847 0 0 0-.7007-4.8819ZM13.882 2.6453a4.0152 4.0152 0 0 1 4.7824 1.7456 4.053 4.053 0 0 1 .4961 3.8436l-2.022-1.1682V5.0441h-.0023a1.9961 1.9961 0 0 0-1.0003-1.7335L11.583 0.6865a4.0205 4.0205 0 0 1 2.299-1.0412ZM5.9613 6.9482a4.0152 4.0152 0 0 1 2.4578-4.4057 4.053 4.053 0 0 1 3.8347-.5634v2.336H12.25v2.022l-4.5516 2.6288v-.0023a1.9961 1.9961 0 0 0-.9992-1.7312L2.1465 4.6068a4.0205 4.0205 0 0 1 3.8148 2.3414ZM2.3338 15.6322a4.0152 4.0152 0 0 1-1.2588-4.8434 4.053 4.053 0 0 1 2.5511-2.9158l1.166 2.022L4.79 9.8927a1.9961 1.9961 0 0 0 1.0004 1.7335l4.5527 2.6289v5.2577a1.9961 1.9961 0 0 0 1.0003 1.7336l-3.9625 2.2878a4.0205 4.0205 0 0 1-5.0471-7.898ZM10.118 21.3547a4.0152 4.0152 0 0 1-4.7824-1.7456 4.053 4.053 0 0 1-.4961-3.8436l2.022 1.1682v2.0222h.0023a1.9961 1.9961 0 0 0 1.0003 1.7335l4.5528 2.6241a4.0205 4.0205 0 0 1-2.2989 1.0412ZM18.0387 17.0518a4.0152 4.0152 0 0 1-2.4578 4.4057 4.053 4.053 0 0 1-3.8347.5634v-2.336H11.75v-2.022l4.5516-2.6288v.0023a1.9961 1.9961 0 0 0 .9992 1.7312l4.5527 2.6293a4.0205 4.0205 0 0 1-3.8148-2.3414ZM21.6662 8.3678a4.0152 4.0152 0 0 1 1.2588 4.8434 4.053 4.053 0 0 1-2.5511 2.9158l-1.166-2.022L19.21 14.1073a1.9961 1.9961 0 0 0-1.0004-1.7335l-4.5527-2.6289V4.4871a1.9961 1.9961 0 0 0-1.0003-1.7336l3.9625-2.2878a4.0205 4.0205 0 0 1 5.0471 7.898ZM14.9216 11.2319l-2.9216-1.6868-2.9216 1.6868v3.3736l2.9216 1.6868 2.9216-1.6868v-3.3736Z" fill="currentColor"/>
-          </svg>
-          <span class="brand-name">AvaAssistant</span>
-          <svg class="brand-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+        <div class="brand-container">
+          <div class="topbar-brand" id="brandBtn">
+            <img src="images/logo.png" alt="Ava Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/24';">
+            <span class="brand-name" id="currentModel">AvaAssistant</span>
+            <svg class="brand-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          
+          <!-- Dropdown -->
+          <div class="model-dropdown" id="modelDropdown">
+            <div class="model-option active" data-model="AvaAssistant">
+              <div class="model-info">
+                <span class="model-title">AvaAssistant</span>
+                <span class="model-desc">Para tarefas do dia a dia</span>
+              </div>
+              <svg class="model-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="model-option" data-model="AvaAssistant Pro">
+              <div class="model-info">
+                <span class="model-title">AvaAssistant Pro</span>
+                <span class="model-desc">Nossa IA mais inteligente e avançada</span>
+              </div>
+              <svg class="model-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
         </div>
       </div>
       

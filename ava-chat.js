@@ -61,6 +61,34 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebar.classList.add('hidden');
     state.sidebarOpen = false;
   }
+
+  // Model Dropdown Logic
+  const brandBtn = document.getElementById('brandBtn');
+  const modelDropdown = document.getElementById('modelDropdown');
+  const currentModel = document.getElementById('currentModel');
+  const modelOptions = document.querySelectorAll('.model-option');
+
+  if (brandBtn && modelDropdown) {
+    brandBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      modelDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!brandBtn.contains(e.target) && !modelDropdown.contains(e.target)) {
+        modelDropdown.classList.remove('show');
+      }
+    });
+
+    modelOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        modelOptions.forEach(opt => opt.classList.remove('active'));
+        option.classList.add('active');
+        currentModel.textContent = option.dataset.model;
+        modelDropdown.classList.remove('show');
+      });
+    });
+  }
 });
 
 // ============ UTILS ============

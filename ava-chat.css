@@ -204,6 +204,10 @@ body {
 }
 .topbar-brand:hover { background: var(--bg-hover); }
 
+.brand-container {
+  position: relative;
+}
+
 .brand-name {
   font-size: 18px;
   font-weight: 600;
@@ -212,6 +216,74 @@ body {
 }
 .brand-chevron {
   color: var(--text-muted);
+}
+.brand-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Dropdown */
+.model-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  width: 320px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1000;
+}
+
+.model-dropdown.show {
+  display: flex;
+}
+
+.model-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.model-option:hover {
+  background: var(--bg-hover);
+}
+
+.model-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.model-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.model-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.model-check {
+  color: var(--text);
+  opacity: 0;
+}
+
+.model-option.active .model-check {
+  opacity: 1;
 }
 
 .topbar-right {
