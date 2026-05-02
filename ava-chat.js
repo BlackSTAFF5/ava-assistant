@@ -300,38 +300,41 @@ function createHistoryItem(c) {
   titleSpan.textContent = c.title;
   li.appendChild(titleSpan);
 
-  // Options Button
-  const btn = document.createElement('button');
-  btn.className = 'chat-options-btn';
-  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>';
-  btn.addEventListener('click', (e) => toggleOptionsMenu(c.sid, e));
-  li.appendChild(btn);
+  // Only show options if logged in
+  if (auth.currentUser) {
+    // Options Button
+    const btn = document.createElement('button');
+    btn.className = 'chat-options-btn';
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>';
+    btn.addEventListener('click', (e) => toggleOptionsMenu(c.sid, e));
+    li.appendChild(btn);
 
-  // Dropdown Menu
-  const menu = document.createElement('div');
-  menu.className = 'chat-options-menu';
-  menu.id = `options-menu-${c.sid}`;
-  
-  // Archive/Unarchive Option
-  const archiveOpt = document.createElement('button');
-  archiveOpt.className = 'chat-option';
-  if (c.archived) {
-    archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Desarquivar';
-    archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, false));
-  } else {
-    archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Arquivar';
-    archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, true));
+    // Dropdown Menu
+    const menu = document.createElement('div');
+    menu.className = 'chat-options-menu';
+    menu.id = `options-menu-${c.sid}`;
+    
+    // Archive/Unarchive Option
+    const archiveOpt = document.createElement('button');
+    archiveOpt.className = 'chat-option';
+    if (c.archived) {
+      archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Desarquivar';
+      archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, false));
+    } else {
+      archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Arquivar';
+      archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, true));
+    }
+    menu.appendChild(archiveOpt);
+
+    // Delete Option
+    const deleteOpt = document.createElement('button');
+    deleteOpt.className = 'chat-option delete';
+    deleteOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Excluir';
+    deleteOpt.addEventListener('click', (e) => deleteChat(c.sid, e));
+    menu.appendChild(deleteOpt);
+
+    li.appendChild(menu);
   }
-  menu.appendChild(archiveOpt);
-
-  // Delete Option
-  const deleteOpt = document.createElement('button');
-  deleteOpt.className = 'chat-option delete';
-  deleteOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Excluir';
-  deleteOpt.addEventListener('click', (e) => deleteChat(c.sid, e));
-  menu.appendChild(deleteOpt);
-
-  li.appendChild(menu);
   return li;
 }
 
@@ -448,7 +451,7 @@ async function onSubmit(e) {
       fd.append('message', text);
       fd.append('sessionId', state.sessionId);
       fd.append('timestamp', new Date().toISOString());
-      fd.append('history', JSON.stringify(state.messages.slice(-10).map(m => ({ role: m.role, content: m.content }))));
+      fd.append('history', JSON.stringify(state.messages.map(m => ({ role: m.role, content: m.content }))));
       files.forEach(f => fd.append('files', f));
       body = fd;
     } else {
@@ -457,7 +460,7 @@ async function onSubmit(e) {
         message: text,
         sessionId: state.sessionId,
         timestamp: new Date().toISOString(),
-        history: state.messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
+        history: state.messages.map(m => ({ role: m.role, content: m.content })),
       });
     }
 
