@@ -807,6 +807,47 @@ body {
 }
 .modal-overlay.active .modal-box { transform: scale(1); }
 
+.google-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  transition: background 0.15s;
+}
+.google-login-btn:hover {
+  background: var(--bg-hover);
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-input);
+}
+.login-divider span {
+  padding: 0 10px;
+}
+
 .modal-close {
   position: absolute;
   top: 16px;

@@ -135,6 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // Prevent closing window if unauthenticated and has messages
+  window.addEventListener('beforeunload', (e) => {
+    if (!auth.currentUser && state.messages.length > 0) {
+      e.preventDefault();
+      const msg = 'Você tem conversas não salvas! Crie uma conta para não perder seu histórico.';
+      e.returnValue = msg;
+      return msg;
+    }
+  });
 });
 
 // ============ UTILS ============
@@ -239,6 +249,11 @@ function saveConversation() {
 
 function deleteChat(sid, e) {
   if (e) { e.stopPropagation(); }
+  if (!auth.currentUser) {
+    alert('Você precisa criar uma conta ou entrar para excluir ou arquivar conversas.');
+    openLoginModal('login');
+    return;
+  }
   if (!confirm('Excluir esta conversa permanentemente?')) return;
   
   if (auth.currentUser) {
@@ -256,6 +271,11 @@ function deleteChat(sid, e) {
 
 function archiveChat(sid, e, isArchiving = true) {
   if (e) { e.stopPropagation(); }
+  if (!auth.currentUser) {
+    alert('Você precisa criar uma conta ou entrar para arquivar conversas.');
+    openLoginModal('login');
+    return;
+  }
   const idx = state.conversations.findIndex(c => c.sid === sid);
   if (idx >= 0) {
     state.conversations[idx].archived = isArchiving;
@@ -300,41 +320,39 @@ function createHistoryItem(c) {
   titleSpan.textContent = c.title;
   li.appendChild(titleSpan);
 
-  // Only show options if logged in
-  if (auth.currentUser) {
-    // Options Button
-    const btn = document.createElement('button');
-    btn.className = 'chat-options-btn';
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>';
-    btn.addEventListener('click', (e) => toggleOptionsMenu(c.sid, e));
-    li.appendChild(btn);
+  // Always show options button, but logic handles login requirement
+  const btn = document.createElement('button');
+  btn.className = 'chat-options-btn';
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>';
+  btn.addEventListener('click', (e) => toggleOptionsMenu(c.sid, e));
+  li.appendChild(btn);
 
-    // Dropdown Menu
-    const menu = document.createElement('div');
-    menu.className = 'chat-options-menu';
-    menu.id = `options-menu-${c.sid}`;
-    
-    // Archive/Unarchive Option
-    const archiveOpt = document.createElement('button');
-    archiveOpt.className = 'chat-option';
-    if (c.archived) {
-      archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Desarquivar';
-      archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, false));
-    } else {
-      archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Arquivar';
-      archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, true));
-    }
-    menu.appendChild(archiveOpt);
-
-    // Delete Option
-    const deleteOpt = document.createElement('button');
-    deleteOpt.className = 'chat-option delete';
-    deleteOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Excluir';
-    deleteOpt.addEventListener('click', (e) => deleteChat(c.sid, e));
-    menu.appendChild(deleteOpt);
-
-    li.appendChild(menu);
+  // Dropdown Menu
+  const menu = document.createElement('div');
+  menu.className = 'chat-options-menu';
+  menu.id = `options-menu-${c.sid}`;
+  
+  // Archive/Unarchive Option
+  const archiveOpt = document.createElement('button');
+  archiveOpt.className = 'chat-option';
+  if (c.archived) {
+    archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Desarquivar';
+    archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, false));
+  } else {
+    archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Arquivar';
+    archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, true));
   }
+  menu.appendChild(archiveOpt);
+
+  // Delete Option
+  const deleteOpt = document.createElement('button');
+  deleteOpt.className = 'chat-option delete';
+  deleteOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Excluir';
+  deleteOpt.addEventListener('click', (e) => deleteChat(c.sid, e));
+  menu.appendChild(deleteOpt);
+
+  li.appendChild(menu);
+
   return li;
 }
 
@@ -726,6 +744,22 @@ function initLoginModal() {
   tabRegister?.addEventListener('click', () => {
     tabRegister.classList.add('active'); tabLogin.classList.remove('active');
     registerFormWrap.style.display = ''; loginFormWrap.style.display = 'none';
+  });
+
+  const googleBtn = document.getElementById('googleLoginBtn');
+  googleBtn?.addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+      .then((result) => {
+        loginFormWrap.style.display = 'none';
+        registerFormWrap.style.display = 'none';
+        loginSuccess.style.display = 'block';
+        loginSuccess.innerHTML = '<p>✅ Login via Google efetuado com sucesso!</p>';
+        setTimeout(closeLoginModal, 1500);
+      })
+      .catch((error) => {
+        alert('Erro ao entrar com Google: ' + error.message);
+      });
   });
 
   loginForm?.addEventListener('submit', (e) => {
