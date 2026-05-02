@@ -1,6 +1,6 @@
 /* ============================================
    AvaAssistant — ava-chat.css
-   Pixel-perfect ChatGPT clone (light mode)
+   ChatGPT-style chat (light + dark mode)
    ============================================ */
 
 *, *::before, *::after {
@@ -15,7 +15,7 @@
   --bg-sidebar:   #f9f9f9;
   --bg-input:     #ffffff; 
   --bg-hover:     #ececec;
-  --bg-voice:     #f3f3f3; /* Cinza super claro pro botão de voz */
+  --bg-voice:     #f3f3f3;
   
   --text:         #000000;
   --text-2:       #374151;
@@ -25,10 +25,28 @@
   --border:       #e5e5e5;
   --border-input: #e5e5e5;
 
-  --accent:       #000000; /* Preto pro botão entrar */
+  --accent:       #000000;
   
-  /* A fonte padrão do sistema para se aproximar do ChatGPT */
   --font:         -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body.dark-theme {
+  --white:        #212121;
+  --bg:           #212121;
+  --bg-sidebar:   #171717;
+  --bg-input:     #2f2f2f;
+  --bg-hover:     #2f2f2f;
+  --bg-voice:     #3a3a3a;
+  
+  --text:         #ececec;
+  --text-2:       #d1d5db;
+  --text-muted:   #6b7280;
+  --text-link:    #60a5fa;
+
+  --border:       #3a3a3a;
+  --border-input: #3a3a3a;
+
+  --accent:       #ececec;
 }
 
 html {
@@ -195,6 +213,7 @@ body {
 .sidebar-bottom {
   padding: 8px;
   border-top: 1px solid var(--border);
+  position: relative;
 }
 .sidebar-user {
   display: flex;
@@ -206,8 +225,174 @@ body {
   font-weight: 500;
   border-radius: 8px;
   cursor: pointer;
+  user-select: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s;
 }
 .sidebar-user:hover { background: var(--bg-hover); }
+.sidebar-user .user-info {
+  flex: 1;
+  min-width: 0;
+}
+.sidebar-user .user-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+}
+.sidebar-user .user-email {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Settings Panel */
+.settings-panel {
+  position: absolute;
+  bottom: 70px;
+  left: 8px;
+  right: 8px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 300;
+  overflow: hidden;
+  display: none;
+  flex-direction: column;
+  animation: settings-appear 0.15s ease;
+}
+.settings-panel.show { display: flex; }
+@keyframes settings-appear {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.settings-header {
+  padding: 12px 14px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.12s;
+}
+.settings-item:hover { background: var(--bg-hover); }
+.settings-item svg { flex-shrink: 0; color: var(--text-muted); }
+.settings-item span { flex: 1; }
+.settings-item.danger { color: #ef4444; }
+.settings-item.danger svg { color: #ef4444; }
+.settings-item.danger:hover { background: rgba(239,68,68,0.08); }
+
+.settings-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* Dark Mode Toggle */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  gap: 10px;
+}
+.theme-toggle svg { flex-shrink: 0; color: var(--text-muted); }
+.theme-toggle span { flex: 1; }
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  background: var(--border);
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+body.dark-theme .toggle-switch {
+  background: #10b981;
+}
+body.dark-theme .toggle-switch::after {
+  left: 19px;
+}
+
+.settings-account-info {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.settings-account-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.settings-account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.settings-account-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.settings-account-email {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .sidebar-overlay {
   display: none;

@@ -65,10 +65,17 @@ const loginSubmit  = $('#loginSubmitBtn');
 
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded', () => {
+  // Apply saved theme immediately
+  const savedTheme = localStorage.getItem('ava_theme') || 'light';
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-theme');
+  }
+
   initSidebar();
   initChat();
   initLeadModal();
   initLoginModal();
+  initSettingsPanel();
   loadConversations();
 
   // Firebase Auth State Observer
@@ -83,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(registerBtnMore) registerBtnMore.style.display = 'none';
       if(logoutBtn) logoutBtn.style.display = 'flex';
       loadConversations();
+      updateSettingsPanel(user);
     } else {
       // User is logged out
       if(loginBtnMore) loginBtnMore.style.display = 'flex';
@@ -93,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.conversations = [];
       startNewChat();
       renderHistory();
+      updateSettingsPanel(null);
     }
   });
 
@@ -681,6 +690,111 @@ function toggleListening() {
     micBtn.style.background = 'rgba(239,68,68,0.15)';
     voiceBtn.style.background = '#ef4444';
   }
+}
+
+// ============ SETTINGS PANEL ============
+function updateSettingsPanel(user) {
+  const accountInfo  = document.getElementById('settingsAccountInfo');
+  const guestBtns    = document.getElementById('settingsGuestBtns');
+  const userBtns     = document.getElementById('settingsUserBtns');
+  const settingsName = document.getElementById('settingsName');
+  const settingsEmail= document.getElementById('settingsEmail');
+  const settingsAvatar = document.getElementById('settingsAvatar');
+  const sidebarUserName = document.getElementById('sidebarUserName');
+
+  if (user) {
+    const displayName = user.displayName || user.email?.split('@')[0] || 'Usuário';
+    const email = user.email || '';
+
+    if (accountInfo)  { accountInfo.style.display = 'flex'; }
+    if (guestBtns)    { guestBtns.style.display = 'none'; }
+    if (userBtns)     { userBtns.style.display = 'block'; }
+    if (settingsName) { settingsName.textContent = displayName; }
+    if (settingsEmail){ settingsEmail.textContent = email; }
+    if (sidebarUserName) { sidebarUserName.textContent = displayName; }
+
+    if (settingsAvatar) {
+      if (user.photoURL) {
+        settingsAvatar.innerHTML = `<img src="${user.photoURL}" alt="${displayName}">`;
+      } else {
+        settingsAvatar.textContent = displayName.charAt(0).toUpperCase();
+      }
+    }
+  } else {
+    if (accountInfo)  { accountInfo.style.display = 'none'; }
+    if (guestBtns)    { guestBtns.style.display = 'block'; }
+    if (userBtns)     { userBtns.style.display = 'none'; }
+    if (sidebarUserName) { sidebarUserName.textContent = 'Configurações'; }
+  }
+}
+
+function initSettingsPanel() {
+  const settingsBtn      = document.getElementById('settingsBtn');
+  const settingsPanel    = document.getElementById('settingsPanel');
+  const themeToggleBtn   = document.getElementById('themeToggleBtn');
+  const themeLabel       = document.getElementById('themeLabel');
+  const settingsArchivedBtn = document.getElementById('settingsArchivedBtn');
+  const settingsLoginBtn = document.getElementById('settingsLoginBtn');
+  const settingsRegisterBtn = document.getElementById('settingsRegisterBtn');
+  const settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
+
+  // Update theme label based on current state
+  function updateThemeLabel() {
+    const isDark = document.body.classList.contains('dark-theme');
+    if (themeLabel) themeLabel.textContent = isDark ? 'Modo escuro' : 'Modo claro';
+  }
+  updateThemeLabel();
+
+  // Toggle settings panel open/close
+  settingsBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    settingsPanel?.classList.toggle('show');
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!settingsBtn?.contains(e.target) && !settingsPanel?.contains(e.target)) {
+      settingsPanel?.classList.remove('show');
+    }
+  });
+
+  // Dark / Light mode toggle
+  themeToggleBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    localStorage.setItem('ava_theme', isDark ? 'dark' : 'light');
+    updateThemeLabel();
+  });
+
+  // Go to archived chats
+  settingsArchivedBtn?.addEventListener('click', () => {
+    settingsPanel?.classList.remove('show');
+    const archivedContainer = document.getElementById('archivedHistoryContainer');
+    if (archivedContainer && archivedContainer.style.display !== 'none') {
+      archivedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      alert('Você não tem conversas arquivadas ainda.');
+    }
+  });
+
+  // Login
+  settingsLoginBtn?.addEventListener('click', () => {
+    settingsPanel?.classList.remove('show');
+    openLoginModal('login');
+  });
+
+  // Register
+  settingsRegisterBtn?.addEventListener('click', () => {
+    settingsPanel?.classList.remove('show');
+    openLoginModal('register');
+  });
+
+  // Logout
+  settingsLogoutBtn?.addEventListener('click', () => {
+    settingsPanel?.classList.remove('show');
+    auth.signOut();
+  });
 }
 
 // ============ MORE DROPDOWN ============
