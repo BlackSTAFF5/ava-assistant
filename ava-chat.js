@@ -5,13 +5,13 @@
 
 // ============ FIREBASE INIT ============
 const firebaseConfig = {
-  apiKey: "AIzaSyDL5xzJ7wgTLUf6aVe-Wb83ryHzCZr5Y_g",
+  apiKey: "AIzaSyDL5xzJ7wgTlUf6aVe-Wb83ryHzCzr5Y_g",
   authDomain: "avaassistant-188d7.firebaseapp.com",
   projectId: "avaassistant-188d7",
   storageBucket: "avaassistant-188d7.firebasestorage.app",
   messagingSenderId: "804180515719",
   appId: "1:804180515719:web:7329dede43c1da02ff9122",
-  measurementId: "G-0DUDHH5JGH"
+  measurementId: "G-0DJDHH5JGH"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
