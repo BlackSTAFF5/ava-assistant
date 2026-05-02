@@ -98,10 +98,23 @@ function genId() {
 
 // ============ SIDEBAR ============
 function initSidebar() {
-  menuBtn?.addEventListener('click', openSidebar);
+  menuBtn?.addEventListener('click', toggleSidebar);
   sidebarClose?.addEventListener('click', closeSidebar);
   sidebarOver?.addEventListener('click', closeSidebar);
-  newChatBtn?.addEventListener('click', startNewChat);
+  newChatBtn?.addEventListener('click', () => {
+    // Visual feedback: flash the button
+    newChatBtn.style.background = 'var(--bg-hover)';
+    setTimeout(() => newChatBtn.style.background = '', 200);
+    startNewChat();
+  });
+}
+
+function toggleSidebar() {
+  if (state.sidebarOpen) {
+    closeSidebar();
+  } else {
+    openSidebar();
+  }
 }
 
 function openSidebar() {
