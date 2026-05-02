@@ -496,30 +496,82 @@ async function onSubmit(e) {
     const data = await res.json();
     removeTyping(typing);
 
+    const reply = data.reply || data.output || data.text || 'Desculpe, não consegui processar.';
     if (data.showLeadForm) openLeadModal();
-    addMsg('assistant', data.reply || data.output || data.text || 'Desculpe, não consegui processar.');
+    await addMsg('assistant', reply, true);
   } catch (err) {
     console.error(err);
     removeTyping(typing);
-    addMsg('assistant', '⚠️ Erro ao conectar com o servidor. Tente novamente.');
+    await addMsg('assistant', '⚠️ Erro ao conectar com o servidor. Tente novamente.', false);
   } finally {
     state.isWaiting = false;
     chatInput.focus();
   }
 }
 
-function addMsg(role, content) {
+async function addMsg(role, content, animate = false) {
   state.messages.push({ role, content, t: Date.now() });
-  appendMsg(role, content, true);
+  if (role === 'assistant' && animate) {
+    await typewriterMsg(content);
+  } else {
+    appendMsg(role, content);
+  }
   saveConversation();
 }
 
-function appendMsg(role, content, animate) {
+function appendMsg(role, content) {
   const div = document.createElement('div');
   div.className = `msg ${role}`;
   div.innerHTML = `<div class="msg-text">${md(content)}</div>`;
   messagesEl.appendChild(div);
   scrollDown();
+}
+
+// Typewriter animation for assistant messages
+function typewriterMsg(content) {
+  return new Promise((resolve) => {
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    const msgText = document.createElement('div');
+    msgText.className = 'msg-text';
+    div.appendChild(msgText);
+    messagesEl.appendChild(div);
+    scrollDown();
+
+    let i = 0;
+    const chars = Array.from(content); // supports emoji/unicode
+    let displayed = '';
+
+    // Variable speed: faster for spaces/punctuation, slower for letters
+    function getDelay(ch) {
+      if (ch === ' ' || ch === '\n') return 12;
+      if ('.!?,;:'.includes(ch)) return 40;
+      return 18;
+    }
+
+    function tick() {
+      if (i >= chars.length) {
+        // Final render with full markdown
+        msgText.innerHTML = md(content);
+        scrollDown();
+        resolve();
+        return;
+      }
+
+      // Add next character
+      displayed += chars[i];
+      i++;
+
+      // Render as plain text during typing (fast), apply markdown at end
+      msgText.innerHTML = md(displayed) + '<span class="typing-cursor"></span>';
+      scrollDown();
+
+      // Schedule next character
+      setTimeout(tick, getDelay(chars[i - 1]));
+    }
+
+    tick();
+  });
 }
 
 function md(text) {
