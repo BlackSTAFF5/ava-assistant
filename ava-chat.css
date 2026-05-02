@@ -142,10 +142,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: opacity 0.2s;
 }
 .history-list li:hover .chat-options-btn,
+.history-list li.active .chat-options-btn,
 .chat-options-btn.active {
   opacity: 1;
+}
+@media (hover: none) {
+  .chat-options-btn {
+    opacity: 1;
+  }
 }
 .chat-options-btn:hover {
   background: var(--border);
