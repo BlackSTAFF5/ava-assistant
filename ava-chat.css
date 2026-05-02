@@ -189,7 +189,8 @@ body {
 }
 .topbar-btn:hover { background: var(--bg-hover); }
 
-.sidebar:not(.hidden) ~ .sidebar-overlay ~ .main .topbar-btn#menuBtn {
+.sidebar:not(.hidden) ~ .main .topbar-icon-btn#menuBtn,
+.sidebar:not(.hidden) ~ .sidebar-overlay ~ .main .topbar-icon-btn#menuBtn {
   display: none;
 }
 
@@ -817,7 +818,7 @@ body {
     padding: 0 8px;
   }
 
-  .topbar-btn#menuBtn { display: flex !important; }
+  .topbar-icon-btn#menuBtn { display: flex !important; }
   
   .messages { 
     padding: 16px 12px 140px; 

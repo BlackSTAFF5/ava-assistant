@@ -24,7 +24,8 @@ const sidebar      = $('#sidebar');
 const sidebarClose = $('#sidebarClose');
 const sidebarOver  = $('#sidebarOverlay');
 const menuBtn      = $('#menuBtn');
-const newChatBtn   = $('#newChatBtn');
+const newChatBtnSidebar = $('#newChatBtnSidebar');
+const newChatBtnTopbar  = $('#newChatBtnTopbar');
 const chatHistory  = $('#chatHistory');
 const welcome      = $('#welcome');
 const messagesEl   = $('#messages');
@@ -101,12 +102,17 @@ function initSidebar() {
   menuBtn?.addEventListener('click', toggleSidebar);
   sidebarClose?.addEventListener('click', closeSidebar);
   sidebarOver?.addEventListener('click', closeSidebar);
-  newChatBtn?.addEventListener('click', () => {
-    // Visual feedback: flash the button
-    newChatBtn.style.background = 'var(--bg-hover)';
-    setTimeout(() => newChatBtn.style.background = '', 200);
+  
+  const handleNewChat = (btn) => {
+    if (btn) {
+      btn.style.background = 'var(--bg-hover)';
+      setTimeout(() => btn.style.background = '', 200);
+    }
     startNewChat();
-  });
+  };
+
+  newChatBtnSidebar?.addEventListener('click', () => handleNewChat(newChatBtnSidebar));
+  newChatBtnTopbar?.addEventListener('click', () => handleNewChat(newChatBtnTopbar));
 }
 
 function toggleSidebar() {
