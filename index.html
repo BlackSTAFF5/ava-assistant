@@ -84,6 +84,22 @@
             <circle cx="19" cy="12" r="2"/>
           </svg>
         </button>
+        <!-- More Menu Dropdown -->
+        <div class="more-dropdown" id="moreDropdown">
+          <button class="more-option" id="loginFromMoreBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Entrar
+          </button>
+          <button class="more-option" id="registerFromMoreBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Criar conta
+          </button>
+          <div class="more-divider"></div>
+          <button class="more-option more-option-danger" id="clearChatBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Limpar histórico
+          </button>
+        </div>
       </div>
     </header>
 
@@ -105,13 +121,15 @@
     <div class="input-area">
       <form class="input-bar" id="chatForm" autocomplete="off">
         
-        <!-- Botão '+' -->
+        <!-- Botão '+' abre seletor de arquivo -->
         <button type="button" class="input-plus" id="plusBtn" aria-label="Anexar">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
         </button>
+        <!-- Input de arquivo oculto -->
+        <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt,.xlsx,.csv" multiple style="display:none;">
         
         <!-- Caixa de texto -->
         <textarea id="chatInput" class="input-field" rows="1" placeholder="Como posso te ajudar?" maxlength="4000"></textarea>
@@ -145,6 +163,9 @@
         </button>
 
       </form>
+      
+      <!-- Preview de arquivos anexados -->
+      <div class="file-preview-strip" id="filePreviewStrip" style="display:none;"></div>
       
       <!-- Disclaimer -->
       <p class="disclaimer">Ao enviar mensagens para o AvaAssistant, um chatbot de IA, você aceita nossos <a href="#">Termos</a> e reconhece nossa <a href="#">Política de Privacidade</a>. Confira as <a href="#">Preferências de cookies</a>.</p>
@@ -191,16 +212,34 @@
       <button class="modal-close" id="loginModalClose" aria-label="Fechar">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
-      <h2 class="modal-title">Entrar ou Cadastrar</h2>
-      <p class="modal-desc">Crie sua conta para salvar suas conversas.</p>
-      <form class="lead-form" id="loginForm">
-        <label>Nome completo <input type="text" id="loginName" required placeholder="Seu nome"></label>
-        <label>E-mail <input type="email" id="loginEmail" required placeholder="seu@email.com"></label>
-        <label>Senha <input type="password" id="loginPassword" required placeholder="••••••••"></label>
-        <button type="submit" class="lead-submit" id="loginSubmitBtn">Acessar</button>
-      </form>
+      
+      <!-- Tabs -->
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tabLogin">Entrar</button>
+        <button class="modal-tab" id="tabRegister">Criar conta</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginFormWrap">
+        <form class="lead-form" id="loginForm">
+          <label>E-mail <input type="email" id="loginEmail" required placeholder="seu@email.com"></label>
+          <label>Senha <input type="password" id="loginPassword" required placeholder="••••••••"></label>
+          <button type="submit" class="lead-submit" id="loginSubmitBtn">Entrar</button>
+        </form>
+      </div>
+
+      <!-- Register Form -->
+      <div id="registerFormWrap" style="display:none;">
+        <form class="lead-form" id="registerForm">
+          <label>Nome completo <input type="text" id="registerName" required placeholder="Seu nome"></label>
+          <label>E-mail <input type="email" id="registerEmail" required placeholder="seu@email.com"></label>
+          <label>Senha <input type="password" id="registerPassword" required placeholder="Crie uma senha (m\u00edn. 6 caracteres)"></label>
+          <button type="submit" class="lead-submit" id="registerSubmitBtn">Criar conta</button>
+        </form>
+      </div>
+
       <div class="lead-success" id="loginSuccess" style="display:none;">
-        <p>✅ Login efetuado com sucesso!</p>
+        <p>✅ Acesso efetuado com sucesso!</p>
       </div>
     </div>
   </div>

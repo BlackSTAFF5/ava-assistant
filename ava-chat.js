@@ -195,8 +195,10 @@ function initChat() {
     }
   });
 
-  // Plus button opens lead modal
-  plusBtn.addEventListener('click', () => openLeadModal());
+  // Plus button opens file picker
+  const fileInput = document.getElementById('fileInput');
+  plusBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', onFilesSelected);
 
   // Mobile focus improvement
   chatInput.addEventListener('focus', () => {
@@ -207,7 +209,7 @@ function initChat() {
 }
 
 function toggleSendBtn() {
-  const has = chatInput.value.trim().length > 0;
+  const has = chatInput.value.trim().length > 0 || state.pendingFiles?.length > 0;
   sendBtn.style.display = has ? 'flex' : 'none';
   micBtn.style.display = has ? 'none' : 'flex';
   voiceBtn.style.display = has ? 'none' : 'inline-flex';
@@ -216,30 +218,51 @@ function toggleSendBtn() {
 async function onSubmit(e) {
   e.preventDefault();
   const text = chatInput.value.trim();
-  if (!text || state.isWaiting) return;
+  const files = state.pendingFiles || [];
+  if ((!text && !files.length) || state.isWaiting) return;
 
   welcome.style.display = 'none';
   messagesEl.classList.add('active');
 
-  addMsg('user', text);
+  // Build display message
+  let displayText = text;
+  if (files.length) {
+    const names = files.map(f => f.name).join(', ');
+    displayText = (text ? text + '\n' : '') + `📎 ${names}`;
+  }
+
+  addMsg('user', displayText);
   chatInput.value = '';
   chatInput.style.height = 'auto';
+  clearFilePreview();
   toggleSendBtn();
 
   state.isWaiting = true;
   const typing = showTyping();
 
   try {
-    const res = await fetch(CONFIG.CHAT_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    let body, headers = {};
+
+    if (files.length) {
+      // Use FormData when files are attached
+      const fd = new FormData();
+      fd.append('message', text);
+      fd.append('sessionId', state.sessionId);
+      fd.append('timestamp', new Date().toISOString());
+      fd.append('history', JSON.stringify(state.messages.slice(-10).map(m => ({ role: m.role, content: m.content }))));
+      files.forEach(f => fd.append('files', f));
+      body = fd;
+    } else {
+      headers['Content-Type'] = 'application/json';
+      body = JSON.stringify({
         message: text,
         sessionId: state.sessionId,
         timestamp: new Date().toISOString(),
         history: state.messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
-      }),
-    });
+      });
+    }
+
+    const res = await fetch(CONFIG.CHAT_WEBHOOK_URL, { method: 'POST', headers, body });
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
     removeTyping(typing);
@@ -357,44 +380,208 @@ async function onLeadSubmit(e) {
   }
 }
 
+// ============ FILE UPLOAD ============
+state.pendingFiles = [];
+
+function onFilesSelected(e) {
+  const newFiles = Array.from(e.target.files);
+  state.pendingFiles = [...(state.pendingFiles || []), ...newFiles];
+  e.target.value = '';
+  renderFilePreview();
+  toggleSendBtn();
+}
+
+function renderFilePreview() {
+  const strip = document.getElementById('filePreviewStrip');
+  if (!state.pendingFiles.length) { strip.style.display = 'none'; strip.innerHTML = ''; return; }
+  strip.style.display = 'flex';
+  strip.innerHTML = '';
+  state.pendingFiles.forEach((file, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'file-chip';
+    if (file.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.className = 'file-chip-img';
+      img.src = URL.createObjectURL(file);
+      chip.appendChild(img);
+    } else {
+      const icon = document.createElement('span');
+      icon.textContent = '📄';
+      chip.appendChild(icon);
+    }
+    const name = document.createElement('span');
+    name.textContent = file.name;
+    chip.appendChild(name);
+    const rm = document.createElement('button');
+    rm.className = 'file-chip-remove';
+    rm.innerHTML = '×';
+    rm.onclick = () => { state.pendingFiles.splice(i, 1); renderFilePreview(); toggleSendBtn(); };
+    chip.appendChild(rm);
+    strip.appendChild(chip);
+  });
+}
+
+function clearFilePreview() {
+  state.pendingFiles = [];
+  renderFilePreview();
+}
+
+// ============ VOICE / MIC ============
+let recognition = null;
+let isListening = false;
+
+function initSpeech() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'pt-BR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    chatInput.value += (chatInput.value ? ' ' : '') + transcript;
+    chatInput.dispatchEvent(new Event('input'));
+  };
+  recognition.onend = () => {
+    isListening = false;
+    micBtn.style.background = '';
+    voiceBtn.style.background = 'black';
+  };
+  micBtn.addEventListener('click', toggleListening);
+  voiceBtn.addEventListener('click', toggleListening);
+}
+
+function toggleListening() {
+  if (!recognition) { alert('Microfone não suportado neste navegador.'); return; }
+  if (isListening) {
+    recognition.stop();
+  } else {
+    recognition.start();
+    isListening = true;
+    micBtn.style.background = 'rgba(239,68,68,0.15)';
+    voiceBtn.style.background = '#ef4444';
+  }
+}
+
+// ============ MORE DROPDOWN ============
+function initMoreDropdown() {
+  const moreBtn = document.getElementById('moreBtn');
+  const moreDropdown = document.getElementById('moreDropdown');
+  const loginFromMoreBtn = document.getElementById('loginFromMoreBtn');
+  const registerFromMoreBtn = document.getElementById('registerFromMoreBtn');
+  const clearChatBtn = document.getElementById('clearChatBtn');
+
+  moreBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    moreDropdown.classList.toggle('show');
+  });
+  document.addEventListener('click', (e) => {
+    if (!moreBtn?.contains(e.target) && !moreDropdown?.contains(e.target)) {
+      moreDropdown?.classList.remove('show');
+    }
+  });
+  loginFromMoreBtn?.addEventListener('click', () => {
+    moreDropdown.classList.remove('show');
+    openLoginModal('login');
+  });
+  registerFromMoreBtn?.addEventListener('click', () => {
+    moreDropdown.classList.remove('show');
+    openLoginModal('register');
+  });
+  clearChatBtn?.addEventListener('click', () => {
+    moreDropdown.classList.remove('show');
+    if (confirm('Limpar todo o histórico de conversas?')) {
+      state.conversations = [];
+      localStorage.removeItem('ava_convs');
+      startNewChat();
+      if (chatHistory) chatHistory.innerHTML = '';
+    }
+  });
+}
+
 // ============ LOGIN MODAL ============
 function initLoginModal() {
-  loginBtn?.addEventListener('click', (e) => {
-    e.preventDefault();
-    openLoginModal();
-  });
+  const loginClose = document.getElementById('loginModalClose');
+  const loginModal = document.getElementById('loginModalOverlay');
+  const tabLogin = document.getElementById('tabLogin');
+  const tabRegister = document.getElementById('tabRegister');
+  const loginFormWrap = document.getElementById('loginFormWrap');
+  const registerFormWrap = document.getElementById('registerFormWrap');
+  const loginSuccess = document.getElementById('loginSuccess');
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const loginSubmit = document.getElementById('loginSubmitBtn');
+  const registerSubmit = document.getElementById('registerSubmitBtn');
+
   loginClose?.addEventListener('click', closeLoginModal);
   loginModal?.addEventListener('click', e => { if (e.target === loginModal) closeLoginModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLoginModal(); });
-  
-  loginForm.addEventListener('submit', (e) => {
+
+  tabLogin?.addEventListener('click', () => {
+    tabLogin.classList.add('active'); tabRegister.classList.remove('active');
+    loginFormWrap.style.display = ''; registerFormWrap.style.display = 'none';
+  });
+  tabRegister?.addEventListener('click', () => {
+    tabRegister.classList.add('active'); tabLogin.classList.remove('active');
+    registerFormWrap.style.display = ''; loginFormWrap.style.display = 'none';
+  });
+
+  loginForm?.addEventListener('submit', (e) => {
     e.preventDefault();
-    loginSubmit.disabled = true;
-    loginSubmit.textContent = 'Autenticando...';
-    
-    // Simulate API call for login/register
+    loginSubmit.disabled = true; loginSubmit.textContent = 'Entrando...';
     setTimeout(() => {
-      loginForm.style.display = 'none';
+      loginFormWrap.style.display = 'none';
       loginSuccess.style.display = 'block';
-      setTimeout(() => {
-        closeLoginModal();
-        loginBtn.textContent = 'Minha Conta';
-      }, 1500);
-    }, 1000);
+      loginSuccess.innerHTML = '<p>✅ Login efetuado com sucesso!</p>';
+      setTimeout(closeLoginModal, 1500);
+    }, 900);
+  });
+
+  registerForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    registerSubmit.disabled = true; registerSubmit.textContent = 'Criando conta...';
+    const name = document.getElementById('registerName').value.trim();
+    setTimeout(() => {
+      registerFormWrap.style.display = 'none';
+      loginSuccess.style.display = 'block';
+      loginSuccess.innerHTML = `<p>✅ Conta criada! Bem-vindo(a), <strong>${name}</strong>!</p>`;
+      setTimeout(closeLoginModal, 1800);
+    }, 900);
   });
 }
 
-function openLoginModal() {
+function openLoginModal(tab = 'login') {
+  const loginModal = document.getElementById('loginModalOverlay');
+  const loginFormWrap = document.getElementById('loginFormWrap');
+  const registerFormWrap = document.getElementById('registerFormWrap');
+  const loginSuccess = document.getElementById('loginSuccess');
+  const tabLogin = document.getElementById('tabLogin');
+  const tabRegister = document.getElementById('tabRegister');
+  const loginSubmit = document.getElementById('loginSubmitBtn');
+  const registerSubmit = document.getElementById('registerSubmitBtn');
+
   loginModal.classList.add('active');
-  loginForm.style.display = 'block';
   loginSuccess.style.display = 'none';
-  loginForm.reset();
-  loginSubmit.disabled = false;
-  loginSubmit.textContent = 'Acessar';
+  if (loginSubmit) { loginSubmit.disabled = false; loginSubmit.textContent = 'Entrar'; }
+  if (registerSubmit) { registerSubmit.disabled = false; registerSubmit.textContent = 'Criar conta'; }
+
+  if (tab === 'register') {
+    tabRegister?.classList.add('active'); tabLogin?.classList.remove('active');
+    registerFormWrap.style.display = ''; loginFormWrap.style.display = 'none';
+  } else {
+    tabLogin?.classList.add('active'); tabRegister?.classList.remove('active');
+    loginFormWrap.style.display = ''; registerFormWrap.style.display = 'none';
+  }
 }
 
-function closeLoginModal() { 
-  loginModal.classList.remove('active'); 
+function closeLoginModal() {
+  document.getElementById('loginModalOverlay')?.classList.remove('active');
 }
 
 window.AvaAssistant = { openLeadModal, closeLeadModal, startNewChat };
+
+// Init extra features after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  initMoreDropdown();
+  initSpeech();
+});
