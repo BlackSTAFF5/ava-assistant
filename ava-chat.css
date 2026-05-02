@@ -16,6 +16,7 @@
   --bg-input:     #ffffff; 
   --bg-hover:     #ececec;
   --bg-voice:     #f3f3f3;
+  --bg-card:      #ffffff;
   
   --text:         #000000;
   --text-2:       #374151;
@@ -37,6 +38,7 @@ body.dark-theme {
   --bg-input:     #2f2f2f;
   --bg-hover:     #2f2f2f;
   --bg-voice:     #3a3a3a;
+  --bg-card:      #2f2f2f;
   
   --text:         #ececec;
   --text-2:       #d1d5db;
@@ -258,10 +260,10 @@ body {
   bottom: 70px;
   left: 8px;
   right: 8px;
-  background: var(--white);
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
   z-index: 300;
   overflow: hidden;
   display: none;
