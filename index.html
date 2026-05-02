@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Ava Assistant</title>
-  <meta name="description" content="AvaAssistant - Assistente inteligente com IA">
+  <meta name="description" content="Ava Assistant - Assistente inteligente com IA">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="ava-chat.css">
@@ -109,6 +109,7 @@
         <!-- LOGO & TEXTO -->
         <div class="brand-container">
           <div class="topbar-brand" id="brandBtn">
+            <img src="images/logo.png" alt="Ava Logo" class="brand-logo" style="width: 32px; height: 32px; object-fit: contain; flex-shrink: 0;">
             <span class="brand-name" id="currentModel">Ava Assistant</span>
             <svg class="brand-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="6 9 12 15 18 9"/>
@@ -117,16 +118,16 @@
           
           <!-- Dropdown -->
           <div class="model-dropdown" id="modelDropdown">
-            <div class="model-option active" data-model="AvaAssistant">
+            <div class="model-option active" data-model="Ava Assistant">
               <div class="model-info">
                 <span class="model-title">Ava Assistant</span>
                 <span class="model-desc">Para tarefas do dia a dia</span>
               </div>
               <svg class="model-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <div class="model-option" data-model="AvaAssistant Pro">
+            <div class="model-option" data-model="Ava Assistant 2.1">
               <div class="model-info">
-                <span class="model-title">Ava Assistant Pro</span>
+                <span class="model-title">Ava Assistant 2.1</span>
                 <span class="model-desc">Nossa IA mais inteligente e avançada</span>
               </div>
               <svg class="model-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -192,14 +193,14 @@
           </svg>
         </button>
         <!-- Input de arquivo oculto -->
-        <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt,.xlsx,.csv" multiple style="display:none;">
+        <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
         
         <!-- Caixa de texto -->
         <textarea id="chatInput" class="input-field" rows="1" placeholder="Como posso te ajudar?" maxlength="4000"></textarea>
         
         <!-- Botão Microfone -->
         <button type="button" class="input-icon-btn mic-btn" id="micBtn" aria-label="Microfone">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
             <line x1="12" y1="19" x2="12" y2="22"></line>
@@ -231,7 +232,7 @@
       <div class="file-preview-strip" id="filePreviewStrip" style="display:none;"></div>
       
       <!-- Disclaimer -->
-      <p class="disclaimer">Ao enviar mensagens para o AvaAssistant, um chatbot de IA, você aceita nossos <a href="#">Termos</a> e reconhece nossa <a href="#">Política de Privacidade</a>. Confira as <a href="#">Preferências de cookies</a>.</p>
+      <p class="disclaimer">Ao enviar mensagens para o Ava Assistant, um chatbot de IA, você aceita nossos <a href="#">Termos</a> e reconhece nossa <a href="#">Política de Privacidade</a>. Confira as <a href="#">Preferências de cookies</a>.</p>
     </div>
   </main>
 

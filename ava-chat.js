@@ -20,6 +20,9 @@ const db = firebase.firestore();
 const CONFIG = {
   CHAT_WEBHOOK_URL: 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-chat',
   LEAD_WEBHOOK_URL: 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-lead-capture',
+  WEBHOOK_AUTH_HEADER: 'X-AVA-Auth',
+  WEBHOOK_AUTH_VALUE: 'ava-sec-k8x9Qm7Zp3wR5nL2vJ6',
+  MSG_COOLDOWN_MS: 3000,
 };
 
 let state = {
@@ -158,6 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ============ UTILS ============
 function genId() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return 'ava_' + crypto.randomUUID();
+  }
   return 'ava_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
 }
 
@@ -450,6 +456,13 @@ async function onSubmit(e) {
   const files = state.pendingFiles || [];
   if ((!text && !files.length) || state.isWaiting) return;
 
+  // Anti-spam cooldown
+  const now = Date.now();
+  if (state._lastSent && (now - state._lastSent) < CONFIG.MSG_COOLDOWN_MS) {
+    return;
+  }
+  state._lastSent = now;
+
   welcome.style.display = 'none';
   messagesEl.classList.add('active');
 
@@ -481,8 +494,10 @@ async function onSubmit(e) {
       fd.append('history', JSON.stringify(state.messages.map(m => ({ role: m.role, content: m.content }))));
       files.forEach(f => fd.append('files', f));
       body = fd;
+      headers[CONFIG.WEBHOOK_AUTH_HEADER] = CONFIG.WEBHOOK_AUTH_VALUE;
     } else {
       headers['Content-Type'] = 'application/json';
+      headers[CONFIG.WEBHOOK_AUTH_HEADER] = CONFIG.WEBHOOK_AUTH_VALUE;
       body = JSON.stringify({
         message: text,
         sessionId: state.sessionId,
@@ -575,14 +590,27 @@ function typewriterMsg(content) {
   });
 }
 
+function escapeHTML(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function md(text) {
-  return '<p>' + text
+  const safeText = escapeHTML(text);
+  return '<p>' + safeText
     .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/^[-•] (.+)$/gm, '<li>$1</li>')
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, (match, title, url) => {
+      if (url.toLowerCase().trim().startsWith('javascript:')) return title;
+      return `<a href="${url}" target="_blank">${title}</a>`;
+    })
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>')
   + '</p>';
@@ -648,7 +676,10 @@ async function onLeadSubmit(e) {
   try {
     await fetch(CONFIG.LEAD_WEBHOOK_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        [CONFIG.WEBHOOK_AUTH_HEADER]: CONFIG.WEBHOOK_AUTH_VALUE,
+      },
       body: JSON.stringify(d),
     });
     leadForm.style.display = 'none';
@@ -767,8 +798,12 @@ function updateSettingsPanel(user) {
     if (sidebarUserName) { sidebarUserName.textContent = displayName; }
 
     if (settingsAvatar) {
+      settingsAvatar.innerHTML = '';
       if (user.photoURL) {
-        settingsAvatar.innerHTML = `<img src="${user.photoURL}" alt="${displayName}">`;
+        const img = document.createElement('img');
+        img.src = user.photoURL;
+        img.alt = displayName;
+        settingsAvatar.appendChild(img);
       } else {
         settingsAvatar.textContent = displayName.charAt(0).toUpperCase();
       }
