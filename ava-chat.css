@@ -260,7 +260,7 @@ body {
   bottom: 70px;
   left: 8px;
   right: 8px;
-  background: var(--bg-card);
+  background: var(--bg-sidebar);
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
