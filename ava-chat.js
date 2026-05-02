@@ -3,6 +3,19 @@
    ChatGPT-style chat with n8n webhook backend
    ============================================ */
 
+// ============ FIREBASE INIT ============
+const firebaseConfig = {
+  apiKey: "AIzaSyDL5xzJ7wgTLUf6aVe-Wb83ryHzCZr5Y_g",
+  authDomain: "avaassistant-188d7.firebaseapp.com",
+  projectId: "avaassistant-188d7",
+  storageBucket: "avaassistant-188d7.firebasestorage.app",
+  messagingSenderId: "804180515719",
+  appId: "1:804180515719:web:7329dede43c1da02ff9122",
+  measurementId: "G-0DUDHH5JGH"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
 const CONFIG = {
   CHAT_WEBHOOK_URL: 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-chat',
   LEAD_WEBHOOK_URL: 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-lead-capture',
@@ -56,6 +69,31 @@ document.addEventListener('DOMContentLoaded', () => {
   initLeadModal();
   initLoginModal();
   loadConversations();
+
+  // Firebase Auth State Observer
+  auth.onAuthStateChanged(user => {
+    const loginBtnMore = document.getElementById('loginFromMoreBtn');
+    const registerBtnMore = document.getElementById('registerFromMoreBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
+    if (user) {
+      // User is logged in
+      if(loginBtnMore) loginBtnMore.style.display = 'none';
+      if(registerBtnMore) registerBtnMore.style.display = 'none';
+      if(logoutBtn) logoutBtn.style.display = 'flex';
+    } else {
+      // User is logged out
+      if(loginBtnMore) loginBtnMore.style.display = 'flex';
+      if(registerBtnMore) registerBtnMore.style.display = 'flex';
+      if(logoutBtn) logoutBtn.style.display = 'none';
+    }
+  });
+
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    auth.signOut().then(() => {
+      document.getElementById('moreDropdown')?.classList.remove('active');
+    });
+  });
 
   // Start with sidebar hidden on mobile
   if (window.innerWidth <= 768) {
@@ -548,24 +586,58 @@ function initLoginModal() {
   loginForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     loginSubmit.disabled = true; loginSubmit.textContent = 'Entrando...';
-    setTimeout(() => {
-      loginFormWrap.style.display = 'none';
-      loginSuccess.style.display = 'block';
-      loginSuccess.innerHTML = '<p>✅ Login efetuado com sucesso!</p>';
-      setTimeout(closeLoginModal, 1500);
-    }, 900);
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    const errorMsg = document.getElementById('loginErrorMsg');
+    errorMsg.style.display = 'none';
+
+    auth.signInWithEmailAndPassword(email, pass)
+      .then((userCredential) => {
+        loginFormWrap.style.display = 'none';
+        loginSuccess.style.display = 'block';
+        loginSuccess.innerHTML = '<p>✅ Login efetuado com sucesso!</p>';
+        setTimeout(closeLoginModal, 1500);
+      })
+      .catch((error) => {
+        loginSubmit.disabled = false; loginSubmit.textContent = 'Entrar';
+        errorMsg.style.display = 'block';
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+          errorMsg.textContent = 'E-mail ou senha incorretos.';
+        } else {
+          errorMsg.textContent = 'Erro ao fazer login: ' + error.message;
+        }
+      });
   });
 
   registerForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     registerSubmit.disabled = true; registerSubmit.textContent = 'Criando conta...';
     const name = document.getElementById('registerName').value.trim();
-    setTimeout(() => {
-      registerFormWrap.style.display = 'none';
-      loginSuccess.style.display = 'block';
-      loginSuccess.innerHTML = `<p>✅ Conta criada! Bem-vindo(a), <strong>${name}</strong>!</p>`;
-      setTimeout(closeLoginModal, 1800);
-    }, 900);
+    const email = document.getElementById('registerEmail').value.trim();
+    const pass = document.getElementById('registerPassword').value;
+    const errorMsg = document.getElementById('registerErrorMsg');
+    errorMsg.style.display = 'none';
+
+    auth.createUserWithEmailAndPassword(email, pass)
+      .then((userCredential) => {
+        // You can also update the user's display name if needed:
+        // userCredential.user.updateProfile({ displayName: name });
+        registerFormWrap.style.display = 'none';
+        loginSuccess.style.display = 'block';
+        loginSuccess.innerHTML = `<p>✅ Conta criada! Bem-vindo(a), <strong>${name}</strong>!</p>`;
+        setTimeout(closeLoginModal, 1800);
+      })
+      .catch((error) => {
+        registerSubmit.disabled = false; registerSubmit.textContent = 'Criar conta';
+        errorMsg.style.display = 'block';
+        if (error.code === 'auth/email-already-in-use') {
+          errorMsg.textContent = 'Este e-mail já está em uso.';
+        } else if (error.code === 'auth/weak-password') {
+          errorMsg.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+        } else {
+          errorMsg.textContent = 'Erro ao criar conta: ' + error.message;
+        }
+      });
   });
 }
 
