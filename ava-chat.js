@@ -527,7 +527,7 @@ function appendMsg(role, content) {
   scrollDown();
 }
 
-// Typewriter animation for assistant messages
+// Typewriter animation - animates first ~220 chars, shows rest instantly
 function typewriterMsg(content) {
   return new Promise((resolve) => {
     const div = document.createElement('div');
@@ -538,35 +538,36 @@ function typewriterMsg(content) {
     messagesEl.appendChild(div);
     scrollDown();
 
+    const MAX_ANIMATED = 220; // chars to animate slowly
+    const chars = Array.from(content);
+    const hasRest = chars.length > MAX_ANIMATED;
     let i = 0;
-    const chars = Array.from(content); // supports emoji/unicode
     let displayed = '';
 
-    // Variable speed: faster for spaces/punctuation, slower for letters
     function getDelay(ch) {
-      if (ch === ' ' || ch === '\n') return 12;
-      if ('.!?,;:'.includes(ch)) return 40;
+      if (ch === '\n') return 30;
+      if (ch === ' ')  return 12;
+      if ('.!?,;:'.includes(ch)) return 45;
       return 18;
     }
 
     function tick() {
-      if (i >= chars.length) {
-        // Final render with full markdown
+      if (i >= MAX_ANIMATED || i >= chars.length) {
+        // Show full content instantly (includes the rest)
         msgText.innerHTML = md(content);
         scrollDown();
         resolve();
         return;
       }
 
-      // Add next character
       displayed += chars[i];
       i++;
 
-      // Render as plain text during typing (fast), apply markdown at end
-      msgText.innerHTML = md(displayed) + '<span class="typing-cursor"></span>';
+      // During animation show animated portion + ellipsis hint if more exists
+      const preview = displayed + (hasRest && i >= MAX_ANIMATED ? '' : '');
+      msgText.innerHTML = md(preview) + '<span class="typing-cursor"></span>';
       scrollDown();
 
-      // Schedule next character
       setTimeout(tick, getDelay(chars[i - 1]));
     }
 
