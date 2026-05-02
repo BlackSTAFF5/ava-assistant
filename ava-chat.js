@@ -604,7 +604,8 @@ function initLoginModal() {
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
           errorMsg.textContent = 'E-mail ou senha incorretos.';
         } else {
-          errorMsg.textContent = 'Erro ao fazer login: ' + error.message;
+          console.error("Firebase Auth Error (Login):", error);
+          errorMsg.textContent = 'Ocorreu um erro temporário ao tentar entrar. Por favor, tente novamente mais tarde.';
         }
       });
   });
@@ -635,7 +636,8 @@ function initLoginModal() {
         } else if (error.code === 'auth/weak-password') {
           errorMsg.textContent = 'A senha deve ter pelo menos 6 caracteres.';
         } else {
-          errorMsg.textContent = 'Erro ao criar conta: ' + error.message;
+          console.error("Firebase Auth Error (Register):", error);
+          errorMsg.textContent = 'Não foi possível criar sua conta neste momento. Por favor, tente novamente mais tarde.';
         }
       });
   });
