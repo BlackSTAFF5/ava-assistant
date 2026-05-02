@@ -15,6 +15,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.firestore();
 
 const CONFIG = {
   CHAT_WEBHOOK_URL: 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-chat',
@@ -81,11 +82,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if(loginBtnMore) loginBtnMore.style.display = 'none';
       if(registerBtnMore) registerBtnMore.style.display = 'none';
       if(logoutBtn) logoutBtn.style.display = 'flex';
+      loadConversations();
     } else {
       // User is logged out
       if(loginBtnMore) loginBtnMore.style.display = 'flex';
       if(registerBtnMore) registerBtnMore.style.display = 'flex';
       if(logoutBtn) logoutBtn.style.display = 'none';
+      
+      // Clear chats when logged out
+      state.conversations = [];
+      startNewChat();
+      renderHistory();
     }
   });
 
@@ -188,10 +195,22 @@ function startNewChat() {
 
 // ============ CONVERSATIONS ============
 function loadConversations() {
-  try {
-    const s = localStorage.getItem('ava_convs');
-    if (s) { state.conversations = JSON.parse(s); renderHistory(); }
-  } catch (e) { /* ignore */ }
+  if (auth.currentUser) {
+    db.collection('users').doc(auth.currentUser.uid).collection('conversations')
+      .orderBy('t', 'desc')
+      .get()
+      .then(snapshot => {
+        state.conversations = [];
+        snapshot.forEach(doc => {
+          state.conversations.push(doc.data());
+        });
+        renderHistory();
+      })
+      .catch(e => console.error("Error loading conversations:", e));
+  } else {
+    state.conversations = [];
+    renderHistory();
+  }
 }
 
 function saveConversation() {
@@ -199,23 +218,146 @@ function saveConversation() {
   const first = state.messages.find(m => m.role === 'user');
   const title = first ? first.content.substring(0, 45) + (first.content.length > 45 ? '…' : '') : 'Nova conversa';
   const idx = state.conversations.findIndex(c => c.sid === state.sessionId);
-  const conv = { sid: state.sessionId, title, msgs: state.messages, t: Date.now() };
-  if (idx >= 0) state.conversations[idx] = conv;
-  else state.conversations.unshift(conv);
-  state.conversations = state.conversations.slice(0, 20);
-  try { localStorage.setItem('ava_convs', JSON.stringify(state.conversations)); } catch (e) {}
+  
+  let conv;
+  if (idx >= 0) {
+    conv = { ...state.conversations[idx], title, msgs: state.messages, t: Date.now() };
+    state.conversations[idx] = conv;
+  } else {
+    conv = { sid: state.sessionId, title, msgs: state.messages, t: Date.now(), archived: false };
+    state.conversations.unshift(conv);
+  }
+  
+  // Save to Cloud if logged in
+  if (auth.currentUser) {
+    db.collection('users').doc(auth.currentUser.uid).collection('conversations').doc(state.sessionId).set(conv)
+      .catch(e => console.error("Error saving conversation:", e));
+  }
+  
   renderHistory();
 }
 
-function renderHistory() {
-  chatHistory.innerHTML = '';
-  state.conversations.forEach(c => {
-    const li = document.createElement('li');
-    li.textContent = c.title;
-    if (c.sid === state.sessionId) li.classList.add('active');
-    li.addEventListener('click', () => loadConv(c.sid));
-    chatHistory.appendChild(li);
+function deleteChat(sid, e) {
+  if (e) { e.stopPropagation(); }
+  if (!confirm('Excluir esta conversa permanentemente?')) return;
+  
+  if (auth.currentUser) {
+    db.collection('users').doc(auth.currentUser.uid).collection('conversations').doc(sid).delete()
+      .catch(e => console.error("Error deleting chat:", e));
+  }
+  
+  state.conversations = state.conversations.filter(c => c.sid !== sid);
+  if (state.sessionId === sid) {
+    startNewChat();
+  } else {
+    renderHistory();
+  }
+}
+
+function archiveChat(sid, e, isArchiving = true) {
+  if (e) { e.stopPropagation(); }
+  const idx = state.conversations.findIndex(c => c.sid === sid);
+  if (idx >= 0) {
+    state.conversations[idx].archived = isArchiving;
+    if (auth.currentUser) {
+      db.collection('users').doc(auth.currentUser.uid).collection('conversations').doc(sid)
+        .update({ archived: isArchiving })
+        .catch(e => console.error("Error archiving chat:", e));
+    }
+    
+    // Close the options menu if open
+    document.querySelectorAll('.chat-options-menu').forEach(menu => menu.classList.remove('show'));
+    renderHistory();
+  }
+}
+
+function toggleOptionsMenu(sid, e) {
+  if (e) { e.stopPropagation(); }
+  // close all others
+  document.querySelectorAll('.chat-options-menu').forEach(menu => {
+    if (menu.id !== `options-menu-${sid}`) menu.classList.remove('show');
   });
+  const menu = document.getElementById(`options-menu-${sid}`);
+  if (menu) {
+    menu.classList.toggle('show');
+  }
+}
+
+// Global click to close chat options menu
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.chat-options-btn') && !e.target.closest('.chat-options-menu')) {
+    document.querySelectorAll('.chat-options-menu').forEach(menu => menu.classList.remove('show'));
+  }
+});
+
+function createHistoryItem(c) {
+  const li = document.createElement('li');
+  if (c.sid === state.sessionId) li.classList.add('active');
+  li.addEventListener('click', () => loadConv(c.sid));
+  
+  const titleSpan = document.createElement('span');
+  titleSpan.className = 'chat-title';
+  titleSpan.textContent = c.title;
+  li.appendChild(titleSpan);
+
+  // Options Button
+  const btn = document.createElement('button');
+  btn.className = 'chat-options-btn';
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>';
+  btn.addEventListener('click', (e) => toggleOptionsMenu(c.sid, e));
+  li.appendChild(btn);
+
+  // Dropdown Menu
+  const menu = document.createElement('div');
+  menu.className = 'chat-options-menu';
+  menu.id = `options-menu-${c.sid}`;
+  
+  // Archive/Unarchive Option
+  const archiveOpt = document.createElement('button');
+  archiveOpt.className = 'chat-option';
+  if (c.archived) {
+    archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Desarquivar';
+    archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, false));
+  } else {
+    archiveOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1z"/><polyline points="10 12 14 12"/></svg> Arquivar';
+    archiveOpt.addEventListener('click', (e) => archiveChat(c.sid, e, true));
+  }
+  menu.appendChild(archiveOpt);
+
+  // Delete Option
+  const deleteOpt = document.createElement('button');
+  deleteOpt.className = 'chat-option delete';
+  deleteOpt.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Excluir';
+  deleteOpt.addEventListener('click', (e) => deleteChat(c.sid, e));
+  menu.appendChild(deleteOpt);
+
+  li.appendChild(menu);
+  return li;
+}
+
+function renderHistory() {
+  const activeHistoryEl = document.getElementById('chatHistory');
+  const archivedHistoryEl = document.getElementById('archivedHistory');
+  const archivedContainer = document.getElementById('archivedHistoryContainer');
+  
+  if (activeHistoryEl) activeHistoryEl.innerHTML = '';
+  if (archivedHistoryEl) archivedHistoryEl.innerHTML = '';
+  
+  let hasArchived = false;
+
+  state.conversations.forEach(c => {
+    const li = createHistoryItem(c);
+    if (c.archived) {
+      if (archivedHistoryEl) archivedHistoryEl.appendChild(li);
+      hasArchived = true;
+    } else {
+      if (activeHistoryEl) activeHistoryEl.appendChild(li);
+    }
+  });
+
+  if (archivedContainer) {
+    archivedContainer.style.display = hasArchived ? 'block' : 'none';
+  }
 }
 
 function loadConv(sid) {
