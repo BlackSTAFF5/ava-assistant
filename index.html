@@ -2,11 +2,31 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Ava Assistant</title>
   <meta name="description" content="Ava Assistant - Assistente inteligente com IA">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Ava Assistant">
+  <meta property="og:description" content="Assistente inteligente com IA. Tire dúvidas, automatize e agende reuniões.">
+  <meta property="og:type" content="website">
+
+  <!-- DNS Prefetch para domínios externos (resolve DNS antecipadamente) -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <link rel="dns-prefetch" href="https://www.gstatic.com">
+  <link rel="dns-prefetch" href="https://n8n2.omelhorvendedoronline.com.br">
+
+  <!-- Preconnect para Firebase (estabelece conexão TCP/TLS antes de precisar) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <!-- Google Fonts: carregado de forma NÃO-BLOQUEANTE (media trick) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"></noscript>
+
+  <!-- CSS principal (síncrono — necessário para evitar FOUC) -->
   <link rel="stylesheet" href="ava-chat.css">
 </head>
 <body>
@@ -109,8 +129,8 @@
         <!-- LOGO & TEXTO -->
         <div class="brand-container">
           <div class="topbar-brand" id="brandBtn">
-            <img src="images/logo.png" alt="Ava Logo" class="brand-logo" style="width: 32px; height: 32px; object-fit: contain; background-color: #fff; border-radius: 50%; padding: 4px; box-sizing: border-box; flex-shrink: 0;">
-            <span class="brand-name" id="currentModel">Ava Assistant</span>
+            <img src="images/logo.png" alt="Ava Logo" class="brand-logo" style="width: 32px; height: 32px; object-fit: contain; background-color: #000; border-radius: 50%; padding: 5px; box-sizing: border-box; flex-shrink: 0;">
+            <span class="brand-name" id="currentModel">Ava Assistant 2.1</span>
             <svg class="brand-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
@@ -118,17 +138,17 @@
           
           <!-- Dropdown -->
           <div class="model-dropdown" id="modelDropdown">
-            <div class="model-option active" data-model="Ava Assistant">
+            <div class="model-option active" data-model="Ava Assistant 2.1">
               <div class="model-info">
-                <span class="model-title">Ava Assistant</span>
+                <span class="model-title">Ava Assistant 2.1</span>
                 <span class="model-desc">Para tarefas do dia a dia</span>
               </div>
               <svg class="model-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <div class="model-option" data-model="Ava Assistant 2.1">
+            <div class="model-option" data-model="Ava Assistant Classic">
               <div class="model-info">
-                <span class="model-title">Ava Assistant 2.1</span>
-                <span class="model-desc">Nossa IA mais inteligente e avançada</span>
+                <span class="model-title">Ava Assistant Classic</span>
+                <span class="model-desc">Versão original</span>
               </div>
               <svg class="model-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -193,14 +213,14 @@
           </svg>
         </button>
         <!-- Input de arquivo oculto -->
-        <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
+        <input type="file" id="fileInput" accept="image/*,.pdf,.xls,.xlsx,.txt,.csv" multiple style="display:none;">
         
         <!-- Caixa de texto -->
         <textarea id="chatInput" class="input-field" rows="1" placeholder="Como posso te ajudar?" maxlength="4000"></textarea>
         
         <!-- Botão Microfone -->
-        <button type="button" class="input-icon-btn mic-btn" id="micBtn" aria-label="Microfone">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="input-icon-btn" id="micBtn" aria-label="Microfone">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
             <line x1="12" y1="19" x2="12" y2="22"></line>
@@ -232,7 +252,7 @@
       <div class="file-preview-strip" id="filePreviewStrip" style="display:none;"></div>
       
       <!-- Disclaimer -->
-      <p class="disclaimer">Ao enviar mensagens para o Ava Assistant, um chatbot de IA, você aceita nossos <a href="#">Termos</a> e reconhece nossa <a href="#">Política de Privacidade</a>. Confira as <a href="#">Preferências de cookies</a>.</p>
+      <p class="disclaimer">Ao enviar mensagens para o Ava Assistant, um chatbot de IA, você aceita nossos <a href="privacidade.html">Termos</a> e reconhece nossa <a href="privacidade.html">Política de Privacidade</a>. Confira as <a href="#">Preferências de cookies</a>.</p>
     </div>
   </main>
 
@@ -306,7 +326,7 @@
         <form class="lead-form" id="registerForm">
           <label>Nome completo <input type="text" id="registerName" required placeholder="Seu nome"></label>
           <label>E-mail <input type="email" id="registerEmail" required placeholder="seu@email.com"></label>
-          <label>Senha <input type="password" id="registerPassword" required placeholder="Crie uma senha (m\u00edn. 6 caracteres)"></label>
+          <label>Senha <input type="password" id="registerPassword" required placeholder="Crie uma senha (mín. 6 caracteres)"></label>
           <div id="registerErrorMsg" style="color: #ef4444; font-size: 14px; margin-bottom: 10px; display: none;"></div>
           <button type="submit" class="lead-submit" id="registerSubmitBtn">Criar conta</button>
         </form>
@@ -318,11 +338,10 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
-
-  <script src="ava-chat.js"></script>
+  <!-- Firebase SDK: defer = baixa em paralelo, executa só após o HTML ser parseado -->
+  <script defer src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
+  <script defer src="ava-chat.js"></script>
 </body>
 </html>

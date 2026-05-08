@@ -1,0 +1,14 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temp / backup
+temp_*/
+backup/
+deploy_ava/
+*.zip
+
+# Dev files
+*.sql
+models.json
+chat-logic.js

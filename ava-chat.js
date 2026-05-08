@@ -227,7 +227,10 @@ function loadConversations() {
       .then(snapshot => {
         state.conversations = [];
         snapshot.forEach(doc => {
-          state.conversations.push(doc.data());
+          const data = doc.data();
+          // Ensure sid is always present, prioritizing document ID
+          data.sid = doc.id || data.sid;
+          state.conversations.push(data);
         });
         renderHistory();
       })
@@ -263,24 +266,49 @@ function saveConversation() {
 }
 
 function deleteChat(sid, e) {
-  if (e) { e.stopPropagation(); }
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  
   if (!auth.currentUser) {
     alert('Você precisa criar uma conta ou entrar para excluir ou arquivar conversas.');
     openLoginModal('login');
     return;
   }
+  
+  if (!sid) {
+    console.error("Tentativa de excluir chat sem ID (sid)");
+    return;
+  }
+
   if (!confirm('Excluir esta conversa permanentemente?')) return;
   
-  if (auth.currentUser) {
+  try {
+    // Delete from Firestore
     db.collection('users').doc(auth.currentUser.uid).collection('conversations').doc(sid).delete()
-      .catch(e => console.error("Error deleting chat:", e));
-  }
-  
-  state.conversations = state.conversations.filter(c => c.sid !== sid);
-  if (state.sessionId === sid) {
-    startNewChat();
-  } else {
-    renderHistory();
+      .then(() => {
+        console.log("Chat excluído do Firestore:", sid);
+      })
+      .catch(err => {
+        console.error("Erro ao excluir do Firestore:", err);
+        alert("Não foi possível excluir a conversa do servidor.");
+      });
+    
+    // Update local state immediately for better UX
+    state.conversations = state.conversations.filter(c => c.sid !== sid);
+    
+    if (state.sessionId === sid) {
+      startNewChat();
+    } else {
+      renderHistory();
+    }
+
+    // Close any open menus
+    document.querySelectorAll('.chat-options-menu').forEach(menu => menu.classList.remove('show'));
+
+  } catch (err) {
+    console.error("Erro fatal na função deleteChat:", err);
   }
 }
 
@@ -537,7 +565,15 @@ async function addMsg(role, content, animate = false) {
 function appendMsg(role, content) {
   const div = document.createElement('div');
   div.className = `msg ${role}`;
-  div.innerHTML = `<div class="msg-text">${md(content)}</div>`;
+  if (role === 'assistant') {
+    div.innerHTML = `<div class="msg-content-wrap">
+      <div class="msg-text">${md(content)}</div>
+      ${createMsgActionsHTML(content)}
+    </div>`;
+    bindMsgActions(div, content);
+  } else {
+    div.innerHTML = `<div class="msg-text">${md(content)}</div>`;
+  }
   messagesEl.appendChild(div);
   scrollDown();
 }
@@ -547,9 +583,12 @@ function typewriterMsg(content) {
   return new Promise((resolve) => {
     const div = document.createElement('div');
     div.className = 'msg assistant';
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-content-wrap';
     const msgText = document.createElement('div');
     msgText.className = 'msg-text';
-    div.appendChild(msgText);
+    wrap.appendChild(msgText);
+    div.appendChild(wrap);
     messagesEl.appendChild(div);
     scrollDown();
 
@@ -570,6 +609,9 @@ function typewriterMsg(content) {
       if (i >= MAX_ANIMATED || i >= chars.length) {
         // Show full content instantly (includes the rest)
         msgText.innerHTML = md(content);
+        // Add action buttons after animation completes
+        wrap.insertAdjacentHTML('beforeend', createMsgActionsHTML(content));
+        bindMsgActions(div, content);
         scrollDown();
         resolve();
         return;
@@ -1050,6 +1092,190 @@ function openLoginModal(tab = 'login') {
 
 function closeLoginModal() {
   document.getElementById('loginModalOverlay')?.classList.remove('active');
+}
+
+// ============ MESSAGE ACTIONS ============
+function createMsgActionsHTML(content) {
+  return `<div class="msg-actions">
+    <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+    </button>
+    <button class="msg-action-btn" data-action="like" data-tooltip="Boa resposta">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+      </svg>
+    </button>
+    <button class="msg-action-btn" data-action="dislike" data-tooltip="Resposta ruim">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
+      </svg>
+    </button>
+    <button class="msg-action-btn" data-action="regenerate" data-tooltip="Regenerar resposta">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+    </button>
+  </div>`;
+}
+
+function bindMsgActions(msgDiv, content) {
+  const actions = msgDiv.querySelectorAll('.msg-action-btn');
+  actions.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const action = btn.dataset.action;
+      
+      switch (action) {
+        case 'copy':
+          handleCopyMsg(btn, content);
+          break;
+        case 'like':
+          handleLikeMsg(btn);
+          break;
+        case 'dislike':
+          handleDislikeMsg(btn);
+          break;
+        case 'regenerate':
+          handleRegenerateMsg(msgDiv);
+          break;
+      }
+    });
+  });
+}
+
+function handleCopyMsg(btn, content) {
+  navigator.clipboard.writeText(content).then(() => {
+    btn.classList.add('copied');
+    btn.dataset.tooltip = 'Copiado!';
+    // Swap icon to checkmark
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    showFeedbackToast('Texto copiado!');
+    
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.dataset.tooltip = 'Copiar';
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+    }, 2000);
+  }).catch(() => {
+    // Fallback for older browsers
+    const textarea = document.createElement('textarea');
+    textarea.value = content;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    showFeedbackToast('Texto copiado!');
+  });
+}
+
+function handleLikeMsg(btn) {
+  const parent = btn.closest('.msg-actions');
+  const dislikeBtn = parent.querySelector('[data-action="dislike"]');
+  
+  if (btn.classList.contains('liked')) {
+    btn.classList.remove('liked');
+    btn.dataset.tooltip = 'Boa resposta';
+  } else {
+    btn.classList.add('liked');
+    btn.dataset.tooltip = 'Gostei!';
+    dislikeBtn?.classList.remove('disliked');
+    if (dislikeBtn) dislikeBtn.dataset.tooltip = 'Resposta ruim';
+    showFeedbackToast('Obrigado pelo feedback! 👍');
+  }
+}
+
+function handleDislikeMsg(btn) {
+  const parent = btn.closest('.msg-actions');
+  const likeBtn = parent.querySelector('[data-action="like"]');
+  
+  if (btn.classList.contains('disliked')) {
+    btn.classList.remove('disliked');
+    btn.dataset.tooltip = 'Resposta ruim';
+  } else {
+    btn.classList.add('disliked');
+    btn.dataset.tooltip = 'Não gostei';
+    likeBtn?.classList.remove('liked');
+    if (likeBtn) likeBtn.dataset.tooltip = 'Boa resposta';
+    showFeedbackToast('Feedback recebido. Vamos melhorar! 🙏');
+  }
+}
+
+function handleRegenerateMsg(msgDiv) {
+  // Find the last user message to re-send
+  const userMsgs = state.messages.filter(m => m.role === 'user');
+  if (!userMsgs.length || state.isWaiting) return;
+  
+  const lastUserMsg = userMsgs[userMsgs.length - 1].content;
+  
+  // Remove the last assistant message from state
+  const lastAssistantIdx = state.messages.length - 1;
+  if (state.messages[lastAssistantIdx]?.role === 'assistant') {
+    state.messages.pop();
+  }
+  
+  // Remove the message from DOM
+  msgDiv.remove();
+  
+  // Re-send
+  state.isWaiting = true;
+  const typing = showTyping();
+  
+  fetch(CONFIG.CHAT_WEBHOOK_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      [CONFIG.WEBHOOK_AUTH_HEADER]: CONFIG.WEBHOOK_AUTH_VALUE,
+    },
+    body: JSON.stringify({
+      message: lastUserMsg,
+      sessionId: state.sessionId,
+      timestamp: new Date().toISOString(),
+      history: state.messages.map(m => ({ role: m.role, content: m.content })),
+      regenerate: true,
+    }),
+  })
+  .then(res => {
+    if (!res.ok) throw new Error(res.status);
+    return res.json();
+  })
+  .then(async data => {
+    removeTyping(typing);
+    const reply = data.reply || data.output || data.text || 'Desculpe, não consegui processar.';
+    await addMsg('assistant', reply, true);
+  })
+  .catch(err => {
+    console.error(err);
+    removeTyping(typing);
+    addMsg('assistant', '⚠️ Erro ao regenerar resposta. Tente novamente.', false);
+  })
+  .finally(() => {
+    state.isWaiting = false;
+    chatInput.focus();
+  });
+}
+
+function showFeedbackToast(message) {
+  // Remove existing toast
+  document.querySelector('.feedback-toast')?.remove();
+  
+  const toast = document.createElement('div');
+  toast.className = 'feedback-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  // Trigger animation
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
 }
 
 window.AvaAssistant = { openLeadModal, closeLeadModal, startNewChat };

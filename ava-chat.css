@@ -1185,3 +1185,181 @@ body.dark-theme .toggle-switch::after {
   0%, 100% { opacity: 0.8; }
   50%       { opacity: 0; }
 }
+
+/* ========== MESSAGE ACTIONS BAR ========== */
+.msg-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
+  padding: 0 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Show on hover (desktop) */
+.msg.assistant:hover .msg-actions {
+  opacity: 1;
+}
+
+/* Always show on touch devices */
+@media (hover: none) {
+  .msg-actions {
+    opacity: 1;
+  }
+}
+
+.msg-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+  padding: 0;
+  position: relative;
+}
+
+.msg-action-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.msg-action-btn:active {
+  transform: scale(0.9);
+}
+
+/* Active/selected state for like/dislike */
+.msg-action-btn.liked {
+  color: #10b981;
+}
+.msg-action-btn.liked:hover {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.msg-action-btn.disliked {
+  color: #ef4444;
+}
+.msg-action-btn.disliked:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Tooltip for action buttons */
+.msg-action-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 10;
+}
+
+.msg-action-btn:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+/* Copy success animation */
+.msg-action-btn.copied {
+  color: #10b981;
+}
+
+/* Feedback toast */
+.feedback-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.feedback-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* More actions dropdown for messages */
+.msg-more-menu {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 4px;
+  display: none;
+  flex-direction: column;
+  min-width: 160px;
+  z-index: 50;
+  animation: msg-menu-appear 0.12s ease;
+}
+
+.msg-more-menu.show {
+  display: flex;
+}
+
+@keyframes msg-menu-appear {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg-more-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+
+.msg-more-option:hover {
+  background: var(--bg-hover);
+}
+
+.msg-more-option svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+/* Wrapper needed for action bar positioning */
+.msg-content-wrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 95%;
+}
