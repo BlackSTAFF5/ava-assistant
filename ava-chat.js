@@ -591,10 +591,14 @@ function appendMsg(role, content) {
   const div = document.createElement('div');
   div.className = `msg ${role}`;
   if (role === 'assistant') {
-    div.innerHTML = `<div class="msg-content-wrap">
-      <div class="msg-text">${md(content)}</div>
-      ${createMsgActionsHTML(content)}
-    </div>`;
+    const isDark = document.body.classList.contains('dark-theme');
+    const logoSrc = isDark ? 'images/logo_white_v4.png' : 'images/logo_v4.png';
+    div.innerHTML = `
+      <img src="${logoSrc}" alt="Ava" class="brand-logo msg-avatar">
+      <div class="msg-content-wrap">
+        <div class="msg-text">${md(content)}</div>
+        ${createMsgActionsHTML(content)}
+      </div>`;
     bindMsgActions(div, content);
   } else {
     div.innerHTML = `<div class="msg-text">${md(content)}</div>`;
@@ -608,6 +612,15 @@ function typewriterMsg(content) {
   return new Promise((resolve) => {
     const div = document.createElement('div');
     div.className = 'msg assistant';
+    
+    const isDark = document.body.classList.contains('dark-theme');
+    const logoSrc = isDark ? 'images/logo_white_v4.png' : 'images/logo_v4.png';
+    const avatar = document.createElement('img');
+    avatar.src = logoSrc;
+    avatar.alt = 'Ava';
+    avatar.className = 'brand-logo msg-avatar';
+    div.appendChild(avatar);
+
     const wrap = document.createElement('div');
     wrap.className = 'msg-content-wrap';
     const msgText = document.createElement('div');

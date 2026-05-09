@@ -803,6 +803,14 @@ body.dark-theme .brand-logo {
 /* Assistant Text (Left) */
 .msg.assistant {
   justify-content: flex-start;
+  gap: 12px;
+  align-items: flex-start;
+}
+.msg.assistant .msg-avatar {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  margin-top: 4px;
 }
 .msg.assistant .msg-text {
   font-size: 16px;
