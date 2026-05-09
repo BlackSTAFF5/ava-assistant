@@ -82,7 +82,7 @@ body {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  border-right: 1px solid var(--border);
+  border-right: none;
   transition: transform 0.25s ease, opacity 0.2s ease;
   z-index: 100;
 }
@@ -476,10 +476,19 @@ body.dark-theme .toggle-switch::after {
   color: var(--text-muted);
 }
 .brand-logo {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
+}
+body.dark-theme .brand-logo {
+  content: url('images/logo_white_v4.png');
 }
 
 /* Dropdown */
@@ -826,6 +835,20 @@ body.dark-theme .toggle-switch::after {
 .msg-text a { color: var(--text-link); text-decoration: underline; }
 
 /* Typing indicator for assistant */
+.typing-dots-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.typing-status-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  animation: pulse-text 2s infinite ease-in-out;
+}
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
 .typing-dots {
   display: flex;
   gap: 4px;
@@ -1232,6 +1255,14 @@ body.dark-theme .toggle-switch::after {
 
 .msg-action-btn:active {
   transform: scale(0.9);
+}
+
+.msg-action-btn.auth-required {
+  display: none;
+}
+
+body.user-logged-in .msg-action-btn.auth-required {
+  display: flex;
 }
 
 /* Active/selected state for like/dislike */

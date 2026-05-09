@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logoutBtn');
     
     if (user) {
+      document.body.classList.add('user-logged-in');
       // User is logged in
       if(loginBtnMore) loginBtnMore.style.display = 'none';
       if(registerBtnMore) registerBtnMore.style.display = 'none';
@@ -95,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
       loadConversations();
       updateSettingsPanel(user);
     } else {
+      document.body.classList.remove('user-logged-in');
       // User is logged out
       if(loginBtnMore) loginBtnMore.style.display = 'flex';
       if(registerBtnMore) registerBtnMore.style.display = 'flex';
@@ -536,11 +538,25 @@ async function onSubmit(e) {
 
     const res = await fetch(CONFIG.CHAT_WEBHOOK_URL, { method: 'POST', headers, body });
     if (!res.ok) throw new Error(res.status);
-    const data = await res.json();
+    let data = await res.json();
     removeTyping(typing);
 
-    const reply = data.reply || data.output || data.text || 'Desculpe, não consegui processar.';
-    if (data.showLeadForm) openLeadModal();
+    // n8n pode retornar array [{json:{...}}] ou objeto direto
+    if (Array.isArray(data)) data = data[0]?.json || data[0] || {};
+
+    let reply = data.reply || data.output || data.text || 'Desculpe, não consegui processar.';
+    let shouldOpenLead = !!data.showLeadForm;
+
+    // Fallback: detecta [LEAD_FORM] localmente caso o backend não tenha processado
+    if (reply.includes('[LEAD_FORM]')) {
+      shouldOpenLead = true;
+      reply = reply.replace(/\[LEAD_FORM\]/g, '').trim();
+    }
+
+    if (shouldOpenLead) {
+      // Pequeno delay para a mensagem aparecer primeiro, depois abre o modal
+      setTimeout(() => openLeadModal(), 1500);
+    }
     await addMsg('assistant', reply, true);
   } catch (err) {
     console.error(err);
@@ -578,7 +594,7 @@ function appendMsg(role, content) {
   scrollDown();
 }
 
-// Typewriter animation - animates first ~220 chars, shows rest instantly
+// Typewriter animation - animates smoothly the entire text
 function typewriterMsg(content) {
   return new Promise((resolve) => {
     const div = document.createElement('div');
@@ -587,29 +603,28 @@ function typewriterMsg(content) {
     wrap.className = 'msg-content-wrap';
     const msgText = document.createElement('div');
     msgText.className = 'msg-text';
+    
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    
     wrap.appendChild(msgText);
+    wrap.appendChild(cursor);
     div.appendChild(wrap);
     messagesEl.appendChild(div);
     scrollDown();
 
-    const MAX_ANIMATED = 220; // chars to animate slowly
     const chars = Array.from(content);
-    const hasRest = chars.length > MAX_ANIMATED;
     let i = 0;
     let displayed = '';
+    
+    // Dynamic chunk size: larger messages type faster so user doesn't wait forever
+    const chunkSize = chars.length > 400 ? 4 : (chars.length > 200 ? 2 : 1);
 
-    function getDelay(ch) {
-      if (ch === '\n') return 30;
-      if (ch === ' ')  return 12;
-      if ('.!?,;:'.includes(ch)) return 45;
-      return 18;
-    }
-
-    function tick() {
-      if (i >= MAX_ANIMATED || i >= chars.length) {
-        // Show full content instantly (includes the rest)
+    const interval = setInterval(() => {
+      if (i >= chars.length) {
+        clearInterval(interval);
         msgText.innerHTML = md(content);
-        // Add action buttons after animation completes
+        cursor.remove();
         wrap.insertAdjacentHTML('beforeend', createMsgActionsHTML(content));
         bindMsgActions(div, content);
         scrollDown();
@@ -617,18 +632,14 @@ function typewriterMsg(content) {
         return;
       }
 
-      displayed += chars[i];
-      i++;
+      for (let step = 0; step < chunkSize && i < chars.length; step++) {
+        displayed += chars[i];
+        i++;
+      }
 
-      // During animation show animated portion + ellipsis hint if more exists
-      const preview = displayed + (hasRest && i >= MAX_ANIMATED ? '' : '');
-      msgText.innerHTML = md(preview) + '<span class="typing-cursor"></span>';
-      scrollDown();
-
-      setTimeout(tick, getDelay(chars[i - 1]));
-    }
-
-    tick();
+      msgText.innerHTML = md(displayed);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }, 15);
   });
 }
 
@@ -663,7 +674,10 @@ function showTyping() {
   el.className = 'msg assistant';
   el.innerHTML = `
     <div class="msg-text">
-      <div class="typing-dots"><span></span><span></span><span></span></div>
+      <div class="typing-dots-wrapper">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+        <span class="typing-status-text">Processando resposta...</span>
+      </div>
     </div>`;
   messagesEl.appendChild(el);
   scrollDown();
@@ -708,6 +722,8 @@ async function onLeadSubmit(e) {
     source: 'ava-assistant',
     sessionId: state.sessionId,
     timestamp: new Date().toISOString(),
+    status: 'new',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
   };
   if (!d.name || !d.whatsapp) { alert('Preencha nome e WhatsApp.'); return; }
 
@@ -716,18 +732,13 @@ async function onLeadSubmit(e) {
   btn.textContent = 'Enviando…';
 
   try {
-    await fetch(CONFIG.LEAD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        [CONFIG.WEBHOOK_AUTH_HEADER]: CONFIG.WEBHOOK_AUTH_VALUE,
-      },
-      body: JSON.stringify(d),
-    });
+    // Salva no Firebase Firestore (coleção 'leads')
+    await db.collection('leads').add(d);
     leadForm.style.display = 'none';
     leadSuccess.style.display = 'block';
     addMsg('assistant', `✅ **${d.name}**, recebemos sua solicitação! Entraremos em contato pelo WhatsApp **${d.whatsapp}** em breve.`);
   } catch (err) {
+    console.error('Erro ao salvar lead:', err);
     alert('Erro ao enviar. Tente novamente.');
   } finally {
     btn.disabled = false;
@@ -1102,17 +1113,22 @@ function createMsgActionsHTML(content) {
         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
       </svg>
     </button>
-    <button class="msg-action-btn" data-action="like" data-tooltip="Boa resposta">
+    <button class="msg-action-btn" data-action="share" data-tooltip="Compartilhar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+    </button>
+    <button class="msg-action-btn auth-required" data-action="like" data-tooltip="Boa resposta">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
       </svg>
     </button>
-    <button class="msg-action-btn" data-action="dislike" data-tooltip="Resposta ruim">
+    <button class="msg-action-btn auth-required" data-action="dislike" data-tooltip="Resposta ruim">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
       </svg>
     </button>
-    <button class="msg-action-btn" data-action="regenerate" data-tooltip="Regenerar resposta">
+    <button class="msg-action-btn auth-required" data-action="regenerate" data-tooltip="Regenerar resposta">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
       </svg>
@@ -1130,6 +1146,9 @@ function bindMsgActions(msgDiv, content) {
       switch (action) {
         case 'copy':
           handleCopyMsg(btn, content);
+          break;
+        case 'share':
+          handleShareMsg(btn, content);
           break;
         case 'like':
           handleLikeMsg(btn);
@@ -1170,6 +1189,21 @@ function handleCopyMsg(btn, content) {
     document.body.removeChild(textarea);
     showFeedbackToast('Texto copiado!');
   });
+}
+
+function handleShareMsg(btn, content) {
+  if (navigator.share) {
+    navigator.share({
+      title: 'AVA Assistant',
+      text: content,
+    }).then(() => {
+      // Shared successfully
+    }).catch(console.error);
+  } else {
+    // Fallback if Web Share is not supported
+    handleCopyMsg(btn, content);
+    showFeedbackToast('Link copiado para compartilhamento!');
+  }
 }
 
 function handleLikeMsg(btn) {
@@ -1231,7 +1265,7 @@ function handleRegenerateMsg(msgDiv) {
       [CONFIG.WEBHOOK_AUTH_HEADER]: CONFIG.WEBHOOK_AUTH_VALUE,
     },
     body: JSON.stringify({
-      message: lastUserMsg,
+      message: `[Regenerar Resposta] Por favor, forneça uma resposta completamente diferente, com outra abordagem e novas palavras, para a minha mensagem: "${lastUserMsg}"`,
       sessionId: state.sessionId,
       timestamp: new Date().toISOString(),
       history: state.messages.map(m => ({ role: m.role, content: m.content })),

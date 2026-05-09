@@ -346,7 +346,23 @@
   </style>
 </head>
 <body>
-  <div class="admin-container">
+  <!-- ============ LOGIN OVERLAY ============ -->
+  <div id="loginOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+    <div style="background:var(--bg-sidebar);padding:40px;border-radius:16px;border:1px solid var(--border);width:100%;max-width:360px;box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+      <div style="text-align:center;margin-bottom:32px;">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:8px;"><span style="color:var(--accent);">Ava</span>Admin</h2>
+        <p style="color:var(--text-secondary);font-size:14px;">Acesso restrito</p>
+      </div>
+      <form id="loginForm" style="display:flex;flex-direction:column;gap:16px;">
+        <input type="email" id="adminEmail" placeholder="E-mail" required style="width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px;outline:none;">
+        <input type="password" id="adminPassword" placeholder="Senha" required style="width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px;outline:none;">
+        <button type="submit" id="loginBtn" style="width:100%;padding:12px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-weight:600;font-size:14px;cursor:pointer;margin-top:8px;transition:opacity 0.2s;">Entrar no Painel</button>
+        <div id="loginError" style="color:#ef4444;font-size:13px;text-align:center;display:none;margin-top:8px;">Credenciais inválidas.</div>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-container" id="adminContent" style="display:none;">
     <!-- Header -->
     <header class="admin-header">
       <div class="admin-header-left">
@@ -360,6 +376,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Atualizar
         </button>
+        <button id="logoutBtn" style="padding:8px 16px;background:none;border:1px solid rgba(239, 68, 68, 0.5);color:#ef4444;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;">Sair</button>
       </div>
     </header>
 
@@ -431,44 +448,87 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
   <script>
-    // ============ CONFIG ============
-    const LEADS_LIST_URL = 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-leads-list';
+    // ============ FIREBASE CONFIG ============
+    const firebaseConfig = {
+      apiKey: "AIzaSyDL5xzJ7wgTlUf6aVe-Wb83ryHzCzr5Y_g",
+      authDomain: "avaassistant-188d7.firebaseapp.com",
+      projectId: "avaassistant-188d7",
+      storageBucket: "avaassistant-188d7.firebasestorage.app",
+      messagingSenderId: "804180515719",
+      appId: "1:804180515719:web:7329dede43c1da02ff9122",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
     let allLeads = [];
 
+    // ============ AUTH STATE ============
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
+        loadLeads();
+      } else {
+        document.getElementById('loginOverlay').style.display = 'flex';
+        document.getElementById('adminContent').style.display = 'none';
+      }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value;
+      const pass = document.getElementById('adminPassword').value;
+      const btn = document.getElementById('loginBtn');
+      btn.textContent = 'Aguarde...';
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        document.getElementById('loginError').style.display = 'none';
+      } catch(err) {
+        document.getElementById('loginError').textContent = 'E-mail ou senha incorretos.';
+        document.getElementById('loginError').style.display = 'block';
+      } finally {
+        btn.textContent = 'Entrar no Painel';
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.signOut();
+    });
+
     // ============ INIT ============
     document.addEventListener('DOMContentLoaded', () => {
-      loadLeads();
-
       document.getElementById('refreshBtn').addEventListener('click', loadLeads);
       document.getElementById('searchInput').addEventListener('input', filterLeads);
       document.getElementById('segmentFilter').addEventListener('change', filterLeads);
       document.getElementById('statusFilter').addEventListener('change', filterLeads);
     });
 
-    // ============ LOAD LEADS ============
+    // ============ LOAD LEADS FROM FIRESTORE ============
     async function loadLeads() {
       const btn = document.getElementById('refreshBtn');
       btn.classList.add('loading');
 
       try {
-        const res = await fetch(LEADS_LIST_URL, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
-        });
+        const snapshot = await db.collection('leads')
+          .orderBy('timestamp', 'desc')
+          .get();
 
-        if (!res.ok) throw new Error('Falha ao carregar');
+        allLeads = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
 
-        const data = await res.json();
-        allLeads = Array.isArray(data) ? data : (data.leads || data.data || []);
         renderLeads(allLeads);
         updateStats(allLeads);
 
       } catch (error) {
         console.error('Error loading leads:', error);
-        // Show demo data if webhook not ready
-        allLeads = getDemoLeads();
+        allLeads = [];
         renderLeads(allLeads);
         updateStats(allLeads);
       } finally {
@@ -482,41 +542,54 @@
 
       if (leads.length === 0) {
         tbody.innerHTML = `
-          <tr><td colspan="7">
+          <tr><td colspan="8">
             <div class="no-leads">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              <p>Nenhum lead encontrado.</p>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <p>Nenhum lead encontrado</p>
             </div>
           </td></tr>`;
         return;
       }
 
       tbody.innerHTML = leads.map(lead => {
-        const statusClass = lead.status || 'new';
-        const statusLabel = { new: 'Novo', contacted: 'Contatado', meeting: 'Reunião' }[statusClass] || 'Novo';
-        const date = lead.timestamp ? new Date(lead.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
-        const whatsappClean = (lead.whatsapp || '').replace(/\D/g, '');
+        const statusColors = { 'new': '#3b82f6', 'contacted': '#f59e0b', 'meeting': '#10b981', 'closed': '#8b5cf6' };
+        const statusLabels = { 'new': 'Novo', 'contacted': 'Contatado', 'meeting': 'Reunião', 'closed': 'Fechado' };
+        const st = lead.status || 'new';
+        const date = lead.timestamp ? new Date(lead.timestamp).toLocaleDateString('pt-BR') : '—';
+        const time = lead.timestamp ? new Date(lead.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
 
         return `
           <tr>
-            <td>
-              <div class="lead-name">${escapeHtml(lead.name || '—')}</div>
-              <div class="lead-company">${escapeHtml(lead.company || '')}</div>
-            </td>
-            <td><span class="lead-whatsapp">${escapeHtml(lead.whatsapp || '—')}</span></td>
+            <td><strong>${escapeHtml(lead.name || '—')}</strong><br><small>${escapeHtml(lead.company || '—')}</small></td>
+            <td><a href="https://wa.me/${(lead.whatsapp||'').replace(/\D/g,'')}" target="_blank" style="color: #25d366; text-decoration: none;">${escapeHtml(lead.whatsapp || '—')}</a></td>
             <td>${escapeHtml(lead.email || '—')}</td>
-            <td>${lead.segment ? `<span class="lead-segment">${escapeHtml(lead.segment)}</span>` : '—'}</td>
-            <td><span class="lead-date">${date}</span></td>
-            <td><span class="lead-status ${statusClass}"><span class="status-dot"></span>${statusLabel}</span></td>
+            <td>${escapeHtml(lead.segment || '—')}</td>
+            <td>${date} <span style="color: var(--text-muted); font-size: 12px;">${time}</span></td>
+            <td><span style="background: ${statusColors[st]}22; color: ${statusColors[st]}; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">${statusLabels[st] || st}</span></td>
             <td>
-              <div class="table-actions">
-                <a href="https://wa.me/${whatsappClean}" target="_blank" class="table-action-btn whatsapp" title="Abrir WhatsApp">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                </a>
-              </div>
+              <select onchange="updateStatus('${lead.id}', this.value)" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; cursor: pointer;">
+                <option value="new" ${st === 'new' ? 'selected' : ''}>Novo</option>
+                <option value="contacted" ${st === 'contacted' ? 'selected' : ''}>Contatado</option>
+                <option value="meeting" ${st === 'meeting' ? 'selected' : ''}>Reunião</option>
+                <option value="closed" ${st === 'closed' ? 'selected' : ''}>Fechado</option>
+              </select>
             </td>
           </tr>`;
       }).join('');
+    }
+
+    // ============ UPDATE STATUS ============
+    async function updateStatus(docId, newStatus) {
+      try {
+        await db.collection('leads').doc(docId).update({ status: newStatus });
+        const lead = allLeads.find(l => l.id === docId);
+        if (lead) lead.status = newStatus;
+        renderLeads(allLeads);
+        updateStats(allLeads);
+      } catch (err) {
+        console.error('Erro ao atualizar status:', err);
+        alert('Erro ao atualizar status.');
+      }
     }
 
     // ============ STATS ============
@@ -539,10 +612,7 @@
       const status = document.getElementById('statusFilter').value;
 
       const filtered = allLeads.filter(lead => {
-        const matchSearch = !search ||
-          (lead.name || '').toLowerCase().includes(search) ||
-          (lead.company || '').toLowerCase().includes(search) ||
-          (lead.whatsapp || '').includes(search);
+        const matchSearch = !search || (lead.name || '').toLowerCase().includes(search) || (lead.company || '').toLowerCase().includes(search) || (lead.whatsapp || '').includes(search);
         const matchSegment = !segment || lead.segment === segment;
         const matchStatus = !status || (lead.status || 'new') === status;
         return matchSearch && matchSegment && matchStatus;
@@ -556,14 +626,6 @@
       const div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
-    }
-
-    function getDemoLeads() {
-      return [
-        { name: 'João Silva', company: 'TechStart Ltda', whatsapp: '(41) 99999-1234', email: 'joao@techstart.com', segment: 'tecnologia', status: 'new', timestamp: new Date().toISOString(), message: 'Quero saber mais sobre automação' },
-        { name: 'Maria Santos', company: 'Clínica Beleza', whatsapp: '(41) 98888-5678', email: 'maria@clinicabeleza.com', segment: 'saude', status: 'contacted', timestamp: new Date(Date.now() - 86400000).toISOString(), message: 'Preciso de um chatbot para agendamento' },
-        { name: 'Carlos Oliveira', company: 'Auto Center PR', whatsapp: '(41) 97777-9012', email: '', segment: 'automotivo', status: 'meeting', timestamp: new Date(Date.now() - 172800000).toISOString(), message: 'Quero implementar IA no atendimento' },
-      ];
     }
   </script>
 </body>
