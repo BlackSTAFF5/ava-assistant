@@ -694,11 +694,16 @@ function md(text) {
 function showTyping() {
   const el = document.createElement('div');
   el.className = 'msg assistant';
+  const isDark = document.body.classList.contains('dark-theme');
+  const logoSrc = isDark ? 'images/logo_white_v4.png' : 'images/logo_v4.png';
   el.innerHTML = `
-    <div class="msg-text">
-      <div class="typing-dots-wrapper">
-        <div class="typing-dots"><span></span><span></span><span></span></div>
-        <span class="typing-status-text">Processando resposta...</span>
+    <img src="${logoSrc}" alt="Ava" class="brand-logo msg-avatar">
+    <div class="msg-content-wrap">
+      <div class="msg-text">
+        <div class="typing-dots-wrapper">
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+          <span class="typing-status-text">Processando resposta...</span>
+        </div>
       </div>
     </div>`;
   messagesEl.appendChild(el);
