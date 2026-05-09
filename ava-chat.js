@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (savedTheme === 'dark') {
     document.body.classList.add('dark-theme');
   }
+  updateLogoTheme();
 
   initSidebar();
   initChat();
@@ -162,6 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============ UTILS ============
+function updateLogoTheme() {
+  const isDark = document.body.classList.contains('dark-theme');
+  const logos = document.querySelectorAll('.brand-logo');
+  logos.forEach(img => {
+    img.src = isDark ? 'images/logo_white_v4.png' : 'images/logo_v4.png';
+  });
+}
+
 function genId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return 'ava_' + crypto.randomUUID();
@@ -906,6 +915,7 @@ function initSettingsPanel() {
     const isDark = document.body.classList.contains('dark-theme');
     localStorage.setItem('ava_theme', isDark ? 'dark' : 'light');
     updateThemeLabel();
+    updateLogoTheme();
   });
 
   // Go to archived chats
