@@ -749,24 +749,47 @@ async function onLeadSubmit(e) {
     source: 'ava-assistant',
     sessionId: state.sessionId,
     timestamp: new Date().toISOString(),
-    status: 'new',
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    status: 'new'
   };
-  if (!d.name || !d.whatsapp) { alert('Preencha nome e WhatsApp.'); return; }
+  
+  if (!d.name || !d.whatsapp) { alert('Por favor, preencha nome e WhatsApp.'); return; }
 
   const btn = $('#leadSubmitBtn');
   btn.disabled = true;
   btn.textContent = 'Enviando…';
 
   try {
-    // Salva no Firebase Firestore (coleção 'leads')
-    await db.collection('leads').add(d);
+    // 1. Envia para o Webhook do n8n primeiro
+    try {
+      await fetch(CONFIG.LEAD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          [CONFIG.WEBHOOK_AUTH_HEADER]: CONFIG.WEBHOOK_AUTH_VALUE
+        },
+        body: JSON.stringify(d)
+      });
+    } catch (n8nErr) {
+      console.warn('Erro não crítico ao enviar para n8n:', n8nErr);
+    }
+
+    // 2. Salva no Firebase Firestore (coleção 'leads')
+    try {
+      d.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('leads').add(d);
+    } catch (fsErr) {
+      console.error('Erro de permissão/escrita no Firestore:', fsErr);
+      // Se der erro de permissão no firebase, avisa o admin mas não trava o lead
+      // pois ele pode ter ido pro n8n. Mas para ser robusto, vamos alertar.
+      throw new Error("Erro de banco de dados (Firestore). Verifique as Security Rules.");
+    }
+
     leadForm.style.display = 'none';
     leadSuccess.style.display = 'block';
     addMsg('assistant', `✅ **${d.name}**, recebemos sua solicitação! Entraremos em contato pelo WhatsApp **${d.whatsapp}** em breve.`);
   } catch (err) {
     console.error('Erro ao salvar lead:', err);
-    alert('Erro ao enviar. Tente novamente.');
+    alert('Erro ao enviar sua solicitação. Detalhes no console do navegador.');
   } finally {
     btn.disabled = false;
     btn.textContent = 'Solicitar Reunião';
