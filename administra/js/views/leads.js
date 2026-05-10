@@ -1,5 +1,5 @@
 /**
- * views/leads.js - Gerenciamento de Leads
+ * views/leads.js - Gerenciamento de Leads (Premium SaaS Version)
  */
 import { db, showToast, confirmAction, handleFirestoreError } from '../app.js';
 
@@ -10,29 +10,29 @@ export function renderLeadsView(container, actions) {
     // 1. Botões de Ação no Header
     actions.innerHTML = `
         <button class="btn btn-secondary" id="btnRefreshLeads">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
             Atualizar
         </button>
     `;
 
     // 2. Estrutura da View
     container.innerHTML = `
-        <!-- Cards Analíticos -->
+        <!-- Cards Analíticos Premium -->
         <div class="analytics-grid">
             <div class="card analytics-card">
                 <div class="analytics-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
                 <div class="analytics-info">
                     <h3>Total de Leads</h3>
                     <div class="value" id="countTotal">0</div>
-                    <div class="desc">Todos os leads</div>
+                    <div class="desc">Ecossistema completo</div>
                 </div>
             </div>
             <div class="card analytics-card">
                 <div class="analytics-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20m10-10H2"></path></svg></div>
                 <div class="analytics-info">
                     <h3>Novos Hoje</h3>
-                    <div class="value" id="countToday">0</div>
-                    <div class="desc">Recebidos hoje</div>
+                    <div class="value" id="countToday" style="color: var(--accent)">0</div>
+                    <div class="desc">Oportunidades recentes</div>
                 </div>
             </div>
             <div class="card analytics-card">
@@ -40,7 +40,7 @@ export function renderLeadsView(container, actions) {
                 <div class="analytics-info">
                     <h3>Contatados</h3>
                     <div class="value" id="countContacted">0</div>
-                    <div class="desc">Já em contato</div>
+                    <div class="desc">Em negociação</div>
                 </div>
             </div>
             <div class="card analytics-card">
@@ -48,18 +48,18 @@ export function renderLeadsView(container, actions) {
                 <div class="analytics-info">
                     <h3>Reuniões</h3>
                     <div class="value" id="countMeetings">0</div>
-                    <div class="desc">Agendadas</div>
+                    <div class="desc">Agendamentos</div>
                 </div>
             </div>
         </div>
 
-        <!-- Barra de Filtros -->
+        <!-- Filtros e Busca Modernos -->
         <div class="filters-bar">
             <div class="search-wrapper">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="leadSearch" class="form-control search-input" placeholder="Buscar por nome, empresa ou telefone...">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="leadSearch" class="form-control search-input" placeholder="Buscar leads por nome, empresa ou telefone...">
             </div>
-            <select id="filterSegment" class="form-control" style="width: 200px;">
+            <select id="filterSegment" class="form-control" style="width: 220px;">
                 <option value="">Todos os segmentos</option>
             </select>
             <select id="filterStatus" class="form-control" style="width: 200px;">
@@ -87,20 +87,18 @@ export function renderLeadsView(container, actions) {
                     </tr>
                 </thead>
                 <tbody id="leadsTableBody">
-                    <!-- Skeletons iniciais -->
-                    ${Array(5).fill('<tr><td colspan="7"><div class="skeleton" style="height:40px; margin: 10px 0;"></div></td></tr>').join('')}
+                    ${Array(5).fill('<tr><td colspan="7"><div class="skeleton" style="height:48px; margin: 8px 0;"></div></td></tr>').join('')}
                 </tbody>
             </table>
         </div>
     `;
 
-    // 3. Listeners de UI
     document.getElementById('btnRefreshLeads').onclick = (e) => {
         const btn = e.currentTarget;
-        btn.querySelector('svg').classList.add('spinning');
-        setTimeout(() => btn.querySelector('svg').classList.remove('spinning'), 1000);
+        btn.querySelector('svg').style.animation = 'loading 1s linear infinite';
+        setTimeout(() => btn.querySelector('svg').style.animation = '', 1000);
         startRealtimeLeads();
-        showToast("Leads atualizados!", "success");
+        showToast("Leads atualizados com sucesso", "success");
     };
 
     document.getElementById('leadSearch').oninput = filterLeads;
@@ -136,7 +134,6 @@ function updateSegmentsDropdown() {
     if (!select) return;
     const currentVal = select.value;
     const segments = [...new Set(allLeads.map(l => l.segment).filter(Boolean))];
-    
     select.innerHTML = '<option value="">Todos os segmentos</option>' + 
         segments.map(s => `<option value="${s}" ${s === currentVal ? 'selected' : ''}>${s}</option>`).join('');
 }
@@ -168,8 +165,9 @@ function renderTable(leads) {
             <tr>
                 <td colspan="7">
                     <div class="empty-state">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                        <p>Nenhum lead encontrado</p>
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
+                        <h2>Nenhum lead cadastrado ainda</h2>
+                        <p>Os leads aparecerão aqui automaticamente quando novos contatos preencherem a ficha.</p>
                     </div>
                 </td>
             </tr>
@@ -184,16 +182,21 @@ function renderTable(leads) {
         
         return `
             <tr>
-                <td><strong>${l.name || 'Sem nome'}</strong><br><small style="color:var(--text-secondary)">${l.company || '—'}</small></td>
-                <td>${l.whatsapp || '—'}</td>
+                <td>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-weight: 700; color: var(--text-primary)">${l.name || 'Lead sem nome'}</span>
+                        <span style="font-size: 0.8rem; color: var(--text-secondary)">${l.company || 'Empresa não informada'}</span>
+                    </div>
+                </td>
+                <td style="font-family: monospace; font-weight: 500;">${l.whatsapp || '—'}</td>
                 <td>${l.email || '—'}</td>
-                <td><span class="badge" style="background: var(--bg-hover)">${l.segment || 'Geral'}</span></td>
-                <td>${date}</td>
+                <td><span class="badge" style="background: var(--bg-main); color: var(--text-secondary); border: 1px solid var(--border)">${l.segment || 'Geral'}</span></td>
+                <td style="color: var(--text-secondary)">${date}</td>
                 <td><span class="badge ${statusClass}">${status}</span></td>
                 <td>
-                    <div class="action-buttons">
-                        <button class="btn-icon" onclick="window.viewLead('${l.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
-                        <button class="btn-icon delete" onclick="window.deleteLead('${l.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2 2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-icon" style="color: var(--accent)" onclick="window.viewLead('${l.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <button class="btn-icon" style="color: var(--danger)" onclick="window.deleteLead('${l.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2 2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     </div>
                 </td>
             </tr>
@@ -201,12 +204,12 @@ function renderTable(leads) {
     }).join('');
 }
 
-// Funções globais para botões na tabela (SPA needs them on window)
+// Funções globais (mantidas para compatibilidade com o SPA)
 window.deleteLead = (id) => {
-    confirmAction("Tem certeza que deseja excluir este lead permanentemente?", async () => {
+    confirmAction("Deseja excluir este lead permanentemente? Esta ação não pode ser desfeita.", async () => {
         try {
             await db.collection('leads').doc(id).delete();
-            showToast("Lead removido com sucesso", "success");
+            showToast("Lead removido do ecossistema", "success");
         } catch (e) { handleFirestoreError(e); }
     });
 };
@@ -215,24 +218,23 @@ window.viewLead = (id) => {
     const lead = allLeads.find(l => l.id === id);
     if (!lead) return;
     
-    // Criar modal dinâmico de detalhes
     const modalHtml = `
-        <div id="leadModal" class="modal-overlay">
-            <div class="modal-card" style="max-width: 600px;">
+        <div id="leadModal" class="modal-overlay" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
+            <div class="modal-card" style="max-width: 650px; border: 1px solid var(--accent-glow);">
                 <div class="modal-header">
-                    <h2>Detalhes do Lead</h2>
-                    <button class="btn-close-modal" onclick="document.getElementById('leadModal').remove()">
+                    <h2 style="color: var(--accent)">Perfil do Lead</h2>
+                    <button class="btn-icon" onclick="document.getElementById('leadModal').remove()">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div><label style="color:var(--text-secondary); font-size: 12px;">NOME</label><p>${lead.name || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 12px;">EMPRESA</label><p>${lead.company || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 12px;">WHATSAPP</label><p>${lead.whatsapp || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 12px;">E-MAIL</label><p>${lead.email || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 12px;">SEGMENTO</label><p>${lead.segment || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 12px;">STATUS ATUAL</label>
-                        <select class="form-control" onchange="window.updateLeadStatus('${lead.id}', this.value)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 10px 0;">
+                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Nome Completo</label><p style="font-size: 1.1rem; font-weight: 600;">${lead.name || '—'}</p></div>
+                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Empresa</label><p style="font-size: 1.1rem; font-weight: 600;">${lead.company || '—'}</p></div>
+                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">WhatsApp</label><p style="color: var(--accent); font-weight: 700;">${lead.whatsapp || '—'}</p></div>
+                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">E-mail Corporativo</label><p>${lead.email || '—'}</p></div>
+                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Segmento de Atuação</label><p>${lead.segment || '—'}</p></div>
+                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Alterar Status</label>
+                        <select class="form-control" style="margin-top: 5px; border-color: var(--accent-glow)" onchange="window.updateLeadStatus('${lead.id}', this.value)">
                             <option value="novo" ${lead.status==='novo'?'selected':''}>Novo</option>
                             <option value="em contato" ${lead.status==='em contato'?'selected':''}>Em contato</option>
                             <option value="qualificado" ${lead.status==='qualificado'?'selected':''}>Qualificado</option>
@@ -241,9 +243,9 @@ window.viewLead = (id) => {
                         </select>
                     </div>
                 </div>
-                <div style="margin-top: 20px;">
-                    <label style="color:var(--text-secondary); font-size: 12px;">NECESSIDADE / OBSERVAÇÕES</label>
-                    <p style="background: var(--bg-hover); padding: 12px; border-radius: 8px; margin-top: 8px;">${lead.necessidade || 'Nenhuma observação registrada.'}</p>
+                <div style="margin-top: 24px; background: var(--bg-main); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                    <label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Necessidade / Conversa</label>
+                    <p style="margin-top: 10px; line-height: 1.6; color: var(--text-primary);">${lead.necessidade || lead.message || 'Nenhum detalhe adicional fornecido.'}</p>
                 </div>
             </div>
         </div>
@@ -254,6 +256,6 @@ window.viewLead = (id) => {
 window.updateLeadStatus = async (id, newStatus) => {
     try {
         await db.collection('leads').doc(id).update({ status: newStatus });
-        showToast("Status atualizado", "success");
+        showToast(`Status alterado para ${newStatus}`, "success");
     } catch (e) { handleFirestoreError(e); }
 };
