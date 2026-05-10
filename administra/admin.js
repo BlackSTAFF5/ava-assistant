@@ -117,18 +117,16 @@ function showSkeleton() {
 // ============ RENDER ============
 function renderLeads(leads) {
   const tbody = document.getElementById('leadsTableBody');
-  if (!leads.length) { renderEmpty('Nenhum lead encontrado'); return; }
+  if (!leads.length) { renderEmpty(); return; }
 
-  const statusColors = { new: '#22c55e', contacted: '#3b82f6', meeting: '#a855f7', closed: '#6b7280' };
   const statusLabels = { new: 'Novo', contacted: 'Contatado', meeting: 'Reunião', closed: 'Fechado' };
 
   tbody.innerHTML = leads.map(lead => {
     const st = lead.status || 'new';
-    let date = '—', time = '';
+    let date = '—';
     if (lead.timestamp) {
       const d = new Date(lead.timestamp);
       date = d.toLocaleDateString('pt-BR');
-      time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }
     const phone = (lead.whatsapp || '').replace(/\D/g, '');
 
@@ -137,23 +135,29 @@ function renderLeads(leads) {
       <td><a href="https://wa.me/${phone}" target="_blank" rel="noopener noreferrer" class="wa-link">${esc(lead.whatsapp || '—')}</a></td>
       <td>${esc(lead.email || '—')}</td>
       <td><span class="segment-tag">${esc(lead.segment || '—')}</span></td>
-      <td>${date}<br><small style="color:var(--text-muted)">${time}</small></td>
+      <td>${date}</td>
       <td><span class="badge ${st}">${statusLabels[st] || st}</span></td>
-      <td style="display:flex;gap:6px;align-items:center">
+      <td style="display:flex;gap:8px;align-items:center">
         <select class="status-select" onchange="updateStatus('${lead.id}',this.value)">
           <option value="new" ${st==='new'?'selected':''}>Novo</option>
           <option value="contacted" ${st==='contacted'?'selected':''}>Contatado</option>
           <option value="meeting" ${st==='meeting'?'selected':''}>Reunião</option>
           <option value="closed" ${st==='closed'?'selected':''}>Fechado</option>
         </select>
-        <button class="btn-delete" onclick="deleteLead('${lead.id}')" title="Excluir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+        <button class="btn-delete" onclick="deleteLead('${lead.id}')" title="Excluir">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+        </button>
       </td>
     </tr>`;
   }).join('');
 }
 
-function renderEmpty(msg) {
-  document.getElementById('leadsTableBody').innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📋</div><p>${msg}</p></div></td></tr>`;
+function renderEmpty() {
+  document.getElementById('leadsTableBody').innerHTML = `<tr><td colspan="7"><div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="14" x2="15" y2="14"></line><line x1="9" y1="18" x2="15" y2="18"></line><line x1="9" y1="10" x2="10" y2="10"></line></svg>
+    <h3>Nenhum lead encontrado</h3>
+    <p>Parece que ainda não temos leads cadastrados.</p>
+  </div></td></tr>`;
 }
 
 // ============ UPDATE STATUS ============
