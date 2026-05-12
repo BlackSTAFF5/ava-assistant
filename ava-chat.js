@@ -75,6 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   updateLogoTheme();
 
+  // Rotating greeting phrases
+  const greetings = [
+    'Me fala um pouco sobre sua empresa.',
+    'O que sua empresa faz atualmente?',
+    'Qual é o principal objetivo da sua empresa hoje?',
+    'Como funciona sua operação hoje?',
+    'Qual é o maior desafio da sua empresa atualmente?',
+  ];
+  const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+  const welcomeEl = document.getElementById('welcomeGreeting');
+  const inputEl = document.getElementById('chatInput');
+  if (welcomeEl) welcomeEl.textContent = randomGreeting;
+  if (inputEl) inputEl.placeholder = randomGreeting;
+
   initSidebar();
   initChat();
   initLeadModal();
