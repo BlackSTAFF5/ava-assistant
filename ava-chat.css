@@ -1178,7 +1178,8 @@ body.dark-theme .brand-logo {
   }
 
   .input-field {
-    font-size: 15px;
+    font-size: 16px; /* Must be >= 16px to prevent iOS auto-zoom on focus */
+    touch-action: manipulation;
   }
 
   .suggestion-chip {

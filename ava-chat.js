@@ -702,7 +702,6 @@ function showTyping() {
       <div class="msg-text">
         <div class="typing-dots-wrapper">
           <div class="typing-dots"><span></span><span></span><span></span></div>
-          <span class="typing-status-text">Processando resposta...</span>
         </div>
       </div>
     </div>`;
