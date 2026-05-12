@@ -49,17 +49,23 @@ export function renderRelatoriosView(container, actions) {
         <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-top: 24px;">
             <div class="card" style="overflow: hidden;">
                 <h3 style="margin-bottom: 20px;">Crescimento de Leads (Últimos 7 dias)</h3>
-                <canvas id="chartGrowth"></canvas>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="chartGrowth"></canvas>
+                </div>
             </div>
             <div class="card" style="overflow: hidden;">
                 <h3 style="margin-bottom: 20px;">Distribuição por Status</h3>
-                <canvas id="chartStatus"></canvas>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="chartStatus"></canvas>
+                </div>
             </div>
         </div>
 
         <div class="card" style="margin-top: 24px; overflow: hidden;">
             <h3 style="margin-bottom: 20px;">Leads por Segmento</h3>
-            <canvas id="chartSegments"></canvas>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="chartSegments"></canvas>
+            </div>
         </div>
     `;
 
@@ -105,7 +111,7 @@ function renderCharts() {
     Chart.defaults.color = textColor;
     Chart.defaults.borderColor = gridColor;
 
-    // 1. Gráfico de Crescimento — linha (últimos 7 dias)
+    // 1. Gráfico de Crescimento
     const days = [];
     const counts = [];
     for (let i = 6; i >= 0; i--) {
@@ -126,123 +132,80 @@ function renderCharts() {
                 borderColor: '#f97316',
                 backgroundColor: 'rgba(249,115,22,0.12)',
                 fill: true,
-                tension: 0.4,
-                pointRadius: 4,
-                pointBackgroundColor: '#f97316'
+                tension: 0.4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 2.8,
+            maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1, precision: 0, color: textColor },
-                    grid: { color: gridColor }
-                },
-                x: {
-                    ticks: { color: textColor },
-                    grid: { display: false }
-                }
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+                x: { grid: { display: false }, ticks: { color: textColor } }
             }
         }
     });
 
-    // 2. Gráfico de Status — donut
+    // 2. Gráfico de Status
     const statusGroups = {};
     allLeads.forEach(l => {
         const s = (l.status || 'novo').toLowerCase();
         statusGroups[s] = (statusGroups[s] || 0) + 1;
     });
 
-    const statusColors = {
-        'novo': '#f97316',
-        'em contato': '#3b82f6',
-        'qualificado': '#22c55e',
-        'convertido': '#a855f7',
-        'perdido': '#ef4444'
-    };
-    const bgColors = Object.keys(statusGroups).map(k => statusColors[k] || '#94a3b8');
-
     if (charts.status) charts.status.destroy();
     charts.status = new Chart(document.getElementById('chartStatus'), {
         type: 'doughnut',
         data: {
-            labels: Object.keys(statusGroups).map(s => s.charAt(0).toUpperCase() + s.slice(1)),
+            labels: Object.keys(statusGroups).map(s => s.toUpperCase()),
             datasets: [{
                 data: Object.values(statusGroups),
-                backgroundColor: bgColors,
-                borderWidth: 0,
-                hoverOffset: 8
+                backgroundColor: ['#f97316', '#3b82f6', '#22c55e', '#a855f7', '#ef4444'],
+                borderWidth: 0
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 1.6,
+            maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: textColor, padding: 16, font: { size: 12 } }
-                }
+                legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
             }
         }
     });
 
-    // 3. Gráfico de Segmentos — barra horizontal
+    // 3. Gráfico de Segmentos
     const segmentGroups = {};
     allLeads.forEach(l => {
         const s = l.segment || 'Geral';
         segmentGroups[s] = (segmentGroups[s] || 0) + 1;
     });
 
-    // Ordenar do maior para menor
-    const sortedSegments = Object.entries(segmentGroups).sort((a, b) => b[1] - a[1]);
-    const segLabels = sortedSegments.map(e => e[0]);
-    const segData   = sortedSegments.map(e => e[1]);
-
-    // Altura dinâmica: mínimo 180px, 40px por barra
-    const barCount = Math.max(segLabels.length, 1);
-    const chartRatio = Math.max(1.5, (barCount * 40 + 60) > 300 ? 1.2 : 3.5);
-
     if (charts.segments) charts.segments.destroy();
     charts.segments = new Chart(document.getElementById('chartSegments'), {
         type: 'bar',
         data: {
-            labels: segLabels,
+            labels: Object.keys(segmentGroups),
             datasets: [{
-                label: 'Leads',
-                data: segData,
-                backgroundColor: 'rgba(249,115,22,0.85)',
-                borderRadius: 6
+                label: 'Quantidade',
+                data: Object.values(segmentGroups),
+                backgroundColor: '#f97316'
             }]
         },
         options: {
             indexAxis: 'y',
             responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: chartRatio,
+            maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1, precision: 0, color: textColor },
-                    grid: { color: gridColor }
-                },
-                y: {
-                    ticks: { color: textColor },
-                    grid: { display: false }
-                }
+                x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+                y: { grid: { display: false }, ticks: { color: textColor } }
             }
         }
     });
 }
 
 function exportToCSV() {
-    if (allLeads.length === 0) { return; }
-
+    if (allLeads.length === 0) return;
     const headers = ['Nome', 'Empresa', 'WhatsApp', 'Email', 'Segmento', 'Status', 'Data'];
     const rows = allLeads.map(l => [
         `"${(l.name || '').replace(/"/g, '""')}"`,
@@ -253,14 +216,10 @@ function exportToCSV() {
         l.status || 'novo',
         l.timestamp ? new Date(l.timestamp).toLocaleDateString('pt-BR') : ''
     ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF'
-        + headers.join(',') + '\n'
-        + rows.map(r => r.join(',')).join('\n');
-
-    const link = document.createElement('a');
-    link.setAttribute('href', encodeURI(csvContent));
-    link.setAttribute('download', `leads_ava_${new Date().toISOString().split('T')[0]}.csv`);
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", `leads_ava_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
