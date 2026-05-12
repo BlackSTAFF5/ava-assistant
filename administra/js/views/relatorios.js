@@ -45,17 +45,23 @@ export function renderRelatoriosView(container, actions) {
         <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-top: 24px;">
             <div class="card">
                 <h3 style="margin-bottom: 20px;">Crescimento de Leads (Últimos 7 dias)</h3>
-                <canvas id="chartGrowth" height="300"></canvas>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="chartGrowth"></canvas>
+                </div>
             </div>
             <div class="card">
                 <h3 style="margin-bottom: 20px;">Distribuição por Status</h3>
-                <canvas id="chartStatus" height="300"></canvas>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="chartStatus"></canvas>
+                </div>
             </div>
         </div>
 
         <div class="card" style="margin-top: 24px;">
             <h3 style="margin-bottom: 20px;">Leads por Segmento</h3>
-            <canvas id="chartSegments" height="200"></canvas>
+            <div style="position: relative; height: 220px;">
+                <canvas id="chartSegments"></canvas>
+            </div>
         </div>
     `;
 
