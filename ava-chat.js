@@ -75,6 +75,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   updateLogoTheme();
 
+  // Frases rotativas apenas no título central
+  const greetings = [
+    'Me fale sobre sua empresa',
+    'O que sua empresa faz atualmente?',
+    'Qual é o principal objetivo da sua empresa hoje?',
+    'Como funciona sua operação hoje?',
+    'Qual é o maior desafio da sua empresa atualmente?',
+  ];
+  const welcomeEl = document.getElementById('welcomeGreeting');
+  if (welcomeEl) welcomeEl.textContent = greetings[Math.floor(Math.random() * greetings.length)];
+
   initSidebar();
   initChat();
   initLeadModal();
