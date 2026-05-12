@@ -539,15 +539,18 @@ async function onSubmit(e) {
     let body, headers = {};
 
     if (files.length) {
-      // Use FormData when files are attached
-      const fd = new FormData();
-      fd.append('message', text);
-      fd.append('sessionId', state.sessionId);
-      fd.append('timestamp', new Date().toISOString());
-      fd.append('history', JSON.stringify(state.messages.map(m => ({ role: m.role, content: m.content }))));
-      files.forEach(f => fd.append('files', f));
-      body = fd;
+      // Converte todos os arquivos para base64 para máxima compatibilidade com n8n
+      const fileDataArray = await Promise.all(files.map(f => fileToBase64(f)));
+
+      headers['Content-Type'] = 'application/json';
       headers[CONFIG.WEBHOOK_AUTH_HEADER] = CONFIG.WEBHOOK_AUTH_VALUE;
+      body = JSON.stringify({
+        message: text,
+        sessionId: state.sessionId,
+        timestamp: new Date().toISOString(),
+        history: state.messages.map(m => ({ role: m.role, content: m.content })),
+        files: fileDataArray,
+      });
     } else {
       headers['Content-Type'] = 'application/json';
       headers[CONFIG.WEBHOOK_AUTH_HEADER] = CONFIG.WEBHOOK_AUTH_VALUE;
@@ -560,8 +563,22 @@ async function onSubmit(e) {
     }
 
     const res = await fetch(CONFIG.CHAT_WEBHOOK_URL, { method: 'POST', headers, body });
-    if (!res.ok) throw new Error(res.status);
-    let data = await res.json();
+
+    // Lê a resposta como texto primeiro para evitar erro de parse JSON
+    const rawText = await res.text();
+    if (!res.ok) {
+      console.error('Erro do servidor:', res.status, rawText);
+      throw new Error(`HTTP ${res.status}: ${rawText.substring(0, 200)}`);
+    }
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      // Se não for JSON válido, usa o texto como resposta direta
+      data = { reply: rawText };
+    }
+
     removeTyping(typing);
 
     // n8n pode retornar array [{json:{...}}] ou objeto direto
@@ -577,12 +594,11 @@ async function onSubmit(e) {
     }
 
     if (shouldOpenLead) {
-      // Pequeno delay para a mensagem aparecer primeiro, depois abre o modal
       setTimeout(() => openLeadModal(), 1500);
     }
     await addMsg('assistant', reply, true);
   } catch (err) {
-    console.error(err);
+    console.error('Erro no envio:', err);
     removeTyping(typing);
     await addMsg('assistant', '⚠️ Erro ao conectar com o servidor. Tente novamente.', false);
   } finally {
@@ -811,6 +827,23 @@ async function onLeadSubmit(e) {
 
 // ============ FILE UPLOAD ============
 state.pendingFiles = [];
+
+// Converte qualquer arquivo para base64
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve({
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        size: file.size,
+        data: reader.result, // data:image/jpeg;base64,....
+      });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 function onFilesSelected(e) {
   const newFiles = Array.from(e.target.files);
