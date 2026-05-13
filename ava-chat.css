@@ -480,8 +480,6 @@ body.dark-theme .toggle-switch::after {
   width: 28px;
   height: 28px;
   object-fit: contain;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
   flex-shrink: 0;
   background: none;
   border: none;
@@ -491,7 +489,7 @@ body.dark-theme .toggle-switch::after {
   border-radius: 0;
 }
 body.dark-theme .brand-logo {
-  content: url('images/logo_branca_hd.png');
+  content: url('images/logo_branca_cropped.png');
 }
 
 /* Dropdown */
