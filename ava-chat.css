@@ -477,8 +477,8 @@ body.dark-theme .toggle-switch::after {
   color: var(--text-muted);
 }
 .brand-logo {
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
   flex-shrink: 0;
   background: none;
