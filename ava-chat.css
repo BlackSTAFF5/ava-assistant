@@ -491,7 +491,7 @@ body.dark-theme .toggle-switch::after {
   border-radius: 0;
 }
 body.dark-theme .brand-logo {
-  content: url('images/logo_branca.svg');
+  content: url('images/logo_branca_hd.png');
 }
 
 /* Dropdown */
