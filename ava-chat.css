@@ -1246,16 +1246,21 @@ body.dark-theme .brand-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   background: none;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: background 0.15s, color 0.15s, transform 0.15s;
   padding: 0;
   position: relative;
+}
+
+.msg-action-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .msg-action-btn:hover {
