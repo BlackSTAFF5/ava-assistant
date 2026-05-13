@@ -795,7 +795,7 @@ body.dark-theme .brand-logo {
   color: #0d0d0d;
   padding: 12px 18px;
   border-radius: 24px;
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.5;
   max-width: 80%;
   word-wrap: break-word;
@@ -814,7 +814,7 @@ body.dark-theme .brand-logo {
   margin-top: 4px;
 }
 .msg.assistant .msg-text {
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.6;
   color: var(--text);
   word-wrap: break-word;
