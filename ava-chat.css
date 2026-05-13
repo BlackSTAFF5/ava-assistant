@@ -489,7 +489,7 @@ body.dark-theme .toggle-switch::after {
   border-radius: 0;
 }
 body.dark-theme .brand-logo {
-  content: url('images/logo_branca_cropped.png');
+  content: url('images/logo_branca_cropped.png?v=5');
 }
 
 /* Dropdown */

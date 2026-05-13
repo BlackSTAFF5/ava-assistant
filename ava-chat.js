@@ -178,7 +178,7 @@ function updateLogoTheme() {
   const isDark = document.body.classList.contains('dark-theme');
   const logos = document.querySelectorAll('.brand-logo');
   logos.forEach(img => {
-    img.src = isDark ? 'images/logo_branca_cropped.png' : 'images/logo_preta_cropped.png';
+    img.src = isDark ? 'images/logo_branca_cropped.png?v=5' : 'images/logo_preta_cropped.png?v=5';
   });
 }
 
