@@ -139,9 +139,15 @@ function updateSegmentsDropdown() {
 }
 
 function filterLeads() {
-    const search = document.getElementById('leadSearch').value.toLowerCase();
-    const segment = document.getElementById('filterSegment').value;
-    const status = document.getElementById('filterStatus').value;
+    const searchInput = document.getElementById('leadSearch');
+    const segmentSelect = document.getElementById('filterSegment');
+    const statusSelect = document.getElementById('filterStatus');
+    
+    if (!searchInput) return;
+
+    const search = searchInput.value.toLowerCase();
+    const segment = segmentSelect.value;
+    const status = statusSelect.value;
 
     const filtered = allLeads.filter(l => {
         const matchesSearch = !search || 
@@ -181,7 +187,7 @@ function renderTable(leads) {
         const statusClass = `badge-${status.replace(/\s+/g, '-')}`;
         
         return `
-            <tr>
+            <tr onclick="window.viewLead('${l.id}')" style="cursor: pointer">
                 <td>
                     <div style="display: flex; flex-direction: column;">
                         <span style="font-weight: 700; color: var(--text-primary)">${l.name || 'Lead sem nome'}</span>
@@ -194,9 +200,9 @@ function renderTable(leads) {
                 <td style="color: var(--text-secondary)">${date}</td>
                 <td><span class="badge ${statusClass}">${status}</span></td>
                 <td>
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px;" onclick="event.stopPropagation()">
                         <button class="btn-icon" style="color: var(--accent)" onclick="window.viewLead('${l.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
-                        <button class="btn-icon" style="color: var(--danger)" onclick="window.deleteLead('${l.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2 2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                        <button class="btn-icon" style="color: var(--danger)" onclick="window.deleteLead('${l.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     </div>
                 </td>
             </tr>
@@ -204,58 +210,239 @@ function renderTable(leads) {
     }).join('');
 }
 
-// Funções globais (mantidas para compatibilidade com o SPA)
-window.deleteLead = (id) => {
-    confirmAction("Deseja excluir este lead permanentemente? Esta ação não pode ser desfeita.", async () => {
-        try {
-            await db.collection('leads').doc(id).delete();
-            showToast("Lead removido do ecossistema", "success");
-        } catch (e) { handleFirestoreError(e); }
-    });
+// ============ PREMIUM MODAL LOGIC ============
+window.viewLead = async (id) => {
+    // 1. Mostrar Backdrop e Loading Initial
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-overlay';
+    backdrop.id = 'leadModalOverlay';
+    backdrop.innerHTML = `
+        <div class="modal-premium" style="align-items: center; justify-content: center;">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+            <p style="margin-top: 20px; color: var(--text-secondary)">Carregando inteligência do lead...</p>
+        </div>
+    `;
+    document.body.appendChild(backdrop);
+
+    // 2. Fetch Fresh Data
+    try {
+        const doc = await db.collection('leads').doc(id).get();
+        if (!doc.exists) {
+            backdrop.remove();
+            showToast("Lead não encontrado", "error");
+            return;
+        }
+        const lead = { id: doc.id, ...doc.data() };
+        renderPremiumModalContent(lead, backdrop);
+    } catch (e) {
+        backdrop.remove();
+        handleFirestoreError(e);
+    }
 };
 
-window.viewLead = (id) => {
-    const lead = allLeads.find(l => l.id === id);
-    if (!lead) return;
+function renderPremiumModalContent(lead, container) {
+    const status = (lead.status || 'novo').toLowerCase();
+    const date = lead.timestamp ? new Date(lead.timestamp).toLocaleString('pt-BR') : '—';
+    const temp = lead.temperature || (lead.score > 70 ? 'hot' : lead.score > 30 ? 'warm' : 'cold');
+    const tempLabel = temp === 'hot' ? '🔥 Lead Quente' : temp === 'warm' ? '🟠 Lead Morno' : '🔵 Lead Frio';
+    const tempClass = `temp-${temp}`;
     
-    const modalHtml = `
-        <div id="leadModal" class="modal-overlay" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
-            <div class="modal-card" style="max-width: 650px; border: 1px solid var(--accent-glow);">
-                <div class="modal-header">
-                    <h2 style="color: var(--accent)">Perfil do Lead</h2>
-                    <button class="btn-icon" onclick="document.getElementById('leadModal').remove()">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 10px 0;">
-                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Nome Completo</label><p style="font-size: 1.1rem; font-weight: 600;">${lead.name || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Empresa</label><p style="font-size: 1.1rem; font-weight: 600;">${lead.company || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">WhatsApp</label><p style="color: var(--accent); font-weight: 700;">${lead.whatsapp || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">E-mail Corporativo</label><p>${lead.email || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Segmento de Atuação</label><p>${lead.segment || '—'}</p></div>
-                    <div><label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Alterar Status</label>
-                        <select class="form-control" style="margin-top: 5px; border-color: var(--accent-glow)" onchange="window.updateLeadStatus('${lead.id}', this.value)">
-                            <option value="novo" ${lead.status==='novo'?'selected':''}>Novo</option>
-                            <option value="em contato" ${lead.status==='em contato'?'selected':''}>Em contato</option>
-                            <option value="qualificado" ${lead.status==='qualificado'?'selected':''}>Qualificado</option>
-                            <option value="perdido" ${lead.status==='perdido'?'selected':''}>Perdido</option>
-                            <option value="convertido" ${lead.status==='convertido'?'selected':''}>Convertido</option>
-                        </select>
+    // Iniciais para o Avatar
+    const initials = (lead.name || 'L').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+    container.innerHTML = `
+        <div class="modal-premium">
+            <!-- HEADER -->
+            <div class="modal-premium-header">
+                <div class="lead-profile-info">
+                    <div class="lead-avatar-large">${initials}</div>
+                    <div class="lead-main-data">
+                        <h2>${lead.name || 'Lead sem nome'}</h2>
+                        <div class="lead-badges">
+                            <span class="badge badge-${status.replace(/\s+/g, '-')}">${status}</span>
+                            <span class="badge" style="background: var(--bg-hover)">${lead.segment || 'Geral'}</span>
+                            <span class="temp-tag ${tempClass}">${tempLabel}</span>
+                        </div>
                     </div>
                 </div>
-                <div style="margin-top: 24px; background: var(--bg-main); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
-                    <label style="color:var(--text-secondary); font-size: 11px; text-transform: uppercase; font-weight: 700;">Necessidade / Conversa</label>
-                    <p style="margin-top: 10px; line-height: 1.6; color: var(--text-primary);">${lead.necessidade || lead.message || 'Nenhum detalhe adicional fornecido.'}</p>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <div style="text-align: right; margin-right: 20px;">
+                        <div style="font-size: 0.75rem; color: var(--text-secondary)">Capturado em</div>
+                        <div style="font-weight: 600;">${date}</div>
+                    </div>
+                    <button class="btn-icon" onclick="document.getElementById('leadModalOverlay').remove()">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-premium-body">
+                <!-- COLUNA ESQUERDA: IA & DADOS -->
+                <div class="modal-left">
+                    <div class="section-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                        Resumo Inteligente da Conversa
+                    </div>
+                    
+                    <div class="ai-summary-box">
+                        <p style="line-height: 1.8; font-size: 1.05rem; color: #fff;">
+                            ${lead.aiSummary || lead.necessidade || lead.message || 'A IA está processando o resumo desta conversa...'}
+                        </p>
+                        
+                        <div class="ai-grid">
+                            <div class="ai-item">
+                                <label>Dores do Cliente</label>
+                                <p>${lead.painPoints || 'Não identificadas'}</p>
+                            </div>
+                            <div class="ai-item">
+                                <label>Objetivo</label>
+                                <p>${lead.objectives || lead.objective || 'Melhorar operação'}</p>
+                            </div>
+                            <div class="ai-item">
+                                <label>Interesse</label>
+                                <p>${lead.interestLevel || 'Em análise'}</p>
+                            </div>
+                            <div class="ai-item">
+                                <label>Necessidades</label>
+                                <p>${lead.necessity || 'Padrão'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        Análise Estratégica
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
+                        <div class="card" style="padding: 20px; background: rgba(255,255,255,0.02)">
+                            <div class="score-container">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 0.8rem; color: var(--text-secondary)">Chance de Fechamento</span>
+                                    <span style="font-weight: 800; color: var(--accent)">${lead.closingChance || '45'}%</span>
+                                </div>
+                                <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${lead.closingChance || '45'}%"></div></div>
+                            </div>
+                            <p style="margin-top: 12px; font-size: 0.85rem; color: var(--text-secondary)">
+                                ${lead.aiAnalysis || 'Lead com bom potencial, mas requer follow-up imediato.'}
+                            </p>
+                        </div>
+                        <div class="card" style="padding: 20px; background: rgba(255,255,255,0.02)">
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="detail-item">
+                                    <label>Prioridade</label>
+                                    <span style="color: ${lead.priority === 'Alta' ? 'var(--danger)' : 'var(--success)'}">${lead.priority || 'Média'}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Potencial Financeiro</label>
+                                    <span>${lead.potential || 'R$ 2.500 - R$ 5.000'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Dados Detalhados</div>
+                    <div class="details-grid">
+                        <div class="detail-item"><label>WhatsApp</label><span>${lead.whatsapp || '—'}</span></div>
+                        <div class="detail-item"><label>E-mail</label><span>${lead.email || '—'}</span></div>
+                        <div class="detail-item"><label>Cidade</label><span>${lead.city || 'Não informada'}</span></div>
+                        <div class="detail-item"><label>Faturamento</label><span>${lead.revenue || '—'}</span></div>
+                        <div class="detail-item"><label>Funcionários</label><span>${lead.employees || '—'}</span></div>
+                        <div class="detail-item"><label>Origem</label><span>${lead.source || 'Bot Ava'}</span></div>
+                    </div>
+                </div>
+
+                <!-- COLUNA DIREITA: TIMELINE -->
+                <div class="modal-right">
+                    <div class="section-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        Timeline da Conversa
+                    </div>
+                    
+                    <div class="timeline-container">
+                        ${renderTimeline(lead)}
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="modal-premium-footer">
+                <div style="display: flex; gap: 16px;">
+                    <a href="https://wa.me/${(lead.whatsapp || '').replace(/\D/g, '')}" target="_blank" class="btn btn-primary" style="background: #25D366; border: none; padding: 12px 24px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        Chamar no WhatsApp
+                    </a>
+                    <button class="btn btn-secondary" onclick="window.scheduleMeeting('${lead.id}')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        Marcar Reunião
+                    </button>
+                </div>
+                
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <select class="form-control" style="width: 180px;" onchange="window.updateLeadStatus('${lead.id}', this.value)">
+                        <option value="novo" ${status==='novo'?'selected':''}>Novo</option>
+                        <option value="em contato" ${status==='em contato'?'selected':''}>Em contato</option>
+                        <option value="qualificado" ${status==='qualificado'?'selected':''}>Qualificado</option>
+                        <option value="convertido" ${status==='convertido'?'selected':''}>Convertido</option>
+                        <option value="perdido" ${status==='perdido'?'selected':''}>Perdido</option>
+                    </select>
+                    <button class="btn-icon delete" onclick="window.deleteLead('${lead.id}')" style="background: rgba(239,68,68,0.1); padding: 10px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
                 </div>
             </div>
         </div>
     `;
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function renderTimeline(lead) {
+    if (lead.timeline && Array.isArray(lead.timeline)) {
+        return lead.timeline.map(item => `
+            <div class="timeline-item">
+                <div class="timeline-dot" style="border-color: ${item.sender === 'bot' ? 'var(--accent)' : '#3b82f6'}"></div>
+                <div class="timeline-time">${item.time || 'agora'}</div>
+                <div class="timeline-content">${item.content}</div>
+            </div>
+        `).join('');
+    }
+    
+    // Fallback: Mostrar a mensagem inicial como primeiro item da timeline
+    return `
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-time">${lead.timestamp ? new Date(lead.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) : '—'}</div>
+            <div class="timeline-content">
+                <strong>Lead capturado:</strong><br>
+                ${lead.necessidade || lead.message || 'Nenhuma mensagem inicial registrada.'}
+            </div>
+        </div>
+        <div class="timeline-item" style="opacity: 0.5">
+            <div class="timeline-dot" style="border-color: var(--border)"></div>
+            <div class="timeline-content">Aguardando novas interações...</div>
+        </div>
+    `;
+}
+
+// Funções globais auxiliares
+window.scheduleMeeting = (id) => {
+    showToast("Função de agendamento em integração com Google Calendar", "info");
+};
+
+window.deleteLead = (id) => {
+    confirmAction("Deseja excluir este lead permanentemente do CRM?", async () => {
+        try {
+            await db.collection('leads').doc(id).delete();
+            const modal = document.getElementById('leadModalOverlay');
+            if (modal) modal.remove();
+            showToast("Lead removido com sucesso", "success");
+        } catch (e) { handleFirestoreError(e); }
+    });
 };
 
 window.updateLeadStatus = async (id, newStatus) => {
     try {
         await db.collection('leads').doc(id).update({ status: newStatus });
-        showToast(`Status alterado para ${newStatus}`, "success");
+        showToast(`Status atualizado: ${newStatus.toUpperCase()}`, "success");
     } catch (e) { handleFirestoreError(e); }
 };

@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Frases rotativas apenas no título central
   const greetings = [
-    'Me fale sobre sua empresa',
+    'Me fala da sua empresa',
     'O que sua empresa faz atualmente?',
     'Qual é o principal objetivo da sua empresa hoje?',
     'Como funciona sua operação hoje?',
@@ -178,7 +178,7 @@ function updateLogoTheme() {
   const isDark = document.body.classList.contains('dark-theme');
   const logos = document.querySelectorAll('.brand-logo');
   logos.forEach(img => {
-    img.src = isDark ? 'images/logo_white_v4.png' : 'images/logo_v4.png';
+    img.src = isDark ? 'images/logo_branca.svg' : 'images/logo_preta.svg';
   });
 }
 
@@ -618,10 +618,7 @@ function appendMsg(role, content) {
   const div = document.createElement('div');
   div.className = `msg ${role}`;
   if (role === 'assistant') {
-    const isDark = document.body.classList.contains('dark-theme');
-    const logoSrc = isDark ? 'images/logo_white_v4.png' : 'images/logo_v4.png';
     div.innerHTML = `
-      <img src="${logoSrc}" alt="Ava" class="brand-logo msg-avatar">
       <div class="msg-content-wrap">
         <div class="msg-text">${md(content)}</div>
         ${createMsgActionsHTML(content)}
@@ -639,14 +636,6 @@ function typewriterMsg(content) {
   return new Promise((resolve) => {
     const div = document.createElement('div');
     div.className = 'msg assistant';
-    
-    const isDark = document.body.classList.contains('dark-theme');
-    const logoSrc = isDark ? 'images/logo_white_v4.png' : 'images/logo_v4.png';
-    const avatar = document.createElement('img');
-    avatar.src = logoSrc;
-    avatar.alt = 'Ava';
-    avatar.className = 'brand-logo msg-avatar';
-    div.appendChild(avatar);
 
     const wrap = document.createElement('div');
     wrap.className = 'msg-content-wrap';
@@ -721,10 +710,7 @@ function md(text) {
 function showTyping() {
   const el = document.createElement('div');
   el.className = 'msg assistant';
-  const isDark = document.body.classList.contains('dark-theme');
-  const logoSrc = isDark ? 'images/logo_white_v4.png' : 'images/logo_v4.png';
   el.innerHTML = `
-    <img src="${logoSrc}" alt="Ava" class="brand-logo msg-avatar">
     <div class="msg-content-wrap">
       <div class="msg-text">
         <div class="typing-dots-wrapper">
