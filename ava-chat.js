@@ -617,16 +617,26 @@ async function addMsg(role, content, animate = false) {
 function appendMsg(role, content) {
   const div = document.createElement('div');
   div.className = `msg ${role}`;
+  
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-content-wrap';
+  
+  const msgText = document.createElement('div');
+  msgText.className = 'msg-text';
+  msgText.innerHTML = md(content);
+  
+  wrap.appendChild(msgText);
+  
+  // Actions
   if (role === 'assistant') {
-    div.innerHTML = `
-      <div class="msg-content-wrap">
-        <div class="msg-text">${md(content)}</div>
-        ${createMsgActionsHTML(content)}
-      </div>`;
+    wrap.insertAdjacentHTML('beforeend', createMsgActionsHTML(content));
     bindMsgActions(div, content);
-  } else {
-    div.innerHTML = `<div class="msg-text">${md(content)}</div>`;
+  } else if (role === 'user') {
+    wrap.insertAdjacentHTML('beforeend', createUserMsgActionsHTML(content));
+    bindMsgActions(div, content);
   }
+  
+  div.appendChild(wrap);
   messagesEl.appendChild(div);
   scrollDown();
 }
@@ -1194,24 +1204,46 @@ function createMsgActionsHTML(content) {
         <path d="M2 10C2 8.34315 3.34315 7 5 7H7V14C7 15.6569 8.34315 17 10 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V17H10C8.34315 17 7 15.6569 7 14V9H5Z" fill="currentColor"></path>
       </svg>
     </button>
-    <button class="msg-action-btn" data-action="share" data-tooltip="Compartilhar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-      </svg>
-    </button>
     <button class="msg-action-btn auth-required" data-action="like" data-tooltip="Boa resposta">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M7 10c0-3.866 3.134-7 7-7s7 3.134 7 7v4.586l1.707 1.707A1 1 0 0 1 22 18h-4.132l-.462 2.768A2 2 0 0 1 15.435 22H11a2 2 0 0 1-2-2v-4H7a2 2 0 0 1-2-2v-4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     </button>
     <button class="msg-action-btn auth-required" data-action="dislike" data-tooltip="Resposta ruim">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M17 14c0 3.866-3.134 7-7 7s-7-3.134-7-7V9.414L1.293 7.707A1 1 0 0 1 2 6h4.132l.462-2.768A2 2 0 0 1 8.565 2H13a2 2 0 0 1 2 2v4h2a2 2 0 0 1 2 2v4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <button class="msg-action-btn" data-action="share" data-tooltip="Compartilhar">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     </button>
     <button class="msg-action-btn auth-required" data-action="regenerate" data-tooltip="Regenerar resposta">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <button class="msg-action-btn" data-action="more" data-tooltip="Mais">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 12h.01M12 12h.01M19 12h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+  </div>`;
+}
+
+function createUserMsgActionsHTML(content) {
+  return `<div class="msg-actions">
+    <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H10C8.34315 17 7 15.6569 7 14V5ZM9 5C9 4.44772 9.44772 4 10 4H19C19.5523 4 20 4.44772 20 4V14C20 14.5523 19.5523 15 19 15H10C9.44772 15 9 14.5523 9 14V5Z" fill="currentColor"></path>
+        <path d="M2 10C2 8.34315 3.34315 7 5 7H7V14C7 15.6569 8.34315 17 10 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V17H10C8.34315 17 7 15.6569 7 14V9H5Z" fill="currentColor"></path>
+      </svg>
+    </button>
+    <button class="msg-action-btn" data-action="edit" data-tooltip="Editar">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     </button>
   </div>`;

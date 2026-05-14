@@ -1231,8 +1231,12 @@ body.dark-theme .brand-logo {
 }
 
 /* Show on hover (desktop) */
-.msg.assistant:hover .msg-actions {
+.msg:hover .msg-actions {
   opacity: 1;
+}
+
+.msg.user .msg-actions {
+  justify-content: flex-end;
 }
 
 /* Always show on touch devices */
