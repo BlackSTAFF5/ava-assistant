@@ -1211,12 +1211,12 @@ function createMsgActionsHTML(content) {
         <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
       </svg>
     </button>
-    <button class="msg-action-btn auth-required" data-action="like" data-tooltip="Boa resposta">
+    <button class="msg-action-btn" data-action="like" data-tooltip="Boa resposta">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
       </svg>
     </button>
-    <button class="msg-action-btn auth-required" data-action="dislike" data-tooltip="Resposta ruim">
+    <button class="msg-action-btn" data-action="dislike" data-tooltip="Resposta ruim">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
       </svg>
@@ -1228,7 +1228,7 @@ function createMsgActionsHTML(content) {
         <line x1="12" y1="2" x2="12" y2="15"></line>
       </svg>
     </button>
-    <button class="msg-action-btn auth-required" data-action="regenerate" data-tooltip="Gerar novamente">
+    <button class="msg-action-btn" data-action="regenerate" data-tooltip="Gerar novamente">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
         <path d="M3 3v5h5"></path>
