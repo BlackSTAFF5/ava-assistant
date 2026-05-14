@@ -1411,6 +1411,11 @@ body.user-logged-in .msg-action-btn.auth-required {
   flex-direction: column;
   flex: 1; min-width: 0;
 }
+
+.msg.user .msg-content-wrap {
+  align-items: flex-end;
+  flex: 0 1 auto;
+}
 /* ============ EDIT IN PLACE ============ */
 .edit-container {
   width: 100%;
