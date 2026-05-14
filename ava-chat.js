@@ -17,6 +17,9 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Force local persistence to keep user logged in after refresh
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.error("Auth Persistence Error:", e));
+
 const CONFIG = {
   CHAT_WEBHOOK_URL: 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-chat',
   LEAD_WEBHOOK_URL: 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-lead-capture',
@@ -26,12 +29,17 @@ const CONFIG = {
 };
 
 let state = {
-  sessionId: genId(),
-  messages: [],
+  // Use sessionStorage to keep the current conversation alive after a page refresh
+  sessionId: sessionStorage.getItem('ava_session_id') || genId(),
+  messages: JSON.parse(sessionStorage.getItem('ava_current_messages') || '[]'),
   isWaiting: false,
   sidebarOpen: window.innerWidth > 768,
   conversations: [],
 };
+// Ensure initial session is saved
+if (!sessionStorage.getItem('ava_session_id')) {
+  sessionStorage.setItem('ava_session_id', state.sessionId);
+}
 
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
@@ -101,23 +109,37 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (user) {
       document.body.classList.add('user-logged-in');
-      // User is logged in
       if(loginBtnMore) loginBtnMore.style.display = 'none';
       if(registerBtnMore) registerBtnMore.style.display = 'none';
       if(logoutBtn) logoutBtn.style.display = 'flex';
+      
+      // Load history
       loadConversations();
       updateSettingsPanel(user);
+
+      // If we have messages in state (from sessionStorage), render them
+      if (state.messages.length > 0) {
+        welcome.style.display = 'none';
+        messagesEl.classList.add('active');
+        messagesEl.innerHTML = '';
+        state.messages.forEach(m => appendMsg(m.role, m.content, false));
+        scrollDown();
+      }
     } else {
       document.body.classList.remove('user-logged-in');
-      // User is logged out
       if(loginBtnMore) loginBtnMore.style.display = 'flex';
       if(registerBtnMore) registerBtnMore.style.display = 'flex';
       if(logoutBtn) logoutBtn.style.display = 'none';
       
-      // Clear chats when logged out
-      state.conversations = [];
-      startNewChat();
-      renderHistory();
+      // Only clear and start new chat if we don't have a temporary session in progress
+      if (state.messages.length === 0) {
+        state.conversations = [];
+        startNewChat();
+        renderHistory();
+      } else {
+        // Just render what we have in state
+        renderHistory();
+      }
       updateSettingsPanel(null);
     }
   });
@@ -125,6 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('logoutBtn')?.addEventListener('click', () => {
     auth.signOut().then(() => {
       document.getElementById('moreDropdown')?.classList.remove('active');
+      sessionStorage.removeItem('ava_session_id');
+      sessionStorage.removeItem('ava_current_messages');
     });
   });
 
@@ -230,7 +254,9 @@ function closeSidebar() {
 function startNewChat() {
   if (state.messages.length > 0) saveConversation();
   state.sessionId = genId();
+  sessionStorage.setItem('ava_session_id', state.sessionId);
   state.messages = [];
+  sessionStorage.removeItem('ava_current_messages');
   state.isWaiting = false;
   messagesEl.innerHTML = '';
   messagesEl.classList.remove('active');
@@ -451,7 +477,9 @@ function loadConv(sid) {
   if (!conv) return;
   if (state.messages.length) saveConversation();
   state.sessionId = sid;
+  sessionStorage.setItem('ava_session_id', state.sessionId);
   state.messages = [...conv.msgs];
+  sessionStorage.setItem('ava_current_messages', JSON.stringify(state.messages));
   welcome.style.display = 'none';
   messagesEl.classList.add('active');
   messagesEl.innerHTML = '';
@@ -606,6 +634,7 @@ async function onSubmit(e) {
 
 async function addMsg(role, content, animate = false) {
   state.messages.push({ role, content, t: Date.now() });
+  sessionStorage.setItem('ava_current_messages', JSON.stringify(state.messages));
   if (role === 'assistant' && animate) {
     await typewriterMsg(content);
   } else {
@@ -1024,7 +1053,10 @@ function initSettingsPanel() {
   // Logout
   settingsLogoutBtn?.addEventListener('click', () => {
     settingsPanel?.classList.remove('show');
-    auth.signOut();
+    auth.signOut().then(() => {
+      sessionStorage.removeItem('ava_session_id');
+      sessionStorage.removeItem('ava_current_messages');
+    });
   });
 }
 
