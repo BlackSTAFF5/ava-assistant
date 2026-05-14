@@ -797,7 +797,7 @@ body.dark-theme .brand-logo {
   border-radius: 24px;
   font-size: 16px;
   line-height: 1.5;
-  max-width: 80%;
+  max-width: 100%;
   word-wrap: break-word;
 }
 
@@ -1157,9 +1157,13 @@ body.dark-theme .brand-logo {
   }
 
   .msg.user .msg-text {
-    max-width: 90%;
+    max-width: 100%;
     font-size: 16px;
     padding: 10px 16px;
+  }
+  
+  .msg.user .msg-content-wrap {
+    max-width: 90%;
   }
 
   .msg.assistant .msg-text {
@@ -1416,7 +1420,7 @@ body.user-logged-in .msg-action-btn.auth-required {
   align-items: flex-end;
   flex: none;
   width: fit-content;
-  max-width: 100%;
+  max-width: 80%;
 }
 /* ============ EDIT IN PLACE ============ */
 .edit-container {
