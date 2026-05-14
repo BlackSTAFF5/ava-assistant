@@ -173,14 +173,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-function handleEditMsg(content) {
+function handleEditMsg(content, msgDiv) {
   const chatInput = document.getElementById('chatInput');
   if (chatInput) {
     chatInput.value = content;
     chatInput.focus();
     chatInput.style.height = 'auto';
     chatInput.style.height = chatInput.scrollHeight + 'px';
-    showFeedbackToast('Mensagem pronta para edição');
+    
+    const messagesEl = document.getElementById('messages');
+    const index = Array.from(messagesEl.children).indexOf(msgDiv);
+    
+    if (index !== -1) {
+      state.messages = state.messages.slice(0, index);
+      while (messagesEl.children.length > index) {
+        messagesEl.removeChild(messagesEl.lastChild);
+      }
+      saveConversation();
+    }
   }
 }
 
@@ -1289,7 +1299,7 @@ function bindMsgActions(msgDiv, content) {
           handleDislikeMsg(btn);
           break;
         case 'edit':
-          handleEditMsg(content);
+          handleEditMsg(content, msgDiv);
           break;
         case 'regenerate':
           handleRegenerateMsg(msgDiv);
