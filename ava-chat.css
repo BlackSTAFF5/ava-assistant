@@ -1,5 +1,5 @@
 /* ============================================
-   AvaAssistant — ava-chat.css
+   AvaAssistant — ava-chat.css?v=23
    ChatGPT-style chat (light + dark mode)
    ============================================ */
 
@@ -774,6 +774,7 @@ body.dark-theme .brand-logo {
   margin: 0 auto;
   padding: 24px 32px 120px;
   gap: 24px;
+  overflow-x: hidden; /* Lock horizontal */
 }
 .messages.active {
   display: flex;
@@ -783,7 +784,10 @@ body.dark-theme .brand-logo {
 .msg {
   display: flex;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   animation: fadeIn 0.25s ease;
+  overflow: hidden; /* Prevent internal content from leaking */
 }
 
 @keyframes fadeIn {
@@ -805,6 +809,8 @@ body.dark-theme .brand-logo {
   width: fit-content;
   max-width: 100%;
   word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Assistant Text (Left) */
@@ -820,11 +826,14 @@ body.dark-theme .brand-logo {
   margin-top: 4px;
 }
 .msg.assistant .msg-text {
+  flex: 1;
+  min-width: 0;
   font-size: 16px;
   line-height: 1.6;
-  color: var(--text);
+  color: var(--text-2);
   word-wrap: break-word;
-  flex: 1; min-width: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   padding: 4px 0;
 }
 
@@ -1419,7 +1428,9 @@ body.user-logged-in .msg-action-btn.auth-required {
 .msg-content-wrap {
   display: flex;
   flex-direction: column;
-  flex: 1; min-width: 0;
+  flex: 1; 
+  min-width: 0;
+  max-width: 100%;
 }
 
 .msg.user .msg-content-wrap {
