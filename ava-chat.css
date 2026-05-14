@@ -1219,30 +1219,18 @@ body.dark-theme .brand-logo {
   50%       { opacity: 0; }
 }
 
-.msg-content-wrap {
-  display: flex;
-  flex-direction: column;
-  max-width: 85%;
-}
-
-.msg.user .msg-content-wrap {
-  align-items: flex-end;
-}
-
-.msg.assistant .msg-content-wrap {
-  align-items: flex-start;
-}
-
 /* ========== MESSAGE ACTIONS BAR ========== */
 .msg-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 8px;
-  opacity: 0.6;
+  gap: 2px;
+  margin-top: 6px;
+  padding: 0 4px;
+  opacity: 0;
   transition: opacity 0.2s ease;
 }
 
+/* Show on hover (desktop) */
 .msg:hover .msg-actions {
   opacity: 1;
 }
