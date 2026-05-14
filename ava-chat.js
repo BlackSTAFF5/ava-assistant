@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return msg;
     }
   });
-
+});
 
 // ============ UTILS ============
 function updateLogoTheme() {

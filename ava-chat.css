@@ -818,7 +818,7 @@ body.dark-theme .brand-logo {
   line-height: 1.6;
   color: var(--text);
   word-wrap: break-word;
-  max-width: 95%;
+  flex: 1; min-width: 0;
   padding: 4px 0;
 }
 
@@ -1409,7 +1409,7 @@ body.user-logged-in .msg-action-btn.auth-required {
 .msg-content-wrap {
   display: flex;
   flex-direction: column;
-  max-width: 95%;
+  flex: 1; min-width: 0;
 }
 /* ============ EDIT IN PLACE ============ */
 .edit-container {
