@@ -173,6 +173,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+function handleEditMsg(content) {
+  const chatInput = document.getElementById('chatInput');
+  if (chatInput) {
+    chatInput.value = content;
+    chatInput.focus();
+    chatInput.style.height = 'auto';
+    chatInput.style.height = chatInput.scrollHeight + 'px';
+    showFeedbackToast('Mensagem pronta para edição');
+  }
+}
+
 // ============ UTILS ============
 function updateLogoTheme() {
   const isDark = document.body.classList.contains('dark-theme');
@@ -1240,15 +1251,15 @@ function createMsgActionsHTML(content) {
 function createUserMsgActionsHTML(content) {
   return `<div class="msg-actions">
     <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H10C8.34315 17 7 15.6569 7 14V5ZM9 5C9 4.44772 9.44772 4 10 4H19C19.5523 4 20 4.44772 20 4V14C20 14.5523 19.5523 15 19 15H10C9.44772 15 9 14.5523 9 14V5Z" fill="currentColor"></path>
-        <path d="M2 10C2 8.34315 3.34315 7 5 7H7V14C7 15.6569 8.34315 17 10 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V17H10C8.34315 17 7 15.6569 7 14V9H5Z" fill="currentColor"></path>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
       </svg>
     </button>
     <button class="msg-action-btn" data-action="edit" data-tooltip="Editar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20h9"></path>
+        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
       </svg>
     </button>
   </div>`;
@@ -1276,6 +1287,9 @@ function bindMsgActions(msgDiv, content) {
           break;
         case 'dislike':
           handleDislikeMsg(btn);
+          break;
+        case 'edit':
+          handleEditMsg(content);
           break;
         case 'regenerate':
           handleRegenerateMsg(msgDiv);
