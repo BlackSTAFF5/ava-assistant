@@ -1216,9 +1216,21 @@ function createMsgActionsHTML(content) {
         <path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 12.5A7.5 7.5 0 0 1 18.064 7.42l1.698-1.697a1 1 0 0 1 1.707.707v5.5a1 1 0 0 1-1 1h-5.5a1 1 0 0 1-.707-1.707l1.748-1.748A5.5 5.5 0 1 0 12 18a5.48 5.48 0 0 0 3.889-1.611 1 1 0 1 1 1.414 1.414A7.48 7.48 0 0 1 12 20a7.5 7.5 0 0 1-7.5-7.5Z" fill="currentColor"></path>
       </svg>
     </button>
+    <button class="msg-action-btn auth-required" data-action="like" data-tooltip="Boa resposta">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.82 21.897a2.5 2.5 0 0 1-2.427-1.905l-.946-3.738-2.61-.949A2.5 2.5 0 0 1 3.25 12.96v-7.037a2.5 2.5 0 0 1 2.5-2.5h11a2.5 2.5 0 0 1 2.457 2.032l1.458 7.728a2.5 2.5 0 0 1-2.457 2.963h-6.19l.756 3.411a2.5 2.5 0 0 1-1.954 2.939Zm-1.456-2.39a.5.5 0 0 0 .485.381.5.5 0 0 0 .39-.588l-1.042-4.707a1 1 0 0 1 .977-1.217h6.035a.5.5 0 0 0 .492-.593l-1.458-7.728a.5.5 0 0 0-.492-.406h-11a.5.5 0 0 0-.5.5v7.037a.5.5 0 0 0 .317.469l3.522 1.28a1 1 0 0 1 .622.686l.945 3.737-.3.141Z" fill="currentColor"></path>
+      </svg>
+    </button>
     <button class="msg-action-btn auth-required" data-action="dislike" data-tooltip="Resposta ruim">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md">
         <path fill-rule="evenodd" clip-rule="evenodd" d="M10.82 2.103a2.5 2.5 0 0 0-2.427 1.905l-.946 3.738-2.61.949A2.5 2.5 0 0 0 3.25 11.04v7.037a2.5 2.5 0 0 0 2.5 2.5h11a2.5 2.5 0 0 0 2.457-2.032l1.458-7.728a2.5 2.5 0 0 0-2.457-2.963h-6.19l.756-3.411a2.5 2.5 0 0 0-1.954-2.939Zm-1.456 2.39a.5.5 0 0 1 .485-.381.5.5 0 0 1 .39.588l-1.042 4.707a1 1 0 0 0 .977 1.217h6.035a.5.5 0 0 1 .492.593l-1.458 7.728a.5.5 0 0 1-.492.406h-11a.5.5 0 0 1-.5-.5v-7.037a.5.5 0 0 1 .317-.469l3.522-1.28a1 1 0 0 0 .622-.686l.945-3.737-.3-.141Z" fill="currentColor"></path>
+      </svg>
+    </button>
+    <button class="msg-action-btn" data-action="share" data-tooltip="Compartilhar">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.5a.75.75 0 0 1 .75.75v10a.75.75 0 0 1-1.5 0v-10A.75.75 0 0 1 12 2.5Z" fill="currentColor"></path>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M7.22 6.22a.75.75 0 0 1 1.06 0L12 9.94l3.72-3.72a.75.75 0 1 1 1.06 1.06L12.53 11.53a.75.75 0 0 1-1.06 0L7.22 7.28a.75.75 0 0 1 0-1.06Z" fill="currentColor" transform="matrix(1 0 0 -1 0 18)"></path>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M4 14a.75.75 0 0 1 .75.75V19.5a.5.5 0 0 0 .5.5h13.5a.5.5 0 0 0 .5-.5v-4.75a.75.75 0 0 1 1.5 0V19.5a2 2 0 0 1-2 2H5.25a2 2 0 0 1-2-2v-4.75A.75.75 0 0 1 4 14Z" fill="currentColor"></path>
       </svg>
     </button>
   </div>`;
@@ -1272,12 +1284,44 @@ function bindMsgActions(msgDiv, content) {
   });
 }
 
+let voices = [];
+function loadVoices() {
+    voices = window.speechSynthesis.getVoices();
+}
+if ('speechSynthesis' in window) {
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
 function handleSpeakerMsg(btn, content) {
   if ('speechSynthesis' in window) {
-    // Only read actual text, strip HTML tags if any (basic approach)
+    window.speechSynthesis.cancel();
     const textToRead = content.replace(/<[^>]+>/g, '').trim();
     const utterance = new SpeechSynthesisUtterance(textToRead);
+    
+    const preferredNames = ['Francisca', 'Google português do Brasil', 'Luciana', 'Vitoria', 'Maria'];
+    let selectedVoice = null;
+    
+    for (const name of preferredNames) {
+        selectedVoice = voices.find(v => v.lang.includes('pt-BR') && v.name.includes(name));
+        if (selectedVoice) break;
+    }
+    
+    if (!selectedVoice) {
+        selectedVoice = voices.find(v => v.lang.includes('pt-BR') && (v.name.includes('Female') || v.name.includes('Feminino')));
+    }
+    if (!selectedVoice) {
+        selectedVoice = voices.find(v => v.lang.includes('pt-BR'));
+    }
+    
+    if (selectedVoice) {
+        utterance.voice = selectedVoice;
+    }
+    
     utterance.lang = 'pt-BR';
+    utterance.rate = 1.05; 
+    utterance.pitch = 1.1; 
+    
     window.speechSynthesis.speak(utterance);
     showFeedbackToast('Lendo mensagem...');
   } else {
