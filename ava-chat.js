@@ -1345,10 +1345,9 @@ function handleSpeakerMsg(btn, content) {
 }
 
 function handleCopyMsg(btn, content) {
-  navigator.clipboard.writeText(content).then(() => {
+  const showSuccess = () => {
     btn.classList.add('copied');
     btn.dataset.tooltip = 'Copiado!';
-    // Swap icon to checkmark
     btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
     showFeedbackToast('Texto copiado!');
     
@@ -1360,18 +1359,33 @@ function handleCopyMsg(btn, content) {
         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
       </svg>`;
     }, 2000);
-  }).catch(() => {
-    // Fallback for older browsers
-    const textarea = document.createElement('textarea');
-    textarea.value = content;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(content).then(showSuccess).catch(() => {
+      fallbackCopy(content, showSuccess);
+    });
+  } else {
+    fallbackCopy(content, showSuccess);
+  }
+}
+
+function fallbackCopy(content, successCb) {
+  const textarea = document.createElement('textarea');
+  textarea.value = content;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
     document.execCommand('copy');
+    if (successCb) successCb();
+  } catch(err) {
+    console.error('Fallback copy error', err);
+    showFeedbackToast('Erro ao copiar');
+  } finally {
     document.body.removeChild(textarea);
-    showFeedbackToast('Texto copiado!');
-  });
+  }
 }
 
 function handleShareMsg(btn, content) {
