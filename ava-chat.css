@@ -1,5 +1,5 @@
 /* ============================================
-   AvaAssistant — ava-chat.css?v=23
+   AvaAssistant — ava-chat.css?v=24
    ChatGPT-style chat (light + dark mode)
    ============================================ */
 
@@ -905,13 +905,13 @@ body.dark-theme .brand-logo {
 
 .input-bar {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   width: 100%;
   max-width: 768px;
   background: var(--bg-input);
   border-radius: 28px; /* Formato pílula */
-  padding: 12px 14px;
-  gap: 8px;
+  padding: 10px 18px 10px 18px;
+  gap: 12px;
   border: 1px solid var(--border-input);
   /* Uma sombra super suave igual a da imagem */
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
@@ -995,6 +995,7 @@ body.dark-theme .brand-logo {
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
+  margin-bottom: 0;
   border-radius: 50%;
   transition: opacity 0.12s;
 }
