@@ -1126,7 +1126,7 @@ body.dark-theme .brand-logo {
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
   body {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .sidebar {
@@ -1158,12 +1158,12 @@ body.dark-theme .brand-logo {
 
   .msg.user .msg-text {
     max-width: 90%;
-    font-size: 15px;
+    font-size: 16px;
     padding: 10px 16px;
   }
 
   .msg.assistant .msg-text {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .input-area {
