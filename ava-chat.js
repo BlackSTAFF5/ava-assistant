@@ -174,12 +174,46 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function handleEditMsg(content, msgDiv) {
-  const chatInput = document.getElementById('chatInput');
-  if (chatInput) {
-    chatInput.value = content;
-    chatInput.focus();
-    chatInput.style.height = 'auto';
-    chatInput.style.height = chatInput.scrollHeight + 'px';
+  const wrap = msgDiv.querySelector('.msg-content-wrap');
+  if (!wrap) return;
+  
+  const msgText = wrap.querySelector('.msg-text');
+  const msgActions = wrap.querySelector('.msg-actions');
+  
+  if (msgText) msgText.style.display = 'none';
+  if (msgActions) msgActions.style.display = 'none';
+  
+  const editContainer = document.createElement('div');
+  editContainer.className = 'edit-container';
+  editContainer.innerHTML = `
+    <textarea class="edit-textarea"></textarea>
+    <div class="edit-actions">
+      <button class="edit-btn cancel">Cancelar</button>
+      <button class="edit-btn save">Salvar e Enviar</button>
+    </div>
+  `;
+  wrap.appendChild(editContainer);
+  
+  const textarea = editContainer.querySelector('.edit-textarea');
+  textarea.value = content;
+  textarea.style.height = 'auto';
+  textarea.style.height = textarea.scrollHeight + 'px';
+  textarea.focus();
+  
+  textarea.addEventListener('input', () => {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  });
+  
+  editContainer.querySelector('.cancel').addEventListener('click', () => {
+    editContainer.remove();
+    if (msgText) msgText.style.display = '';
+    if (msgActions) msgActions.style.display = '';
+  });
+  
+  editContainer.querySelector('.save').addEventListener('click', () => {
+    const newText = textarea.value.trim();
+    if (!newText) return;
     
     const messagesEl = document.getElementById('messages');
     const index = Array.from(messagesEl.children).indexOf(msgDiv);
@@ -190,8 +224,13 @@ function handleEditMsg(content, msgDiv) {
         messagesEl.removeChild(messagesEl.lastChild);
       }
       saveConversation();
+      
+      const chatInput = document.getElementById('chatInput');
+      if (chatInput) chatInput.value = newText;
+      const fakeEvent = { preventDefault: () => {} };
+      onSubmit(fakeEvent);
     }
-  }
+  });
 }
 
 // ============ UTILS ============

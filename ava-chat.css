@@ -1411,3 +1411,51 @@ body.user-logged-in .msg-action-btn.auth-required {
   flex-direction: column;
   max-width: 95%;
 }
+/* ============ EDIT IN PLACE ============ */
+.edit-container {
+  width: 100%;
+  margin-top: 5px;
+}
+.edit-textarea {
+  width: 100%;
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: inherit;
+  font-size: 16px;
+  resize: none;
+  outline: none;
+  min-height: 50px;
+}
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+.edit-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  font-weight: 500;
+  transition: background 0.2s, opacity 0.2s;
+}
+.edit-btn.cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.edit-btn.cancel:hover {
+  background: var(--bg-hover);
+}
+.edit-btn.save {
+  background: var(--text);
+  color: var(--bg);
+}
+.edit-btn.save:hover {
+  opacity: 0.8;
+}
