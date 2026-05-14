@@ -54,18 +54,22 @@ body.dark-theme {
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
   display: flex;
   height: 100vh;
   height: 100dvh;
+  width: 100%;
   overflow: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
   font-size: 16px;
   line-height: 1.5;
+  position: relative;
 }
 
 /* ========== SCROLLBAR ========== */
@@ -411,6 +415,7 @@ body.dark-theme .toggle-switch::after {
   flex-direction: column;
   min-width: 0;
   height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* ========== TOP BAR ========== */
@@ -797,7 +802,7 @@ body.dark-theme .brand-logo {
   border-radius: 24px;
   font-size: 16px;
   line-height: 1.5;
-  width: max-content;
+  width: fit-content;
   max-width: 100%;
   word-wrap: break-word;
 }
