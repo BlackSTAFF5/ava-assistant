@@ -189,13 +189,16 @@ function handleEditMsg(content, msgDiv) {
     <textarea class="edit-textarea"></textarea>
     <div class="edit-actions">
       <button class="edit-btn cancel">Cancelar</button>
-      <button class="edit-btn save">Salvar e Enviar</button>
+      <button class="edit-btn save">Salvar</button>
     </div>
   `;
   wrap.appendChild(editContainer);
   
   const textarea = editContainer.querySelector('.edit-textarea');
   textarea.value = content;
+  textarea.selectionStart = textarea.value.length;
+  textarea.selectionEnd = textarea.value.length;
+  
   textarea.style.height = 'auto';
   textarea.style.height = textarea.scrollHeight + 'px';
   textarea.focus();
@@ -205,13 +208,13 @@ function handleEditMsg(content, msgDiv) {
     textarea.style.height = textarea.scrollHeight + 'px';
   });
   
-  editContainer.querySelector('.cancel').addEventListener('click', () => {
+  const cancelEdit = () => {
     editContainer.remove();
     if (msgText) msgText.style.display = '';
     if (msgActions) msgActions.style.display = '';
-  });
+  };
   
-  editContainer.querySelector('.save').addEventListener('click', () => {
+  const saveEdit = () => {
     const newText = textarea.value.trim();
     if (!newText) return;
     
@@ -230,7 +233,20 @@ function handleEditMsg(content, msgDiv) {
       const fakeEvent = { preventDefault: () => {} };
       onSubmit(fakeEvent);
     }
+  };
+
+  textarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEdit();
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      saveEdit();
+    }
   });
+  
+  editContainer.querySelector('.cancel').addEventListener('click', cancelEdit);
+  editContainer.querySelector('.save').addEventListener('click', saveEdit);
 }
 
 // ============ UTILS ============
