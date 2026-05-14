@@ -171,83 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return msg;
     }
   });
-});
 
-function handleEditMsg(content, msgDiv) {
-  const wrap = msgDiv.querySelector('.msg-content-wrap');
-  if (!wrap) return;
-  
-  const msgText = wrap.querySelector('.msg-text');
-  const msgActions = wrap.querySelector('.msg-actions');
-  
-  if (msgText) msgText.style.display = 'none';
-  if (msgActions) msgActions.style.display = 'none';
-  
-  const editContainer = document.createElement('div');
-  editContainer.className = 'edit-container';
-  editContainer.innerHTML = `
-    <textarea class="edit-textarea"></textarea>
-    <div class="edit-actions">
-      <button class="edit-btn cancel">Cancelar</button>
-      <button class="edit-btn save">Salvar</button>
-    </div>
-  `;
-  wrap.appendChild(editContainer);
-  
-  const textarea = editContainer.querySelector('.edit-textarea');
-  textarea.value = content;
-  textarea.selectionStart = textarea.value.length;
-  textarea.selectionEnd = textarea.value.length;
-  
-  textarea.style.height = 'auto';
-  textarea.style.height = textarea.scrollHeight + 'px';
-  textarea.focus();
-  
-  textarea.addEventListener('input', () => {
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
-  });
-  
-  const cancelEdit = () => {
-    editContainer.remove();
-    if (msgText) msgText.style.display = '';
-    if (msgActions) msgActions.style.display = '';
-  };
-  
-  const saveEdit = () => {
-    const newText = textarea.value.trim();
-    if (!newText) return;
-    
-    const messagesEl = document.getElementById('messages');
-    const index = Array.from(messagesEl.children).indexOf(msgDiv);
-    
-    if (index !== -1) {
-      state.messages = state.messages.slice(0, index);
-      while (messagesEl.children.length > index) {
-        messagesEl.removeChild(messagesEl.lastChild);
-      }
-      saveConversation();
-      
-      const chatInput = document.getElementById('chatInput');
-      if (chatInput) chatInput.value = newText;
-      const fakeEvent = { preventDefault: () => {} };
-      onSubmit(fakeEvent);
-    }
-  };
-
-  textarea.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      cancelEdit();
-    } else if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      saveEdit();
-    }
-  });
-  
-  editContainer.querySelector('.cancel').addEventListener('click', cancelEdit);
-  editContainer.querySelector('.save').addEventListener('click', saveEdit);
-}
 
 // ============ UTILS ============
 function updateLogoTheme() {
@@ -1315,16 +1239,10 @@ function createMsgActionsHTML(content) {
 
 function createUserMsgActionsHTML(content) {
   return `<div class="msg-actions">
-    <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar">
+    <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar mensagem">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-    </button>
-    <button class="msg-action-btn" data-action="edit" data-tooltip="Editar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 20h9"></path>
-        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
       </svg>
     </button>
   </div>`;
@@ -1353,9 +1271,6 @@ function bindMsgActions(msgDiv, content) {
         case 'dislike':
           handleDislikeMsg(btn);
           break;
-        case 'edit':
-          handleEditMsg(content, msgDiv);
-          break;
         case 'regenerate':
           handleRegenerateMsg(msgDiv);
           break;
@@ -1373,40 +1288,84 @@ if ('speechSynthesis' in window) {
     window.speechSynthesis.onvoiceschanged = loadVoices;
 }
 
+function resetAllSpeakerBtns() {
+  document.querySelectorAll('.msg-action-btn[data-action="speaker"]').forEach(b => {
+    b.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+    </svg>`;
+    b.dataset.tooltip = 'Narrar mensagem';
+    b.dataset.playing = 'false';
+    b.dataset.paused = 'false';
+  });
+}
+
 function handleSpeakerMsg(btn, content) {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const textToRead = content.replace(/<[^>]+>/g, '').trim();
-    const utterance = new SpeechSynthesisUtterance(textToRead);
-    
-    const preferredNames = ['Francisca', 'Google português do Brasil', 'Luciana', 'Vitoria', 'Maria'];
-    let selectedVoice = null;
-    
-    for (const name of preferredNames) {
-        selectedVoice = voices.find(v => v.lang.includes('pt-BR') && v.name.includes(name));
-        if (selectedVoice) break;
-    }
-    
-    if (!selectedVoice) {
-        selectedVoice = voices.find(v => v.lang.includes('pt-BR') && (v.name.includes('Female') || v.name.includes('Feminino')));
-    }
-    if (!selectedVoice) {
-        selectedVoice = voices.find(v => v.lang.includes('pt-BR'));
-    }
-    
-    if (selectedVoice) {
-        utterance.voice = selectedVoice;
-    }
-    
-    utterance.lang = 'pt-BR';
-    utterance.rate = 1.05; 
-    utterance.pitch = 1.1; 
-    
-    window.speechSynthesis.speak(utterance);
-    showFeedbackToast('Lendo mensagem...');
-  } else {
+  if (!('speechSynthesis' in window)) {
     showFeedbackToast('Seu navegador não suporta leitura em voz alta.');
+    return;
   }
+
+  const isPlaying = btn.dataset.playing === 'true';
+  const isPaused = btn.dataset.paused === 'true';
+
+  if (isPlaying) {
+    window.speechSynthesis.pause();
+    btn.dataset.playing = 'false';
+    btn.dataset.paused = 'true';
+    btn.dataset.tooltip = 'Continuar narração';
+    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </svg>`;
+    return;
+  }
+
+  if (isPaused) {
+    window.speechSynthesis.resume();
+    btn.dataset.playing = 'true';
+    btn.dataset.paused = 'false';
+    btn.dataset.tooltip = 'Pausar narração';
+    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="4" width="4" height="16"></rect>
+      <rect x="14" y="4" width="4" height="16"></rect>
+    </svg>`;
+    return;
+  }
+
+  window.speechSynthesis.cancel(); 
+  resetAllSpeakerBtns();
+
+  const textToRead = content.replace(/<[^>]+>/g, '').trim();
+  const utterance = new SpeechSynthesisUtterance(textToRead);
+  
+  const preferredNames = ['Francisca', 'Google português do Brasil', 'Luciana', 'Vitoria', 'Maria'];
+  let selectedVoice = null;
+  
+  for (const name of preferredNames) {
+      selectedVoice = voices.find(v => v.lang.includes('pt-BR') && v.name.includes(name));
+      if (selectedVoice) break;
+  }
+  if (!selectedVoice) selectedVoice = voices.find(v => v.lang.includes('pt-BR') && (v.name.includes('Female') || v.name.includes('Feminino')));
+  if (!selectedVoice) selectedVoice = voices.find(v => v.lang.includes('pt-BR'));
+  if (selectedVoice) utterance.voice = selectedVoice;
+  
+  utterance.lang = 'pt-BR';
+  utterance.rate = 1.05; 
+  utterance.pitch = 1.1; 
+
+  utterance.onend = () => resetAllSpeakerBtns();
+  utterance.onerror = () => resetAllSpeakerBtns();
+
+  window.speechSynthesis.speak(utterance);
+  
+  btn.dataset.playing = 'true';
+  btn.dataset.paused = 'false';
+  btn.dataset.tooltip = 'Pausar narração';
+  btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="4" width="4" height="16"></rect>
+    <rect x="14" y="4" width="4" height="16"></rect>
+  </svg>`;
 }
 
 function handleCopyMsg(btn, content) {
