@@ -626,6 +626,7 @@ function appendMsg(role, content) {
   msgText.innerHTML = md(content);
   
   wrap.appendChild(msgText);
+  div.appendChild(wrap);
   
   // Actions
   if (role === 'assistant') {
@@ -636,7 +637,6 @@ function appendMsg(role, content) {
     bindMsgActions(div, content);
   }
   
-  div.appendChild(wrap);
   messagesEl.appendChild(div);
   scrollDown();
 }
