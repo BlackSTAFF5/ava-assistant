@@ -1231,7 +1231,7 @@ function closeLoginModal() {
 function createMsgActionsHTML(content) {
   return `<div class="msg-actions">
     <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="14" height="14" rx="2" ry="2"/><path d="M18 8h2c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2h-10c-1.1 0-2-.9-2-2v-2"/></svg>
     </button>
     <button class="msg-action-btn" data-action="like" data-tooltip="Boa resposta">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
@@ -1252,7 +1252,7 @@ function createMsgActionsHTML(content) {
 function createUserMsgActionsHTML(content) {
   return `<div class="msg-actions">
     <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar mensagem">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="14" height="14" rx="2" ry="2"/><path d="M18 8h2c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2h-10c-1.1 0-2-.9-2-2v-2"/></svg>
     </button>
   </div>`;
 }
@@ -1390,7 +1390,7 @@ function handleCopyMsg(btn, content) {
     setTimeout(() => {
       btn.classList.remove('copied');
       btn.dataset.tooltip = 'Copiar';
-      btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+      btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="14" height="14" rx="2" ry="2"/><path d="M18 8h2c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2h-10c-1.1 0-2-.9-2-2v-2"/></svg>`;
     }, 2000);
   };
 
