@@ -1231,47 +1231,28 @@ function closeLoginModal() {
 function createMsgActionsHTML(content) {
   return `<div class="msg-actions">
     <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="currentColor"></path>
-      </svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </button>
     <button class="msg-action-btn" data-action="like" data-tooltip="Boa resposta">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy">
-        <path d="M12.7325 2.6275C13.0727 1.72772 14.3652 1.79829 14.6107 2.72886L15.6655 6.72423C15.8636 7.47473 15.5243 8.26914 14.8365 8.64651L13.1804 9.55496C12.6575 9.84101 12.4408 10.4781 12.6874 11.0227L14.487 14.995C14.5906 15.2237 14.5906 15.4857 14.487 15.7144C14.2713 16.19 13.7031 16.3899 13.2396 16.1534L9.40299 14.198C8.85157 13.9167 8.18353 14.1357 7.90219 14.6872L6.24888 17.9293C5.89861 18.6165 4.92091 18.5936 4.60299 17.8908L1.24892 10.4787C1.09054 10.1285 1.13471 9.71918 1.36371 9.41184L4.37788 5.37395C4.58725 5.09353 4.91592 4.92733 5.26588 4.92432L8.45588 4.89758C9.16548 4.89163 9.74942 4.35468 9.8145 3.64801L10.1036 2.5975" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-        <path d="M12.7803 2.61603C12.4728 1.74315 13.7468 1.37195 14.097 2.15427L14.8589 3.8558C15.1698 4.55044 15.3001 5.30985 15.238 6.06509L15.0958 7.74951C15.0588 8.18705 15.2927 8.59947 15.6831 8.79969L17.3551 9.65786C17.8222 9.89754 18.0416 10.4412 17.8686 10.9357L16.0198 16.2194C15.9026 16.5542 15.6129 16.8018 15.2618 16.8635L12.7614 17.3029C12.3498 17.3753 11.937 17.1598 11.7588 16.7828L9.14868 11.2586C8.92498 10.7851 9.10399 10.2186 9.56068 9.96292L11.9999 8.59858" fill="none" stroke="currentColor" stroke-width="0" stroke-linecap="round"></path>
-        <path d="M7.5 14.5L6.93 17.86C6.85 18.32 7.06 18.78 7.45 19.04L9.2 20.21C9.54 20.44 9.97 20.47 10.33 20.29L14 18.43" fill="none" stroke="currentColor" stroke-width="0"></path>
-      </svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
     </button>
     <button class="msg-action-btn" data-action="dislike" data-tooltip="Resposta ruim">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy">
-        <path d="M12.7325 21.3725C13.0727 22.2723 14.3652 22.2017 14.6107 21.2711L15.6655 17.2758C15.8636 16.5253 15.5243 15.7309 14.8365 15.3535L13.1804 14.445C12.6575 14.159 12.4408 13.5219 12.6874 12.9773L14.487 9.00497C14.5906 8.77631 14.5906 8.51431 14.487 8.28565C14.2713 7.80997 13.7031 7.61011 13.2396 7.84661L9.40299 9.80197C8.85157 10.0833 8.18353 9.86431 7.90219 9.31281L6.24888 6.07068C5.89861 5.38351 4.92091 5.40638 4.60299 6.10924L1.24892 13.5213C1.09054 13.8715 1.13471 14.2808 1.36371 14.5882L4.37788 18.626C4.58725 18.9065 4.91592 19.0727 5.26588 19.0757L8.45588 19.1024C9.16548 19.1084 9.74942 19.6453 9.8145 20.352L10.1036 21.4025" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-      </svg>
-    </button>
-    <button class="msg-action-btn" data-action="regenerate" data-tooltip="Gerar novamente">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy">
-        <path d="M3.06957 10.8763C3.62331 6.43564 7.40967 3 12 3C14.2824 3 16.3493 3.85067 17.9107 5.27451L16.6 6.6H21V2.15L19.3 3.85C17.4 2.09 14.82 1 12 1C6.47715 1 2 5.47715 2 11H4.05C4.05 10.9588 4.05 10.9176 4.05 10.8763H3.06957Z" fill="currentColor"></path>
-        <path d="M20.9304 13.1237C20.3767 17.5644 16.5903 21 12 21C9.71764 21 7.65069 20.1493 6.08929 18.7255L7.4 17.4H3V21.85L4.7 20.15C6.6 21.91 9.18 23 12 23C17.5228 23 22 18.5228 22 13H19.95C19.95 13.0412 19.95 13.0824 19.95 13.1237H20.9304Z" fill="currentColor"></path>
-      </svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
     </button>
     <button class="msg-action-btn" data-action="share" data-tooltip="Compartilhar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M11.2929 2.29289C11.6834 1.90237 12.3166 1.90237 12.7071 2.29289L16.7071 6.29289C17.0976 6.68342 17.0976 7.31658 16.7071 7.70711C16.3166 8.09763 15.6834 8.09763 15.2929 7.70711L13 5.41421V16C13 16.5523 12.5523 17 12 17C11.4477 17 11 16.5523 11 16V5.41421L8.70711 7.70711C8.31658 8.09763 7.68342 8.09763 7.29289 7.70711C6.90237 7.31658 6.90237 6.68342 7.29289 6.29289L11.2929 2.29289ZM4 14C4.55228 14 5 14.4477 5 15V19C5 19.5523 5.44772 20 6 20H18C18.5523 20 19 19.5523 19 19V15C19 14.4477 19.4477 14 20 14C20.5523 14 21 14.4477 21 15V19C21 20.6569 19.6569 22 18 22H6C4.34315 22 3 20.6569 3 19V15C3 14.4477 3.44772 14 4 14Z" fill="currentColor"></path>
-      </svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
     </button>
-    <button class="msg-action-btn" data-action="more" data-tooltip="Mais">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M3 12C3 10.8954 3.89543 10 5 10C6.10457 10 7 10.8954 7 12C7 13.1046 6.10457 14 5 14C3.89543 14 3 13.1046 3 12ZM10 12C10 10.8954 10.8954 10 12 10C13.1046 10 14 10.8954 14 12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12ZM17 12C17 10.8954 17.8954 10 19 10C20.1046 10 21 10.8954 21 12C21 13.1046 20.1046 14 19 14C17.8954 14 17 13.1046 17 12Z" fill="currentColor"></path>
-      </svg>
+    <button class="msg-action-btn" data-action="regenerate" data-tooltip="Gerar novamente">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>
     </button>
   </div>`;
 }
 
+
 function createUserMsgActionsHTML(content) {
   return `<div class="msg-actions">
     <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar mensagem">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="currentColor"></path>
-      </svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </button>
   </div>`;
 }
@@ -1403,15 +1384,13 @@ function handleCopyMsg(btn, content) {
   const showSuccess = () => {
     btn.classList.add('copied');
     btn.dataset.tooltip = 'Copiado!';
-    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy"><polyline points="20 6 9 17 4 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
     showFeedbackToast('Texto copiado!');
     
     setTimeout(() => {
       btn.classList.remove('copied');
       btn.dataset.tooltip = 'Copiar';
-      btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="currentColor"></path>
-      </svg>`;
+      btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
     }, 2000);
   };
 
