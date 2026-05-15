@@ -1247,8 +1247,8 @@ body.dark-theme .brand-logo {
 .msg-actions {
   display: flex;
   align-items: center;
-  gap: 4px; /* Slightly more space like ChatGPT */
-  margin-top: 4px;
+  gap: 8px; /* More space like modern ChatGPT */
+  margin-top: 8px;
   padding: 0;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -1274,8 +1274,8 @@ body.dark-theme .brand-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px; /* Clean ChatGPT size */
-  height: 28px;
+  width: 32px; /* Standard ChatGPT size */
+  height: 32px;
   background: transparent;
   border: none;
   color: var(--text-muted); /* Gray icon */
@@ -1287,8 +1287,8 @@ body.dark-theme .brand-logo {
 }
 
 .msg-action-btn svg {
-  width: 16px; /* Thinner crisp look */
-  height: 16px;
+  width: 18px; /* Larger modern look */
+  height: 18px;
 }
 
 .msg-action-btn:hover {
