@@ -1514,8 +1514,8 @@ body.dark-theme .feedback-toast {
 
 /* ============ MSG ACTION ICONS (PNG) ============ */
 .msg-action-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
   transition: filter 0.2s, opacity 0.2s;
   opacity: 0.6; /* Aspecto mais claro/cinza no estado normal */

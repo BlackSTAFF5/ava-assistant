@@ -1232,23 +1232,23 @@ function createMsgActionsHTML(content) {
   return `<div class="msg-actions" style="display:flex;align-items:center;gap:4px;padding:2px 0;">
     <!-- COPIAR -->
     <button class="msg-action-btn" data-action="copy" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Copiar">
-      <img src="images/icons/copiar.png" width="20" height="20" class="msg-action-icon" alt="Copiar" />
+      <img src="images/icons/copiar.png" width="24" height="24" class="msg-action-icon" alt="Copiar" />
     </button>
     <!-- THUMBS UP -->
     <button class="msg-action-btn" data-action="like" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Gostei">
-      <img src="images/icons/like.png" width="20" height="20" class="msg-action-icon" alt="Gostei" />
+      <img src="images/icons/like.png" width="24" height="24" class="msg-action-icon" alt="Gostei" />
     </button>
     <!-- THUMBS DOWN -->
     <button class="msg-action-btn" data-action="dislike" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Não gostei">
-      <img src="images/icons/deslike.png" width="20" height="20" class="msg-action-icon" alt="Não gostei" />
+      <img src="images/icons/deslike.png" width="24" height="24" class="msg-action-icon" alt="Não gostei" />
     </button>
     <!-- COMPARTILHAR -->
     <button class="msg-action-btn" data-action="share" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Compartilhar">
-      <img src="images/icons/compartilhar.png" width="20" height="20" class="msg-action-icon" alt="Compartilhar" />
+      <img src="images/icons/compartilhar.png" width="24" height="24" class="msg-action-icon" alt="Compartilhar" />
     </button>
     <!-- REGENERAR -->
     <button class="msg-action-btn" data-action="regenerate" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Regenerar">
-      <img src="images/icons/tentarnovamente.png" width="20" height="20" class="msg-action-icon" alt="Regenerar" />
+      <img src="images/icons/tentarnovamente.png" width="24" height="24" class="msg-action-icon" alt="Regenerar" />
     </button>
   </div>`;
 }
@@ -1257,7 +1257,7 @@ function createUserMsgActionsHTML(content) {
   return `<div class="msg-actions" style="display:flex;align-items:center;gap:4px;padding:2px 0;">
     <!-- COPIAR -->
     <button class="msg-action-btn" data-action="copy" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Copiar">
-      <img src="images/icons/copiar.png" width="20" height="20" class="msg-action-icon" alt="Copiar" />
+      <img src="images/icons/copiar.png" width="24" height="24" class="msg-action-icon" alt="Copiar" />
     </button>
   </div>`;
 }
@@ -1389,12 +1389,12 @@ function handleSpeakerMsg(btn, content) {
 function handleCopyMsg(btn, content) {
   const showSuccess = () => {
     btn.classList.add('copied');
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
     showFeedbackToast('Texto copiado!');
     
     setTimeout(() => {
       btn.classList.remove('copied');
-      btn.innerHTML = `<img src="images/icons/copiar.png" width="20" height="20" class="msg-action-icon" alt="Copiar" />`;
+      btn.innerHTML = `<img src="images/icons/copiar.png" width="24" height="24" class="msg-action-icon" alt="Copiar" />`;
     }, 2000);
   };
 
