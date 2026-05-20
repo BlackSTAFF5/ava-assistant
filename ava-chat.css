@@ -1274,8 +1274,8 @@ body.dark-theme .brand-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 35px;
+  height: 35px;
   background: transparent;
   border: none;
   color: #8e8ea0;
@@ -1287,8 +1287,8 @@ body.dark-theme .brand-logo {
 }
 
 .msg-action-btn svg {
-  width: 50px;
-  height: 50px;
+  width: 35px;
+  height: 35px;
   flex-shrink: 0;
 }
 
@@ -1514,8 +1514,8 @@ body.dark-theme .feedback-toast {
 
 /* ============ MSG ACTION ICONS (PNG) ============ */
 .msg-action-icon {
-  width: 50px;
-  height: 50px;
+  width: 35px;
+  height: 35px;
   object-fit: contain;
   transition: filter 0.2s, opacity 0.2s;
   opacity: 0.6; /* Aspecto mais claro/cinza no estado normal */
