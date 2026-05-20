@@ -1232,23 +1232,23 @@ function createMsgActionsHTML(content) {
   return `<div class="msg-actions" style="display:flex;align-items:center;gap:4px;padding:2px 0;">
     <!-- COPIAR -->
     <button class="msg-action-btn" data-action="copy" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Copiar">
-      <img src="images/icons/copiar.png" width="24" height="24" class="msg-action-icon" alt="Copiar" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2" ry="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
     </button>
     <!-- THUMBS UP -->
     <button class="msg-action-btn" data-action="like" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Gostei">
-      <img src="images/icons/like.png" width="24" height="24" class="msg-action-icon" alt="Gostei" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
     </button>
     <!-- THUMBS DOWN -->
     <button class="msg-action-btn" data-action="dislike" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Não gostei">
-      <img src="images/icons/deslike.png" width="24" height="24" class="msg-action-icon" alt="Não gostei" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
     </button>
     <!-- COMPARTILHAR -->
     <button class="msg-action-btn" data-action="share" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Compartilhar">
-      <img src="images/icons/compartilhar.png" width="24" height="24" class="msg-action-icon" alt="Compartilhar" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
     </button>
     <!-- REGENERAR -->
     <button class="msg-action-btn" data-action="regenerate" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Regenerar">
-      <img src="images/icons/tentarnovamente.png" width="24" height="24" class="msg-action-icon" alt="Regenerar" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
     </button>
   </div>`;
 }
@@ -1257,7 +1257,7 @@ function createUserMsgActionsHTML(content) {
   return `<div class="msg-actions" style="display:flex;align-items:center;gap:4px;padding:2px 0;">
     <!-- COPIAR -->
     <button class="msg-action-btn" data-action="copy" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Copiar">
-      <img src="images/icons/copiar.png" width="24" height="24" class="msg-action-icon" alt="Copiar" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2" ry="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
     </button>
   </div>`;
 }
@@ -1394,7 +1394,7 @@ function handleCopyMsg(btn, content) {
     
     setTimeout(() => {
       btn.classList.remove('copied');
-      btn.innerHTML = `<img src="images/icons/copiar.png" width="24" height="24" class="msg-action-icon" alt="Copiar" />`;
+      btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2" ry="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>`;
     }, 2000);
   };
 

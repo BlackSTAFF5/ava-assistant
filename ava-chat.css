@@ -573,8 +573,8 @@ body.dark-theme .brand-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 60px;
+  height: 60px;
   background: none;
   border: none;
   color: var(--text);
@@ -925,8 +925,8 @@ body.dark-theme .brand-logo {
 }
 
 .input-plus {
-  width: 32px;
-  height: 32px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -959,8 +959,8 @@ body.dark-theme .brand-logo {
 }
 
 .input-icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -977,8 +977,8 @@ body.dark-theme .brand-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 60px;
+  height: 60px;
   background: black;
   border: none;
   border-radius: 50%;
@@ -989,8 +989,8 @@ body.dark-theme .brand-logo {
 .input-voice-circle:hover { opacity: 0.8; }
 
 .input-send {
-  width: 32px;
-  height: 32px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1274,8 +1274,8 @@ body.dark-theme .brand-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 60px;
+  height: 60px;
   background: transparent;
   border: none;
   color: #8e8ea0;
@@ -1287,8 +1287,8 @@ body.dark-theme .brand-logo {
 }
 
 .msg-action-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 50px;
+  height: 50px;
   flex-shrink: 0;
 }
 
@@ -1514,8 +1514,8 @@ body.dark-theme .feedback-toast {
 
 /* ============ MSG ACTION ICONS (PNG) ============ */
 .msg-action-icon {
-  width: 24px;
-  height: 24px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
   transition: filter 0.2s, opacity 0.2s;
   opacity: 0.6; /* Aspecto mais claro/cinza no estado normal */
