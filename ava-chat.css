@@ -573,8 +573,8 @@ body.dark-theme .brand-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 36px;
+  height: 36px;
   background: none;
   border: none;
   color: var(--text);
@@ -925,8 +925,8 @@ body.dark-theme .brand-logo {
 }
 
 .input-plus {
-  width: 60px;
-  height: 60px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -959,8 +959,8 @@ body.dark-theme .brand-logo {
 }
 
 .input-icon-btn {
-  width: 60px;
-  height: 60px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -977,8 +977,8 @@ body.dark-theme .brand-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 32px;
+  height: 32px;
   background: black;
   border: none;
   border-radius: 50%;
@@ -989,8 +989,8 @@ body.dark-theme .brand-logo {
 .input-voice-circle:hover { opacity: 0.8; }
 
 .input-send {
-  width: 60px;
-  height: 60px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
