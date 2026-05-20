@@ -1329,32 +1329,10 @@ body.user-logged-in .msg-action-btn.auth-required {
   outline: none !important;
   border: none !important;
   text-decoration: none !important;
+  background-color: rgba(0, 0, 0, 0.05); /* Mantém o fundo cinza contínuo para marcar como ativo */
 }
 
-/* Tooltip for action buttons (uses aria-label) */
-.msg-action-btn::after {
-  content: attr(aria-label);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%) scale(0.9);
-  background: #1a1a1a;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 6px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s, transform 0.15s;
-  z-index: 10;
-}
 
-.msg-action-btn:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) scale(1);
-}
 
 /* Copy success animation */
 .msg-action-btn.copied {
@@ -1371,14 +1349,8 @@ body.dark-theme .msg-action-btn:hover {
 }
 body.dark-theme .msg-action-btn.liked,
 body.dark-theme .msg-action-btn.disliked {
+  background-color: rgba(255, 255, 255, 0.1); /* Mantém o fundo cinza claro no dark theme */
   color: #c5c5d2;
-}
-body.dark-theme .msg-action-btn.copied {
-  color: #c5c5d2;
-}
-body.dark-theme .msg-action-btn::after {
-  background: #e0e0e0;
-  color: #1a1a1a;
 }
 
 /* Feedback toast */
