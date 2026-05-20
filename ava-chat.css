@@ -1311,13 +1311,15 @@ body.user-logged-in .msg-action-btn.auth-required {
   display: flex;
 }
 
-/* Active/selected state for like/dislike */
-.msg-action-btn.liked {
-  color: #676767;
+.msg-action-btn.liked .msg-action-icon,
+.msg-action-btn.disliked .msg-action-icon {
+  opacity: 1;
 }
 
+.msg-action-btn.liked,
 .msg-action-btn.disliked {
-  color: #676767;
+  outline: none;
+  text-decoration: none;
 }
 
 /* Tooltip for action buttons (uses aria-label) */
