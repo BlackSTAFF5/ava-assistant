@@ -1229,33 +1229,39 @@ function closeLoginModal() {
 
 // ============ MESSAGE ACTIONS ============
 function createMsgActionsHTML(content) {
-  return `<div class="msg-actions">
-    <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M17 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/></svg>
+  return `<div class="msg-actions" style="display:flex;align-items:center;gap:4px;padding:2px 0;">
+    <!-- COPIAR -->
+    <button class="msg-action-btn" data-action="copy" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Copiar">
+      <img src="images/icons/copiar.png" width="18" height="18" class="msg-action-icon" alt="Copiar" />
     </button>
-    <button class="msg-action-btn" data-action="like" data-tooltip="Boa resposta">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+    <!-- THUMBS UP -->
+    <button class="msg-action-btn" data-action="like" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Gostei">
+      <img src="images/icons/like.png" width="18" height="18" class="msg-action-icon" alt="Gostei" />
     </button>
-    <button class="msg-action-btn" data-action="dislike" data-tooltip="Resposta ruim">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+    <!-- THUMBS DOWN -->
+    <button class="msg-action-btn" data-action="dislike" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Não gostei">
+      <img src="images/icons/deslike.png" width="18" height="18" class="msg-action-icon" alt="Não gostei" />
     </button>
-    <button class="msg-action-btn" data-action="share" data-tooltip="Compartilhar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    <!-- COMPARTILHAR -->
+    <button class="msg-action-btn" data-action="share" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Compartilhar">
+      <img src="images/icons/compartilhar.png" width="18" height="18" class="msg-action-icon" alt="Compartilhar" />
     </button>
-    <button class="msg-action-btn" data-action="regenerate" data-tooltip="Gerar novamente">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+    <!-- REGENERAR -->
+    <button class="msg-action-btn" data-action="regenerate" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Regenerar">
+      <img src="images/icons/tentarnovamente.png" width="18" height="18" class="msg-action-icon" alt="Regenerar" />
     </button>
   </div>`;
 }
-
 
 function createUserMsgActionsHTML(content) {
-  return `<div class="msg-actions">
-    <button class="msg-action-btn" data-action="copy" data-tooltip="Copiar mensagem">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M17 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/></svg>
+  return `<div class="msg-actions" style="display:flex;align-items:center;gap:4px;padding:2px 0;">
+    <!-- COPIAR -->
+    <button class="msg-action-btn" data-action="copy" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;" title="Copiar">
+      <img src="images/icons/copiar.png" width="18" height="18" class="msg-action-icon" alt="Copiar" />
     </button>
   </div>`;
 }
+
 
 function bindMsgActions(msgDiv, content) {
   const actions = msgDiv.querySelectorAll('.msg-action-btn');
@@ -1383,14 +1389,12 @@ function handleSpeakerMsg(btn, content) {
 function handleCopyMsg(btn, content) {
   const showSuccess = () => {
     btn.classList.add('copied');
-    btn.dataset.tooltip = 'Copiado!';
-    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
     showFeedbackToast('Texto copiado!');
     
     setTimeout(() => {
       btn.classList.remove('copied');
-      btn.dataset.tooltip = 'Copiar';
-      btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M17 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/></svg>`;
+      btn.innerHTML = `<img src="images/icons/copiar.png" width="18" height="18" class="msg-action-icon" alt="Copiar" />`;
     }, 2000);
   };
 
@@ -1442,12 +1446,14 @@ function handleLikeMsg(btn) {
   
   if (btn.classList.contains('liked')) {
     btn.classList.remove('liked');
-    btn.dataset.tooltip = 'Boa resposta';
+    btn.setAttribute('aria-pressed', 'false');
   } else {
     btn.classList.add('liked');
-    btn.dataset.tooltip = 'Gostei!';
-    dislikeBtn?.classList.remove('disliked');
-    if (dislikeBtn) dislikeBtn.dataset.tooltip = 'Resposta ruim';
+    btn.setAttribute('aria-pressed', 'true');
+    if (dislikeBtn) {
+      dislikeBtn.classList.remove('disliked');
+      dislikeBtn.setAttribute('aria-pressed', 'false');
+    }
     showFeedbackToast('Obrigado pelo feedback! 👍');
   }
 }
@@ -1458,12 +1464,14 @@ function handleDislikeMsg(btn) {
   
   if (btn.classList.contains('disliked')) {
     btn.classList.remove('disliked');
-    btn.dataset.tooltip = 'Resposta ruim';
+    btn.setAttribute('aria-pressed', 'false');
   } else {
     btn.classList.add('disliked');
-    btn.dataset.tooltip = 'Não gostei';
-    likeBtn?.classList.remove('liked');
-    if (likeBtn) likeBtn.dataset.tooltip = 'Boa resposta';
+    btn.setAttribute('aria-pressed', 'true');
+    if (likeBtn) {
+      likeBtn.classList.remove('liked');
+      likeBtn.setAttribute('aria-pressed', 'false');
+    }
     showFeedbackToast('Feedback recebido. Vamos melhorar! 🙏');
   }
 }

@@ -1243,15 +1243,15 @@ body.dark-theme .brand-logo {
   50%       { opacity: 0; }
 }
 
-/* ========== MESSAGE ACTIONS BAR ========== */
+/* ========== MESSAGE ACTIONS BAR (ChatGPT-identical) ========== */
 .msg-actions {
   display: flex;
   align-items: center;
-  gap: 8px; /* More space like modern ChatGPT */
-  margin-top: 8px;
+  gap: 4px;
+  margin-top: 6px;
   padding: 0;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
 /* Show on hover (desktop) */
@@ -1274,30 +1274,31 @@ body.dark-theme .brand-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px; /* Standard ChatGPT size */
-  height: 32px;
+  width: 30px;
+  height: 30px;
   background: transparent;
   border: none;
-  color: var(--text-muted); /* Gray icon */
+  color: #8e8ea0;
   cursor: pointer;
-  border-radius: 6px; /* Gentle rounding */
-  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease;
   padding: 0;
   position: relative;
 }
 
 .msg-action-btn svg {
-  width: 18px; /* Larger modern look */
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .msg-action-btn:hover {
-  background: rgba(120, 120, 120, 0.1); /* Very subtle hover */
-  color: var(--text); /* Brighter icon on hover */
+  background-color: transparent;
+  color: #676767;
 }
 
 .msg-action-btn:active {
-  transform: scale(0.95);
+  color: #555;
 }
 
 .msg-action-btn.auth-required {
@@ -1310,28 +1311,22 @@ body.user-logged-in .msg-action-btn.auth-required {
 
 /* Active/selected state for like/dislike */
 .msg-action-btn.liked {
-  color: var(--text);
-}
-.msg-action-btn.liked svg {
-  fill: currentColor;
+  color: #676767;
 }
 
 .msg-action-btn.disliked {
-  color: var(--text);
-}
-.msg-action-btn.disliked svg {
-  fill: currentColor;
+  color: #676767;
 }
 
-/* Tooltip for action buttons */
+/* Tooltip for action buttons (uses aria-label) */
 .msg-action-btn::after {
-  content: attr(data-tooltip);
+  content: attr(aria-label);
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%) scale(0.9);
-  background: var(--text);
-  color: var(--bg);
+  background: #1a1a1a;
+  color: #fff;
   font-size: 11px;
   font-weight: 500;
   padding: 4px 8px;
@@ -1350,7 +1345,26 @@ body.user-logged-in .msg-action-btn.auth-required {
 
 /* Copy success animation */
 .msg-action-btn.copied {
-  color: var(--text);
+  color: #676767;
+}
+
+/* Dark theme adjustments for action icons */
+body.dark-theme .msg-action-btn {
+  color: #8e8ea0;
+}
+body.dark-theme .msg-action-btn:hover {
+  color: #c5c5d2;
+}
+body.dark-theme .msg-action-btn.liked,
+body.dark-theme .msg-action-btn.disliked {
+  color: #c5c5d2;
+}
+body.dark-theme .msg-action-btn.copied {
+  color: #c5c5d2;
+}
+body.dark-theme .msg-action-btn::after {
+  background: #e0e0e0;
+  color: #1a1a1a;
 }
 
 /* Feedback toast */
@@ -1359,8 +1373,8 @@ body.user-logged-in .msg-action-btn.auth-required {
   bottom: 80px;
   left: 50%;
   transform: translateX(-50%) translateY(10px);
-  background: var(--text);
-  color: var(--bg);
+  background: #1a1a1a;
+  color: #fff;
   font-size: 13px;
   font-weight: 500;
   padding: 8px 16px;
@@ -1370,6 +1384,11 @@ body.user-logged-in .msg-action-btn.auth-required {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s, transform 0.25s;
+}
+
+body.dark-theme .feedback-toast {
+  background: #e0e0e0;
+  color: #1a1a1a;
 }
 
 .feedback-toast.show {
@@ -1443,6 +1462,7 @@ body.user-logged-in .msg-action-btn.auth-required {
   flex: none;
   max-width: 70%;
 }
+
 /* ============ EDIT IN PLACE ============ */
 .edit-container {
   width: 100%;
@@ -1490,4 +1510,27 @@ body.user-logged-in .msg-action-btn.auth-required {
 }
 .edit-btn.save:hover {
   opacity: 0.8;
+}
+
+/* ============ MSG ACTION ICONS (PNG) ============ */
+.msg-action-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  transition: filter 0.2s, opacity 0.2s;
+  opacity: 0.6; /* Aspecto mais claro/cinza no estado normal */
+}
+
+.msg-action-btn:hover .msg-action-icon {
+  opacity: 1; /* Fica 100% visível (Preto no modo claro) no hover */
+}
+
+body.dark-theme .msg-action-icon {
+  /* Força a cor preta do PNG virar branco puro e depois aplica opacidade */
+  filter: brightness(0) invert(1);
+  opacity: 0.7; 
+}
+
+body.dark-theme .msg-action-btn:hover .msg-action-icon {
+  opacity: 1; /* Fica branco sólido no hover no modo escuro */
 }
