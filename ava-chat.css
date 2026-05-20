@@ -1279,7 +1279,7 @@ body.dark-theme .brand-logo {
   height: 43px;
   background: transparent;
   border: none;
-  color: #8e8ea0;
+  color: #4b4b4b; /* Cinza escuro (quase preto) para SVGs */
   cursor: pointer;
   border-radius: 6px;
   transition: none; /* Fluido/instantâneo igual chatgpt */
@@ -1296,7 +1296,7 @@ body.dark-theme .brand-logo {
 
 .msg-action-btn:hover {
   background-color: rgba(0, 0, 0, 0.05);
-  color: #40414f;
+  color: #1a1a1a; /* Quase preto absoluto no hover */
 }
 
 .msg-action-btn:active {
@@ -1523,11 +1523,11 @@ body.dark-theme .feedback-toast {
   height: 100%;
   object-fit: contain;
   transition: opacity 0.1s;
-  opacity: 0.6; /* Aspecto mais claro/cinza no estado normal */
+  opacity: 0.8; /* Cinza escuro / quase preto no estado normal */
 }
 
 .msg-action-btn:hover .msg-action-icon {
-  opacity: 1; /* Fica 100% visível (Preto no modo claro) no hover */
+  opacity: 1; /* Fica 100% visível (Preto sólido) no hover */
 }
 
 body.dark-theme .msg-action-icon {
