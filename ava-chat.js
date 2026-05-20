@@ -1389,7 +1389,7 @@ function handleSpeakerMsg(btn, content) {
 function handleCopyMsg(btn, content) {
   const showSuccess = () => {
     btn.classList.add('copied');
-    btn.innerHTML = `<svg class="msg-action-icon" width="24" height="24" viewBox="-2 -2 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    btn.innerHTML = `<svg class="msg-action-icon" width="24" height="24" viewBox="-8 -8 40 40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
     showFeedbackToast('Texto copiado!');
     
     setTimeout(() => {

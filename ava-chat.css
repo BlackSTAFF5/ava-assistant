@@ -1311,6 +1311,14 @@ body.user-logged-in .msg-action-btn.auth-required {
   display: flex;
 }
 
+.msg-action-btn:focus,
+.msg-action-btn:active,
+.msg-action-btn:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .msg-action-btn.liked .msg-action-icon,
 .msg-action-btn.disliked .msg-action-icon {
   opacity: 1;
@@ -1318,8 +1326,9 @@ body.user-logged-in .msg-action-btn.auth-required {
 
 .msg-action-btn.liked,
 .msg-action-btn.disliked {
-  outline: none;
-  text-decoration: none;
+  outline: none !important;
+  border: none !important;
+  text-decoration: none !important;
 }
 
 /* Tooltip for action buttons (uses aria-label) */
