@@ -523,9 +523,15 @@ function initChat() {
 
 function toggleSendBtn() {
   const has = chatInput.value.trim().length > 0 || state.pendingFiles?.length > 0;
-  sendBtn.style.display = has ? 'flex' : 'none';
-  micBtn.style.display = has ? 'none' : 'flex';
-  voiceBtn.style.display = has ? 'none' : 'inline-flex';
+  if (isListening) {
+    sendBtn.style.display = 'none';
+    micBtn.style.display = 'flex';
+    voiceBtn.style.display = 'inline-flex';
+  } else {
+    sendBtn.style.display = has ? 'flex' : 'none';
+    micBtn.style.display = has ? 'none' : 'flex';
+    voiceBtn.style.display = has ? 'none' : 'inline-flex';
+  }
 }
 
 async function onSubmit(e) {
@@ -913,24 +919,46 @@ function clearFilePreview() {
 // ============ VOICE / MIC ============
 let recognition = null;
 let isListening = false;
+let speechInitialValue = '';
 
 function initSpeech() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) return;
   recognition = new SpeechRecognition();
   recognition.lang = 'pt-BR';
-  recognition.continuous = false;
-  recognition.interimResults = false;
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    speechInitialValue = chatInput.value;
+  };
+
   recognition.onresult = (e) => {
-    const transcript = e.results[0][0].transcript;
-    chatInput.value += (chatInput.value ? ' ' : '') + transcript;
+    let finalTranscript = '';
+    let interimTranscript = '';
+    for (let i = 0; i < e.results.length; ++i) {
+      if (e.results[i].isFinal) {
+        finalTranscript += e.results[i][0].transcript;
+      } else {
+        interimTranscript += e.results[i][0].transcript;
+      }
+    }
+    const currentSpeech = (finalTranscript + interimTranscript).trim();
+    if (currentSpeech) {
+      chatInput.value = speechInitialValue + (speechInitialValue && !speechInitialValue.endsWith(' ') ? ' ' : '') + currentSpeech;
+    } else {
+      chatInput.value = speechInitialValue;
+    }
     chatInput.dispatchEvent(new Event('input'));
   };
+
   recognition.onend = () => {
     isListening = false;
     micBtn.style.background = '';
     voiceBtn.style.background = 'black';
+    toggleSendBtn();
   };
+
   micBtn.addEventListener('click', toggleListening);
   voiceBtn.addEventListener('click', toggleListening);
 }
@@ -940,8 +968,9 @@ function toggleListening() {
   if (isListening) {
     recognition.stop();
   } else {
-    recognition.start();
     isListening = true;
+    toggleSendBtn();
+    recognition.start();
     micBtn.style.background = 'rgba(239,68,68,0.15)';
     voiceBtn.style.background = '#ef4444';
   }
