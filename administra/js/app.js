@@ -27,6 +27,16 @@ const db = firebase.firestore();
 
 export { auth, db };
 
+export function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 const state = {
     user: null,
     currentView: 'leads'

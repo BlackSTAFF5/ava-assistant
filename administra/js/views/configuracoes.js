@@ -1,7 +1,7 @@
 /**
  * views/configuracoes.js - Preferências e Sistema
  */
-import { db, showToast, confirmAction, handleFirestoreError, auth } from '../app.js';
+import { db, showToast, confirmAction, handleFirestoreError, auth, escapeHTML } from '../app.js';
 
 export function renderConfiguracoesView(container, actions) {
     actions.innerHTML = ''; // Sem ações no header para esta view
@@ -95,14 +95,15 @@ async function loadAdmins() {
         const snap = await db.collection('users').where('isAdmin', '==', true).get();
         list.innerHTML = snap.docs.map(doc => {
             const data = doc.data();
+            const emailEscaped = escapeHTML(data.email || '');
             const isMe = data.email === auth.currentUser.email;
             return `
                 <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-hover); padding: 12px 16px; border-radius: 8px;">
                     <div>
-                        <p style="font-weight: 500;">${data.email}</p>
+                        <p style="font-weight: 500;">${emailEscaped}</p>
                         <small style="color: var(--text-secondary)">${isMe ? '(Você)' : 'Administrador'}</small>
                     </div>
-                    ${!isMe ? `<button class="btn btn-icon delete" onclick="window.revokeAdmin('${doc.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg></button>` : ''}
+                    ${!isMe ? `<button class="btn btn-icon delete" onclick="window.revokeAdmin('${escapeHTML(doc.id)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg></button>` : ''}
                 </div>
             `;
         }).join('');

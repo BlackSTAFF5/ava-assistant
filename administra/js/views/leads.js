@@ -1,7 +1,7 @@
 /**
  * views/leads.js - Gerenciamento de Leads (Premium SaaS Version)
  */
-import { db, showToast, confirmAction, handleFirestoreError } from '../app.js';
+import { db, showToast, confirmAction, handleFirestoreError, escapeHTML } from '../app.js';
 
 let unsubscribe = null;
 let allLeads = [];
@@ -185,18 +185,23 @@ function renderTable(leads) {
         const date = l.timestamp ? new Date(l.timestamp).toLocaleDateString('pt-BR') : '—';
         const status = (l.status || 'novo').toLowerCase();
         const statusClass = `badge-${status.replace(/\s+/g, '-')}`;
+        const name = escapeHTML(l.name || 'Lead sem nome');
+        const company = escapeHTML(l.company || 'Empresa não informada');
+        const whatsapp = escapeHTML(l.whatsapp || '—');
+        const email = escapeHTML(l.email || '—');
+        const segment = escapeHTML(l.segment || 'Geral');
         
         return `
             <tr onclick="window.viewLead('${l.id}')" style="cursor: pointer">
                 <td>
                     <div style="display: flex; flex-direction: column;">
-                        <span style="font-weight: 700; color: var(--text-primary)">${l.name || 'Lead sem nome'}</span>
-                        <span style="font-size: 0.8rem; color: var(--text-secondary)">${l.company || 'Empresa não informada'}</span>
+                        <span style="font-weight: 700; color: var(--text-primary)">${name}</span>
+                        <span style="font-size: 0.8rem; color: var(--text-secondary)">${company}</span>
                     </div>
                 </td>
-                <td style="font-family: monospace; font-weight: 500;">${l.whatsapp || '—'}</td>
-                <td>${l.email || '—'}</td>
-                <td><span class="badge" style="background: var(--bg-main); color: var(--text-secondary); border: 1px solid var(--border)">${l.segment || 'Geral'}</span></td>
+                <td style="font-family: monospace; font-weight: 500;">${whatsapp}</td>
+                <td>${email}</td>
+                <td><span class="badge" style="background: var(--bg-main); color: var(--text-secondary); border: 1px solid var(--border)">${segment}</span></td>
                 <td style="color: var(--text-secondary)">${date}</td>
                 <td><span class="badge ${statusClass}">${status}</span></td>
                 <td>
@@ -247,8 +252,25 @@ function renderPremiumModalContent(lead, container) {
     const tempLabel = temp === 'hot' ? '🔥 Lead Quente' : temp === 'warm' ? '🟠 Lead Morno' : '🔵 Lead Frio';
     const tempClass = `temp-${temp}`;
     
-    // Iniciais para o Avatar
-    const initials = (lead.name || 'L').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    // Iniciais para o Avatar e sanitização
+    const initials = escapeHTML((lead.name || 'L').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase());
+    const name = escapeHTML(lead.name || 'Lead sem nome');
+    const segment = escapeHTML(lead.segment || 'Geral');
+    const aiSummary = escapeHTML(lead.aiSummary || lead.necessidade || lead.message || 'A IA está processando o resumo desta conversa...');
+    const painPoints = escapeHTML(lead.painPoints || 'Não identificadas');
+    const objectives = escapeHTML(lead.objectives || lead.objective || 'Melhorar operação');
+    const interestLevel = escapeHTML(lead.interestLevel || 'Em análise');
+    const necessity = escapeHTML(lead.necessity || 'Padrão');
+    const closingChance = escapeHTML(lead.closingChance || '45');
+    const aiAnalysis = escapeHTML(lead.aiAnalysis || 'Lead com bom potencial, mas requer follow-up imediato.');
+    const priority = escapeHTML(lead.priority || 'Média');
+    const potential = escapeHTML(lead.potential || 'R$ 2.500 - R$ 5.000');
+    const whatsapp = escapeHTML(lead.whatsapp || '—');
+    const email = escapeHTML(lead.email || '—');
+    const city = escapeHTML(lead.city || 'Não informada');
+    const revenue = escapeHTML(lead.revenue || '—');
+    const employees = escapeHTML(lead.employees || '—');
+    const source = escapeHTML(lead.source || 'Bot Ava');
 
     container.innerHTML = `
         <div class="modal-premium">
@@ -257,10 +279,10 @@ function renderPremiumModalContent(lead, container) {
                 <div class="lead-profile-info">
                     <div class="lead-avatar-large">${initials}</div>
                     <div class="lead-main-data">
-                        <h2>${lead.name || 'Lead sem nome'}</h2>
+                        <h2>${name}</h2>
                         <div class="lead-badges">
                             <span class="badge badge-${status.replace(/\s+/g, '-')}">${status}</span>
-                            <span class="badge" style="background: var(--bg-hover)">${lead.segment || 'Geral'}</span>
+                            <span class="badge" style="background: var(--bg-hover)">${segment}</span>
                             <span class="temp-tag ${tempClass}">${tempLabel}</span>
                         </div>
                     </div>
@@ -287,25 +309,25 @@ function renderPremiumModalContent(lead, container) {
                     
                     <div class="ai-summary-box">
                         <p style="line-height: 1.8; font-size: 1.05rem; color: #fff;">
-                            ${lead.aiSummary || lead.necessidade || lead.message || 'A IA está processando o resumo desta conversa...'}
+                            ${aiSummary}
                         </p>
                         
                         <div class="ai-grid">
                             <div class="ai-item">
                                 <label>Dores do Cliente</label>
-                                <p>${lead.painPoints || 'Não identificadas'}</p>
+                                <p>${painPoints}</p>
                             </div>
                             <div class="ai-item">
                                 <label>Objetivo</label>
-                                <p>${lead.objectives || lead.objective || 'Melhorar operação'}</p>
+                                <p>${objectives}</p>
                             </div>
                             <div class="ai-item">
                                 <label>Interesse</label>
-                                <p>${lead.interestLevel || 'Em análise'}</p>
+                                <p>${interestLevel}</p>
                             </div>
                             <div class="ai-item">
                                 <label>Necessidades</label>
-                                <p>${lead.necessity || 'Padrão'}</p>
+                                <p>${necessity}</p>
                             </div>
                         </div>
                     </div>
@@ -320,23 +342,23 @@ function renderPremiumModalContent(lead, container) {
                             <div class="score-container">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span style="font-size: 0.8rem; color: var(--text-secondary)">Chance de Fechamento</span>
-                                    <span style="font-weight: 800; color: var(--accent)">${lead.closingChance || '45'}%</span>
+                                    <span style="font-weight: 800; color: var(--accent)">${closingChance}%</span>
                                 </div>
-                                <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${lead.closingChance || '45'}%"></div></div>
+                                <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${closingChance}%"></div></div>
                             </div>
                             <p style="margin-top: 12px; font-size: 0.85rem; color: var(--text-secondary)">
-                                ${lead.aiAnalysis || 'Lead com bom potencial, mas requer follow-up imediato.'}
+                                ${aiAnalysis}
                             </p>
                         </div>
                         <div class="card" style="padding: 20px; background: rgba(255,255,255,0.02)">
                             <div style="display: flex; flex-direction: column; gap: 10px;">
                                 <div class="detail-item">
                                     <label>Prioridade</label>
-                                    <span style="color: ${lead.priority === 'Alta' ? 'var(--danger)' : 'var(--success)'}">${lead.priority || 'Média'}</span>
+                                    <span style="color: ${priority === 'Alta' ? 'var(--danger)' : 'var(--success)'}">${priority}</span>
                                 </div>
                                 <div class="detail-item">
                                     <label>Potencial Financeiro</label>
-                                    <span>${lead.potential || 'R$ 2.500 - R$ 5.000'}</span>
+                                    <span>${potential}</span>
                                 </div>
                             </div>
                         </div>
@@ -344,12 +366,12 @@ function renderPremiumModalContent(lead, container) {
 
                     <div class="section-title">Dados Detalhados</div>
                     <div class="details-grid">
-                        <div class="detail-item"><label>WhatsApp</label><span>${lead.whatsapp || '—'}</span></div>
-                        <div class="detail-item"><label>E-mail</label><span>${lead.email || '—'}</span></div>
-                        <div class="detail-item"><label>Cidade</label><span>${lead.city || 'Não informada'}</span></div>
-                        <div class="detail-item"><label>Faturamento</label><span>${lead.revenue || '—'}</span></div>
-                        <div class="detail-item"><label>Funcionários</label><span>${lead.employees || '—'}</span></div>
-                        <div class="detail-item"><label>Origem</label><span>${lead.source || 'Bot Ava'}</span></div>
+                        <div class="detail-item"><label>WhatsApp</label><span>${whatsapp}</span></div>
+                        <div class="detail-item"><label>E-mail</label><span>${email}</span></div>
+                        <div class="detail-item"><label>Cidade</label><span>${city}</span></div>
+                        <div class="detail-item"><label>Faturamento</label><span>${revenue}</span></div>
+                        <div class="detail-item"><label>Funcionários</label><span>${employees}</span></div>
+                        <div class="detail-item"><label>Origem</label><span>${source}</span></div>
                     </div>
                 </div>
 
@@ -369,7 +391,7 @@ function renderPremiumModalContent(lead, container) {
             <!-- FOOTER -->
             <div class="modal-premium-footer">
                 <div style="display: flex; gap: 16px;">
-                    <a href="https://wa.me/${(lead.whatsapp || '').replace(/\D/g, '')}" target="_blank" class="btn btn-primary" style="background: #25D366; border: none; padding: 12px 24px;">
+                    <a href="https://wa.me/${whatsapp.replace(/\D/g, '')}" target="_blank" class="btn btn-primary" style="background: #25D366; border: none; padding: 12px 24px;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                         Chamar no WhatsApp
                     </a>
@@ -401,8 +423,8 @@ function renderTimeline(lead) {
         return lead.timeline.map(item => `
             <div class="timeline-item">
                 <div class="timeline-dot" style="border-color: ${item.sender === 'bot' ? 'var(--accent)' : '#3b82f6'}"></div>
-                <div class="timeline-time">${item.time || 'agora'}</div>
-                <div class="timeline-content">${item.content}</div>
+                <div class="timeline-time">${escapeHTML(item.time || 'agora')}</div>
+                <div class="timeline-content">${escapeHTML(item.content)}</div>
             </div>
         `).join('');
     }
@@ -414,7 +436,7 @@ function renderTimeline(lead) {
             <div class="timeline-time">${lead.timestamp ? new Date(lead.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) : '—'}</div>
             <div class="timeline-content">
                 <strong>Lead capturado:</strong><br>
-                ${lead.necessidade || lead.message || 'Nenhuma mensagem inicial registrada.'}
+                ${escapeHTML(lead.necessidade || lead.message || 'Nenhuma mensagem inicial registrada.')}
             </div>
         </div>
         <div class="timeline-item" style="opacity: 0.5">

@@ -1,7 +1,7 @@
 /**
  * views/reunioes.js - Gerenciamento de Reuniões
  */
-import { db, showToast, confirmAction, handleFirestoreError } from '../app.js';
+import { db, showToast, confirmAction, handleFirestoreError, escapeHTML } from '../app.js';
 
 let unsubscribe = null;
 let allReunioes = [];
@@ -141,18 +141,25 @@ function renderTable(reunioes) {
 
     tbody.innerHTML = reunioes.map(r => {
         const isPast = r.data < today;
-        const statusClass = `badge-${r.status}`;
+        const statusClass = `badge-${escapeHTML(r.status)}`;
+        const leadNomeEscaped = escapeHTML(r.leadNome || '');
+        const dataEscaped = escapeHTML(r.data.split('-').reverse().join('/'));
+        const horaEscaped = escapeHTML(r.hora || '');
+        const tipoEscaped = escapeHTML(r.tipo || '');
+        const statusEscaped = escapeHTML(r.status || '');
+        const obsEscaped = escapeHTML(r.observacoes || '');
+        const obsTruncated = obsEscaped.substring(0, 30) + (obsEscaped.length > 30 ? '...' : '');
         
         return `
             <tr style="opacity: ${isPast ? 0.6 : 1}">
-                <td><strong>${r.leadNome}</strong></td>
-                <td>${r.data.split('-').reverse().join('/')} às ${r.hora}</td>
-                <td><span class="badge" style="background:var(--bg-hover)">${r.tipo}</span></td>
-                <td><span class="badge ${statusClass}">${r.status}</span></td>
-                <td title="${r.observacoes || ''}">${(r.observacoes || '—').substring(0, 30)}${(r.observacoes || '').length > 30 ? '...' : ''}</td>
+                <td><strong>${leadNomeEscaped}</strong></td>
+                <td>${dataEscaped} às ${horaEscaped}</td>
+                <td><span class="badge" style="background:var(--bg-hover)">${tipoEscaped}</span></td>
+                <td><span class="badge ${statusClass}">${statusEscaped}</span></td>
+                <td title="${obsEscaped}">${obsTruncated || '—'}</td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn-icon delete" onclick="window.deleteReuniao('${r.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2 2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                        <button class="btn-icon delete" onclick="window.deleteReuniao('${escapeHTML(r.id)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2 2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     </div>
                 </td>
             </tr>
