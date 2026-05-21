@@ -1523,8 +1523,8 @@ body.dark-theme .msg-action-btn:hover .msg-action-icon {
 
 /* Entrar icon in topbar dynamic styling */
 .header-entrar-icon {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
   transition: opacity 0.15s;
 }
