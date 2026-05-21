@@ -1521,13 +1521,32 @@ body.dark-theme .msg-action-btn:hover .msg-action-icon {
   opacity: 1; /* Fica branco sólido no hover no modo escuro */
 }
 
-/* Entrar icon in topbar dynamic styling */
-.header-entrar-icon {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-  transition: opacity 0.15s;
+/* Entrar pill button style (matches ChatGPT) */
+.header-entrar-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--accent);
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  height: 32px;
+  width: auto;
+  line-height: 1;
 }
-body.dark-theme .header-entrar-icon {
-  filter: brightness(0) invert(1);
+
+.header-entrar-pill:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.header-entrar-pill:active {
+  transform: scale(0.98);
 }

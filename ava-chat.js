@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(logoutBtn) logoutBtn.style.display = 'flex';
       
       if (moreBtn) {
+        moreBtn.className = 'topbar-icon-btn';
         moreBtn.innerHTML = `
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="5" cy="12" r="2"/>
@@ -145,9 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if(logoutBtn) logoutBtn.style.display = 'none';
       
       if (moreBtn) {
-        moreBtn.innerHTML = `
-          <img src="images/icons/entrar.png" alt="Entrar" class="header-entrar-icon">
-        `;
+        moreBtn.className = 'header-entrar-pill';
+        moreBtn.innerHTML = 'Entrar';
         moreBtn.setAttribute('aria-label', 'Entrar');
         moreBtn.setAttribute('title', 'Entrar');
       }
