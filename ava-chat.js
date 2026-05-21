@@ -106,12 +106,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtnMore = document.getElementById('loginFromMoreBtn');
     const registerBtnMore = document.getElementById('registerFromMoreBtn');
     const logoutBtn = document.getElementById('logoutBtn');
+    const moreBtn = document.getElementById('moreBtn');
     
     if (user) {
       document.body.classList.add('user-logged-in');
       if(loginBtnMore) loginBtnMore.style.display = 'none';
       if(registerBtnMore) registerBtnMore.style.display = 'none';
       if(logoutBtn) logoutBtn.style.display = 'flex';
+      
+      if (moreBtn) {
+        moreBtn.innerHTML = `
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="2"/>
+            <circle cx="12" cy="12" r="2"/>
+            <circle cx="19" cy="12" r="2"/>
+          </svg>
+        `;
+        moreBtn.setAttribute('aria-label', 'Mais opções');
+        moreBtn.removeAttribute('title');
+      }
       
       // Load history
       loadConversations();
@@ -130,6 +143,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if(loginBtnMore) loginBtnMore.style.display = 'flex';
       if(registerBtnMore) registerBtnMore.style.display = 'flex';
       if(logoutBtn) logoutBtn.style.display = 'none';
+      
+      if (moreBtn) {
+        moreBtn.innerHTML = `
+          <img src="images/icons/entrar.png" alt="Entrar" class="header-entrar-icon">
+        `;
+        moreBtn.setAttribute('aria-label', 'Entrar');
+        moreBtn.setAttribute('title', 'Entrar');
+      }
       
       // Only clear and start new chat if we don't have a temporary session in progress
       if (state.messages.length === 0) {
@@ -1099,7 +1120,11 @@ function initMoreDropdown() {
 
   moreBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
-    moreDropdown.classList.toggle('show');
+    if (document.body.classList.contains('user-logged-in')) {
+      moreDropdown.classList.toggle('show');
+    } else {
+      openLoginModal('login');
+    }
   });
   document.addEventListener('click', (e) => {
     if (!moreBtn?.contains(e.target) && !moreDropdown?.contains(e.target)) {

@@ -1520,3 +1520,14 @@ body.dark-theme .msg-action-icon {
 body.dark-theme .msg-action-btn:hover .msg-action-icon {
   opacity: 1; /* Fica branco sólido no hover no modo escuro */
 }
+
+/* Entrar icon in topbar dynamic styling */
+.header-entrar-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  transition: opacity 0.15s;
+}
+body.dark-theme .header-entrar-icon {
+  filter: brightness(0) invert(1);
+}
