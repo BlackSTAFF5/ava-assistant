@@ -35,6 +35,7 @@ let state = {
   isWaiting: false,
   sidebarOpen: window.innerWidth > 768,
   conversations: [],
+  waitingForMeetingConfirmation: false,
 };
 // Ensure initial session is saved
 if (!sessionStorage.getItem('ava_session_id')) {
@@ -561,6 +562,63 @@ async function onSubmit(e) {
   const files = state.pendingFiles || [];
   if ((!text && !files.length) || state.isWaiting) return;
 
+  // Intercept response if waiting for meeting confirmation
+  if (state.waitingForMeetingConfirmation && text) {
+    const cleanText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const positives = ['sim', 'quero', 'agendar', 'aceito', 'pode ser', 'agende', 'marcar', 'marcar reuniao', 'bora', 'vamos', 'ok', 'okay', 'com certeza', 'yes', 'yep', 'confirmar'];
+    const negatives = ['nao', 'agora nao', 'obrigado', 'recuso', 'nao quero', 'depois', 'no', 'nop', 'cancelar'];
+
+    const matchesPositive = positives.some(word => cleanText.includes(word));
+    const matchesNegative = negatives.some(word => cleanText.includes(word));
+
+    if (matchesPositive) {
+      state.waitingForMeetingConfirmation = false;
+      const btns = document.querySelector('.meeting-prompt-buttons');
+      if (btns) btns.remove();
+      
+      welcome.style.display = 'none';
+      messagesEl.classList.add('active');
+      addMsg('user', text);
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+      toggleSendBtn();
+      
+      state.isWaiting = true;
+      const typing = showTyping();
+      setTimeout(() => {
+        removeTyping(typing);
+        state.isWaiting = false;
+        openLeadModal();
+      }, 1000);
+      return;
+    } else if (matchesNegative) {
+      state.waitingForMeetingConfirmation = false;
+      const btns = document.querySelector('.meeting-prompt-buttons');
+      if (btns) btns.remove();
+      
+      welcome.style.display = 'none';
+      messagesEl.classList.add('active');
+      addMsg('user', text);
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+      toggleSendBtn();
+      
+      state.isWaiting = true;
+      const typing = showTyping();
+      setTimeout(async () => {
+        removeTyping(typing);
+        state.isWaiting = false;
+        await addMsg('assistant', 'Sem problemas! Se mudar de ideia ou quiser tirar outras dúvidas, estarei aqui à disposição. 😊', true);
+      }, 1000);
+      return;
+    } else {
+      // Unrelated response - clear the state and buttons so the user is not locked, and let the normal query proceed
+      state.waitingForMeetingConfirmation = false;
+      const btns = document.querySelector('.meeting-prompt-buttons');
+      if (btns) btns.remove();
+    }
+  }
+
   // Anti-spam cooldown
   const now = Date.now();
   if (state._lastSent && (now - state._lastSent) < CONFIG.MSG_COOLDOWN_MS) {
@@ -645,10 +703,16 @@ async function onSubmit(e) {
       reply = reply.replace(/\[LEAD_FORM\]/g, '').trim();
     }
 
-    if (shouldOpenLead) {
-      setTimeout(() => openLeadModal(), 1500);
-    }
     await addMsg('assistant', reply, true);
+
+    if (shouldOpenLead) {
+      state.waitingForMeetingConfirmation = true;
+      const assistantMsgs = messagesEl.querySelectorAll('.msg.assistant .msg-content-wrap');
+      if (assistantMsgs.length > 0) {
+        const lastWrap = assistantMsgs[assistantMsgs.length - 1];
+        showMeetingQuickReplies(lastWrap);
+      }
+    }
   } catch (err) {
     console.error('Erro no envio:', err);
     removeTyping(typing);
@@ -814,6 +878,44 @@ function openLeadModal() {
 }
 
 function closeLeadModal() { leadModal.classList.remove('active'); }
+
+function showMeetingQuickReplies(container) {
+  if (document.querySelector('.meeting-prompt-buttons')) return;
+
+  const btnsDiv = document.createElement('div');
+  btnsDiv.className = 'meeting-prompt-buttons';
+  btnsDiv.innerHTML = `
+    <button class="quick-reply-btn confirm" onclick="window.confirmMeetingRequest()">🗓️ Sim, agendar reunião</button>
+    <button class="quick-reply-btn cancel" onclick="window.cancelMeetingRequest()">Agora não, obrigado</button>
+  `;
+  container.appendChild(btnsDiv);
+  scrollDown();
+}
+
+window.confirmMeetingRequest = () => {
+  const btns = document.querySelector('.meeting-prompt-buttons');
+  if (btns) btns.remove();
+  state.waitingForMeetingConfirmation = false;
+  openLeadModal();
+};
+
+window.cancelMeetingRequest = () => {
+  const btns = document.querySelector('.meeting-prompt-buttons');
+  if (btns) btns.remove();
+  state.waitingForMeetingConfirmation = false;
+  
+  welcome.style.display = 'none';
+  messagesEl.classList.add('active');
+  appendMsg('user', 'Agora não, obrigado.');
+  
+  state.isWaiting = true;
+  const typing = showTyping();
+  setTimeout(async () => {
+    removeTyping(typing);
+    state.isWaiting = false;
+    await addMsg('assistant', 'Sem problemas! Se mudar de ideia ou quiser tirar outras dúvidas, estarei aqui à disposição. 😊', true);
+  }, 1000);
+};
 
 async function onLeadSubmit(e) {
   e.preventDefault();

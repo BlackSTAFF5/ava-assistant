@@ -1558,3 +1558,57 @@ body.dark-theme .msg-action-btn:hover .msg-action-icon {
 .header-entrar-pill:active {
   transform: scale(0.98);
 }
+
+/* ========== QUICK REPLY BUTTONS ========== */
+.meeting-prompt-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  animation: fadeInUp 0.3s ease forwards;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quick-reply-btn {
+  padding: 8px 16px;
+  border-radius: 18px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  font-family: var(--font);
+}
+
+.quick-reply-btn.confirm {
+  background: var(--text);
+  color: var(--white);
+  border: 1px solid var(--text);
+}
+
+.quick-reply-btn.confirm:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.quick-reply-btn.cancel {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border);
+}
+
+.quick-reply-btn.cancel:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
+}
