@@ -339,6 +339,38 @@
     </div>
   </div>
 
+  <!-- ========== VOICE CALL OVERLAY (Advanced Voice Mode) ========== -->
+  <div class="voice-overlay" id="voiceCallOverlay">
+    <div class="voice-container">
+      <!-- Status superior -->
+      <div class="voice-status-wrap">
+        <span class="voice-status-indicator"></span>
+        <span class="voice-status-text" id="voiceStatusText">Conectando...</span>
+      </div>
+
+      <!-- Bola preta central animada -->
+      <div class="voice-visualizer-container">
+        <!-- Efeito de blob líquido com contraste alto e filhos borrados -->
+        <div class="voice-blob-wrapper">
+          <div class="voice-blob" id="voiceBlob"></div>
+          <div class="voice-blob-sub voice-blob-1" id="voiceBlobSub1"></div>
+          <div class="voice-blob-sub voice-blob-2" id="voiceBlobSub2"></div>
+          <div class="voice-blob-sub voice-blob-3" id="voiceBlobSub3"></div>
+        </div>
+      </div>
+
+      <!-- Controles na parte inferior -->
+      <div class="voice-controls">
+        <button class="voice-close-btn" id="voiceCloseBtn" aria-label="Encerrar chamada">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase SDK: defer = baixa em paralelo, executa só após o HTML ser parseado -->
   <script defer src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js?v=5"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js?v=5"></script>

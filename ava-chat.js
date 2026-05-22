@@ -1078,12 +1078,10 @@ function initSpeech() {
   recognition.onend = () => {
     isListening = false;
     micBtn.style.background = '';
-    voiceBtn.style.background = 'black';
     toggleSendBtn();
   };
 
   micBtn.addEventListener('click', toggleListening);
-  voiceBtn.addEventListener('click', toggleListening);
 }
 
 function toggleListening() {
@@ -1095,8 +1093,254 @@ function toggleListening() {
     toggleSendBtn();
     recognition.start();
     micBtn.style.background = 'rgba(239,68,68,0.15)';
-    voiceBtn.style.background = '#ef4444';
   }
+}
+
+// ============ ADVANCED VOICE MODE (Retell AI) ============
+let retellWebClient = null;
+let isCallActive = false;
+let animationFrameId = null;
+let currentVolumeScale = 1.0;
+let targetVolumeScale = 1.0;
+
+function initAdvancedVoice() {
+  const voiceBtn = $('#voiceBtn');
+  const voiceCloseBtn = $('#voiceCloseBtn');
+
+  if (voiceBtn) {
+    voiceBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      startVoiceCall();
+    });
+  }
+
+  if (voiceCloseBtn) {
+    voiceCloseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      endVoiceCall();
+    });
+  }
+}
+
+async function startVoiceCall() {
+  if (isCallActive) return;
+  
+  // Solicitar permissão de microfone antes para garantir que está autorizado
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    console.error("Permissão de microfone negada:", e);
+    showFeedbackToast("Permissão de microfone necessária para falar com a Ava.");
+    return;
+  }
+
+  isCallActive = true;
+
+  const mainEl = $('#main');
+  const overlayEl = $('#voiceCallOverlay');
+  const statusIndicator = $('.voice-status-indicator');
+  const statusText = $('#voiceStatusText');
+
+  if (mainEl) mainEl.classList.add('fade-out');
+  if (overlayEl) overlayEl.classList.add('active');
+  
+  if (overlayEl) overlayEl.classList.remove('speaking', 'listening');
+  if (statusIndicator) statusIndicator.classList.add('pulsing');
+  if (statusText) statusText.textContent = 'Conectando Ava...';
+
+  try {
+    // 1. Importar o SDK do Retell dinamicamente via esm.sh
+    const { RetellWebClient } = await import("https://esm.sh/retell-client-js-sdk");
+
+    // 2. Buscar access_token do n8n
+    const tokenRes = await fetch('https://n8n2.omelhorvendedoronline.com.br/webhook/ava-retell-token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        [CONFIG.WEBHOOK_AUTH_HEADER]: CONFIG.WEBHOOK_AUTH_VALUE
+      },
+      body: JSON.stringify({
+        sessionId: state.sessionId
+      })
+    });
+
+    if (!tokenRes.ok) {
+      throw new Error(`Erro ao obter token de voz: ${tokenRes.status}`);
+    }
+
+    let tokenData = await tokenRes.json();
+    if (Array.isArray(tokenData)) {
+      tokenData = tokenData[0]?.json || tokenData[0] || {};
+    }
+    const accessToken = tokenData.access_token;
+
+    if (!accessToken) {
+      throw new Error("Token de acesso do Retell não retornado pelo servidor proxy.");
+    }
+
+    // 3. Instanciar o RetellWebClient se ainda não existir
+    if (!retellWebClient) {
+      retellWebClient = new RetellWebClient();
+
+      // Configurar ouvintes de eventos
+      retellWebClient.on("call_started", () => {
+        console.log("Chamada de voz da Ava iniciada.");
+        if (statusIndicator) statusIndicator.classList.remove('pulsing');
+        if (overlayEl) {
+          overlayEl.classList.remove('speaking');
+          overlayEl.classList.add('listening');
+        }
+        if (statusText) statusText.textContent = 'Ava está ouvindo...';
+      });
+
+      retellWebClient.on("agent_start_talking", () => {
+        console.log("Ava falando...");
+        if (overlayEl) {
+          overlayEl.classList.remove('listening');
+          overlayEl.classList.add('speaking');
+        }
+        if (statusText) statusText.textContent = 'Ava falando...';
+      });
+
+      retellWebClient.on("agent_stop_talking", () => {
+        console.log("Ava em silêncio...");
+        if (overlayEl) {
+          overlayEl.classList.remove('speaking');
+          overlayEl.classList.add('listening');
+        }
+        if (statusText) statusText.textContent = 'Ava está ouvindo...';
+      });
+
+      retellWebClient.on("call_ended", () => {
+        console.log("Chamada de voz da Ava encerrada.");
+        endVoiceCallUI();
+      });
+
+      retellWebClient.on("error", (err) => {
+        console.error("Erro na chamada de voz:", err);
+        if (statusText) statusText.textContent = 'Erro de conexão';
+        showFeedbackToast('Erro na chamada de voz da Ava.');
+        setTimeout(() => {
+          endVoiceCall();
+        }, 2000);
+      });
+    }
+
+    // 4. Iniciar chamada
+    await retellWebClient.startCall({
+      accessToken: accessToken,
+      emitRawAudioSamples: true
+    });
+
+    // 5. Iniciar loop de animação do Blob
+    startBlobAnimation();
+
+  } catch (err) {
+    console.error("Erro ao iniciar chamada de voz:", err);
+    if (statusText) statusText.textContent = 'Erro ao conectar';
+    showFeedbackToast('Não foi possível conectar com a Ava.');
+    setTimeout(() => {
+      endVoiceCallUI();
+    }, 2500);
+  }
+}
+
+async function endVoiceCall() {
+  if (!isCallActive) return;
+  isCallActive = false;
+
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+
+  if (retellWebClient) {
+    try {
+      await retellWebClient.stopCall();
+    } catch (e) {
+      console.error("Erro ao parar a chamada no SDK:", e);
+    }
+  }
+
+  endVoiceCallUI();
+}
+
+function endVoiceCallUI() {
+  isCallActive = false;
+  
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+
+  const mainEl = $('#main');
+  const overlayEl = $('#voiceCallOverlay');
+  const statusIndicator = $('.voice-status-indicator');
+  const statusText = $('#voiceStatusText');
+
+  if (overlayEl) overlayEl.classList.remove('active', 'speaking', 'listening');
+  if (statusIndicator) statusIndicator.classList.remove('pulsing');
+  if (mainEl) mainEl.classList.remove('fade-out');
+
+  const voiceBlob = $('#voiceBlob');
+  if (voiceBlob) {
+    voiceBlob.style.transform = '';
+  }
+  const blobWrapper = $('.voice-blob-wrapper');
+  if (blobWrapper) {
+    blobWrapper.style.transform = '';
+  }
+}
+
+function startBlobAnimation() {
+  const voiceBlob = $('#voiceBlob');
+  const blobWrapper = $('.voice-blob-wrapper');
+  const overlayEl = $('#voiceCallOverlay');
+
+  if (!voiceBlob || !blobWrapper) return;
+
+  function update() {
+    if (!isCallActive) return;
+
+    let volume = 0;
+    if (retellWebClient && retellWebClient.analyzerComponent) {
+      try {
+        volume = retellWebClient.analyzerComponent.calculateVolume();
+      } catch (e) {
+        // Ignora erros se o analisador não estiver pronto
+      }
+    }
+
+    // Normalização robusta do volume (RMS costuma ser de 0 a 1)
+    let normalizedVolume = volume;
+    if (normalizedVolume > 1.0) {
+      normalizedVolume = normalizedVolume / 100.0;
+    }
+    normalizedVolume = Math.min(Math.max(normalizedVolume, 0), 1);
+
+    if (overlayEl && overlayEl.classList.contains('speaking')) {
+      targetVolumeScale = 1.0 + normalizedVolume * 0.9;
+    } else if (overlayEl && overlayEl.classList.contains('listening')) {
+      targetVolumeScale = 1.0 + normalizedVolume * 0.4;
+    } else {
+      // Conectando / pulsação ambiente sutil
+      targetVolumeScale = 1.0 + Math.sin(Date.now() * 0.003) * 0.04;
+    }
+
+    // Suavização por LERP
+    currentVolumeScale += (targetVolumeScale - currentVolumeScale) * 0.15;
+
+    // Aplicar a escala ao blob principal
+    voiceBlob.style.transform = `scale(${currentVolumeScale})`;
+    
+    // Adicionar um leve movimento líquido rotacional e oscilação no wrapper
+    const wobble = Math.sin(Date.now() * 0.0015) * 1.5;
+    blobWrapper.style.transform = `scale(${1.0 + (currentVolumeScale - 1.0) * 0.3}) rotate(${wobble}deg)`;
+
+    animationFrameId = requestAnimationFrame(update);
+  }
+
+  animationFrameId = requestAnimationFrame(update);
 }
 
 // ============ SETTINGS PANEL ============
@@ -1712,4 +1956,5 @@ window.AvaAssistant = { openLeadModal, closeLeadModal, startNewChat };
 document.addEventListener('DOMContentLoaded', () => {
   initMoreDropdown();
   initSpeech();
+  initAdvancedVoice();
 });

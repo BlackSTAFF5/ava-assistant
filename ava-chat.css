@@ -1612,3 +1612,238 @@ body.dark-theme .msg-action-btn:hover .msg-action-icon {
   background: var(--bg-hover);
   border-color: var(--text-muted);
 }
+
+/* ============================================
+   Voice Call Overlay (Advanced Voice Mode)
+   ============================================ */
+.voice-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* Fundo cinza-claro minimalista com degradê radial sutil */
+  background: radial-gradient(circle at center, #fbfbfd 0%, #f5f5f7 100%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #1d1d1f;
+  font-family: 'Inter', sans-serif;
+}
+
+/* No tema escuro, fazemos um fundo escuro profundo e misterioso */
+body.dark-theme .voice-overlay {
+  background: radial-gradient(circle at center, #1c1c1e 0%, #000000 100%);
+  color: #f5f5f7;
+}
+
+.voice-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.voice-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 80vh;
+  width: 100%;
+  max-width: 450px;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.voice-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 8px 18px;
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+body.dark-theme .voice-status-wrap {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.voice-status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3b82f6; /* Azul conectando/conectado */
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+/* Pulsar indicando que está aguardando */
+.voice-status-indicator.pulsing {
+  animation: pulse-indicator 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse-indicator {
+  0%, 100% { opacity: 0.5; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.voice-overlay.speaking .voice-status-indicator {
+  background: #10b981; /* Verde falando */
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+
+.voice-overlay.listening .voice-status-indicator {
+  background: #8b5cf6; /* Roxo escutando */
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+}
+
+.voice-status-text {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: rgba(29, 29, 31, 0.8);
+}
+
+body.dark-theme .voice-status-text {
+  color: rgba(245, 245, 247, 0.85);
+}
+
+/* Esfera animada líquida (Blob) */
+.voice-visualizer-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.voice-blob-wrapper {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Efeito de blob orgânico usando blur e contraste elevado */
+  filter: blur(14px) contrast(20);
+  background: transparent;
+  mix-blend-mode: normal;
+}
+
+/* No dark-theme, como o fundo é preto, usamos mix-blend-mode light */
+body.dark-theme .voice-blob-wrapper {
+  filter: blur(14px) contrast(22);
+}
+
+.voice-blob {
+  width: 130px;
+  height: 130px;
+  background: #000000; /* Bola preta no tema claro */
+  border-radius: 50%;
+  position: absolute;
+  z-index: 10;
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 0 40px rgba(0,0,0,0.05);
+}
+
+body.dark-theme .voice-blob {
+  background: #ffffff; /* Bola branca/brilhante no tema escuro para aparecer */
+  box-shadow: 0 0 40px rgba(255,255,255,0.05);
+}
+
+.voice-blob-sub {
+  width: 110px;
+  height: 110px;
+  background: #000000;
+  border-radius: 50%;
+  position: absolute;
+  opacity: 0.85;
+  transition: transform 0.15s ease-out;
+}
+
+body.dark-theme .voice-blob-sub {
+  background: #ffffff;
+}
+
+/* Animação orgânica de floating */
+.voice-blob-1 {
+  animation: blob-float-1 8s infinite ease-in-out;
+}
+.voice-blob-2 {
+  animation: blob-float-2 9s infinite ease-in-out;
+}
+.voice-blob-3 {
+  animation: blob-float-3 7s infinite ease-in-out;
+}
+
+@keyframes blob-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(14px, -10px) scale(1.08); }
+  66% { transform: translate(-10px, 14px) scale(0.92); }
+}
+
+@keyframes blob-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-16px, 12px) scale(0.94); }
+  75% { transform: translate(12px, -16px) scale(1.06); }
+}
+
+@keyframes blob-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(8px, -16px) scale(1.1); }
+}
+
+/* Controles de chamada */
+.voice-controls {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.voice-close-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s, box-shadow 0.2s;
+}
+
+.voice-close-btn:hover {
+  transform: scale(1.08);
+  background: #dc2626;
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.5);
+}
+
+.voice-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* Transição do site (Fade out) */
+.main.fade-out {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: scale(0.97);
+}
+
+.main {
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
