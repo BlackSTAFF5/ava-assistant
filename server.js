@@ -18,12 +18,8 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '1mb' }));
 
-const RETELL_API_KEY = process.env.RETELL_API_KEY || '';
-const RETELL_AGENT_ID = process.env.RETELL_AGENT_ID || '';
-
-if (!RETELL_API_KEY || !RETELL_AGENT_ID) {
-  console.warn('⚠️  RETELL_API_KEY ou RETELL_AGENT_ID não configurados. Defina no arquivo .env');
-}
+const RETELL_API_KEY = process.env.RETELL_API_KEY || 'key_06812c4e95a5f639aaa550233237';
+const RETELL_AGENT_ID = process.env.RETELL_AGENT_ID || 'agent_62d3c4cb72c0a7cd6dc3c5f1c7';
 
 const voiceCallLimiter = rateLimit({
   windowMs: 60 * 1000,
