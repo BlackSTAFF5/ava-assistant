@@ -34,6 +34,22 @@ function esc(str) {
   return d.innerHTML;
 }
 
+// ============ SESSION TIMEOUT ============
+let sessionTimer = null;
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 min
+
+function resetSessionTimer() {
+  if (sessionTimer) clearTimeout(sessionTimer);
+  sessionTimer = setTimeout(() => {
+    showToast('Sessão expirada por inatividade.', 'error');
+    auth.signOut();
+  }, SESSION_TIMEOUT_MS);
+}
+
+document.addEventListener('click', resetSessionTimer);
+document.addEventListener('keydown', resetSessionTimer);
+document.addEventListener('mousemove', resetSessionTimer);
+
 // ============ AUTH ============
 auth.onAuthStateChanged(async (user) => {
   if (user) {
@@ -44,6 +60,7 @@ auth.onAuthStateChanged(async (user) => {
         document.getElementById('adminPanel').style.display = 'flex';
         startRealtimeLeads();
         showToast('Bem-vindo ao painel!');
+        resetSessionTimer();
       } else {
         showToast('Acesso negado: conta sem privilégio de admin.', 'error');
         auth.signOut();
@@ -57,6 +74,7 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('loginOverlay').style.display = 'flex';
     document.getElementById('adminPanel').style.display = 'none';
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    if (sessionTimer) { clearTimeout(sessionTimer); sessionTimer = null; }
   }
 });
 

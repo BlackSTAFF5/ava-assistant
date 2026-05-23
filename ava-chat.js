@@ -26,6 +26,7 @@ const CONFIG = {
   WEBHOOK_AUTH_HEADER: 'X-AVA-Auth',
   WEBHOOK_AUTH_VALUE: 'ava-sec-k8x9Qm7Zp3wR5nL2vJ6',
   MSG_COOLDOWN_MS: 3000,
+  VOICE_BACKEND_URL: 'https://SEU-BACKEND.up.railway.app/api/start-voice-call',
 };
 
 let state = {
@@ -917,15 +918,20 @@ window.cancelMeetingRequest = () => {
   }, 1000);
 };
 
+function sanitizeInput(str) {
+  if (!str) return '';
+  return String(str).replace(/[<>&"']/g, '').trim();
+}
+
 async function onLeadSubmit(e) {
   e.preventDefault();
   const d = {
-    name: $('#leadName').value.trim(),
-    company: $('#leadCompany').value.trim(),
-    whatsapp: $('#leadWhatsapp').value.trim(),
-    email: $('#leadEmail').value.trim(),
-    segment: $('#leadSegment').value,
-    message: $('#leadMessage').value.trim(),
+    name: sanitizeInput($('#leadName').value),
+    company: sanitizeInput($('#leadCompany').value),
+    whatsapp: sanitizeInput($('#leadWhatsapp').value),
+    email: sanitizeInput($('#leadEmail').value),
+    segment: sanitizeInput($('#leadSegment').value),
+    message: sanitizeInput($('#leadMessage').value),
     source: 'ava-assistant',
     sessionId: state.sessionId,
     timestamp: new Date().toISOString(),
@@ -933,6 +939,8 @@ async function onLeadSubmit(e) {
   };
   
   if (!d.name || !d.whatsapp) { alert('Por favor, preencha nome e WhatsApp.'); return; }
+  if (d.name.length > 100 || d.company.length > 100 || d.email.length > 200) { alert('Um ou mais campos excedem o limite de caracteres.'); return; }
+  if (d.whatsapp.replace(/\D/g, '').length < 10) { alert('Informe um WhatsApp válido com DDD e número.'); return; }
 
   const btn = $('#leadSubmitBtn');
   btn.disabled = true;
@@ -1152,30 +1160,22 @@ async function startVoiceCall() {
     // 1. Importar o SDK do Retell dinamicamente via esm.sh
     const { RetellWebClient } = await import("https://esm.sh/retell-client-js-sdk");
 
-    // 2. Buscar access_token do n8n
-    const tokenRes = await fetch('https://n8n2.omelhorvendedoronline.com.br/webhook/ava-retell-token', {
+    // 2. Buscar access_token do backend Express
+    const tokenRes = await fetch(CONFIG.VOICE_BACKEND_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        [CONFIG.WEBHOOK_AUTH_HEADER]: CONFIG.WEBHOOK_AUTH_VALUE
-      },
-      body: JSON.stringify({
-        sessionId: state.sessionId
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: state.sessionId })
     });
 
     if (!tokenRes.ok) {
       throw new Error(`Erro ao obter token de voz: ${tokenRes.status}`);
     }
 
-    let tokenData = await tokenRes.json();
-    if (Array.isArray(tokenData)) {
-      tokenData = tokenData[0]?.json || tokenData[0] || {};
-    }
+    const tokenData = await tokenRes.json();
     const accessToken = tokenData.access_token;
 
     if (!accessToken) {
-      throw new Error("Token de acesso do Retell não retornado pelo servidor proxy.");
+      throw new Error("Token de acesso não retornado pelo backend.");
     }
 
     // 3. Instanciar o RetellWebClient se ainda não existir
@@ -1568,17 +1568,34 @@ function initLoginModal() {
 
   registerForm?.addEventListener('submit', (e) => {
     e.preventDefault();
-    registerSubmit.disabled = true; registerSubmit.textContent = 'Criando conta...';
     const name = document.getElementById('registerName').value.trim();
     const email = document.getElementById('registerEmail').value.trim();
     const pass = document.getElementById('registerPassword').value;
     const errorMsg = document.getElementById('registerErrorMsg');
     errorMsg.style.display = 'none';
 
+    if (pass.length < 8) {
+      errorMsg.textContent = 'A senha deve ter pelo menos 8 caracteres.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+    if (!/[A-Z]/.test(pass)) {
+      errorMsg.textContent = 'A senha deve conter pelo menos uma letra maiúscula.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+    if (!/[0-9]/.test(pass)) {
+      errorMsg.textContent = 'A senha deve conter pelo menos um número.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    registerSubmit.disabled = true; registerSubmit.textContent = 'Criando conta...';
+    document.getElementById('registerPassword').value = '';
+
     auth.createUserWithEmailAndPassword(email, pass)
       .then((userCredential) => {
-        // You can also update the user's display name if needed:
-        // userCredential.user.updateProfile({ displayName: name });
+            userCredential.user.updateProfile({ displayName: sanitizeInput(name) }).catch(() => {});
         registerFormWrap.style.display = 'none';
         loginSuccess.style.display = 'block';
         loginSuccess.innerHTML = `<p>✅ Conta criada! Bem-vindo(a), <strong>${name}</strong>!</p>`;
@@ -1590,7 +1607,7 @@ function initLoginModal() {
         if (error.code === 'auth/email-already-in-use') {
           errorMsg.textContent = 'Este e-mail já está em uso.';
         } else if (error.code === 'auth/weak-password') {
-          errorMsg.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+          errorMsg.textContent = 'A senha deve ter pelo menos 8 caracteres, com maiúsculas e números.';
         } else {
           console.error("Firebase Auth Error (Register):", error);
           errorMsg.textContent = 'Não foi possível criar sua conta neste momento. Por favor, tente novamente mais tarde.';

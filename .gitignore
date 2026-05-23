@@ -12,3 +12,12 @@ deploy_ava/
 *.sql
 models.json
 chat-logic.js
+
+# Environment variables (contain secrets!)
+.env
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
