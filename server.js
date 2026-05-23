@@ -11,7 +11,7 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: ['https://avaassistant.cloud', 'http://localhost:3000', 'http://127.0.0.1:5500'],
+  origin: ['https://avaassistant.cloud', 'https://ava-assistant-production.up.railway.app', 'http://localhost:3000', 'http://127.0.0.1:5500'],
   methods: ['POST', 'GET'],
   allowedHeaders: ['Content-Type'],
   maxAge: 86400,
@@ -47,7 +47,7 @@ app.post('/api/start-voice-call', voiceCallLimiter, async (req, res) => {
     if (!response.ok) {
       const errText = await response.text();
       console.error('Erro da API do Retell:', response.status, errText);
-      return res.status(response.status).json({ error: 'Erro ao iniciar chamada de voz.' });
+      return res.status(response.status).json({ error: `Erro da Retell (${response.status}): ${errText}` });
     }
 
     const data = await response.json();
