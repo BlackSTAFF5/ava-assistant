@@ -26,7 +26,7 @@ const CONFIG = {
   WEBHOOK_AUTH_HEADER: 'X-AVA-Auth',
   WEBHOOK_AUTH_VALUE: 'ava-sec-k8x9Qm7Zp3wR5nL2vJ6',
   MSG_COOLDOWN_MS: 3000,
-  VOICE_BACKEND_URL: 'https://SEU-BACKEND.up.railway.app/api/start-voice-call',
+  VOICE_BACKEND_URL: 'https://ava-assistant-production.up.railway.app/api/start-voice-call',
 };
 
 let state = {
