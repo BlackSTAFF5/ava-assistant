@@ -1847,3 +1847,83 @@ body.dark-theme .voice-blob-sub {
   transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ============================================
+   Sleek inline Retell Voice Call Button
+   ============================================ */
+#ava-voice-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: transparent;
+  color: #8b5cf6;
+  border: 2px solid #8b5cf6;
+  border-radius: 24px;
+  padding: 10px 24px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 44px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.08);
+}
+
+body.dark-theme #ava-voice-btn {
+  color: #a78bfa;
+  border-color: #a78bfa;
+  box-shadow: 0 2px 8px rgba(167, 139, 250, 0.05);
+}
+
+#ava-voice-btn:hover:not(:disabled) {
+  background-color: rgba(139, 92, 246, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+body.dark-theme #ava-voice-btn:hover:not(:disabled) {
+  background-color: rgba(167, 139, 250, 0.08);
+  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.12);
+}
+
+/* Connecting State */
+#ava-voice-btn.connecting {
+  background-color: rgba(139, 92, 246, 0.04);
+  color: #a78bfa;
+  border-color: #a78bfa;
+  cursor: not-allowed;
+  animation: ava-voice-pulse 1.6s infinite ease-in-out;
+}
+
+body.dark-theme #ava-voice-btn.connecting {
+  background-color: rgba(167, 139, 250, 0.02);
+  color: #8b5cf6;
+  border-color: #8b5cf6;
+}
+
+/* Active State (In Call) */
+#ava-voice-btn.active {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
+#ava-voice-btn.active:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.45);
+  transform: translateY(-1px);
+}
+
+#ava-voice-btn:active {
+  transform: translateY(0);
+}
+
+@keyframes ava-voice-pulse {
+  0% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 0.7; transform: scale(1); }
+}
+
