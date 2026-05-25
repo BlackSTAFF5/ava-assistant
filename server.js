@@ -69,7 +69,7 @@ app.post('/create-web-call', voiceCallLimiter, async (req, res) => {
       return res.status(503).json({ error: 'Serviço de voz não configurado.' });
     }
 
-    const webCallResponse = await client.webCall.createWebCall({
+    const webCallResponse = await client.call.createWebCall({
       agent_id: RETELL_AGENT_ID,
     });
     res.json({ access_token: webCallResponse.access_token });
