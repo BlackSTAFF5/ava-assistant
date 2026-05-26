@@ -1736,9 +1736,66 @@ body.dark-theme .voice-status-text {
   justify-content: center;
 }
 
+.voice-fluid-layer {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: blur(18px) contrast(20);
+  mix-blend-mode: normal;
+}
+
+.voice-blob-fluid-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: #000;
+}
+
+body.dark-theme .voice-blob-fluid-dot {
+  background: #fff;
+}
+
+.vbfd-1 {
+  width: 120px;
+  height: 120px;
+  animation: fluid-drift-1 7s ease-in-out infinite;
+}
+
+.vbfd-2 {
+  width: 100px;
+  height: 100px;
+  animation: fluid-drift-2 9s ease-in-out infinite;
+}
+
+.vbfd-3 {
+  width: 90px;
+  height: 90px;
+  animation: fluid-drift-3 6s ease-in-out infinite;
+}
+
+@keyframes fluid-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.15); }
+  66% { transform: translate(-20px, 25px) scale(0.88); }
+}
+
+@keyframes fluid-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-25px, 30px) scale(0.9); }
+  75% { transform: translate(25px, -25px) scale(1.12); }
+}
+
+@keyframes fluid-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(15px, -30px) scale(1.18); }
+}
+
 .voice-blob {
-  width: 200px;
-  height: 200px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   position: absolute;
   z-index: 10;
@@ -1747,57 +1804,11 @@ body.dark-theme .voice-status-text {
   background-position: center;
   background-repeat: no-repeat;
   transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
 body.dark-theme .voice-blob {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.voice-blob-ring {
-  position: absolute;
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(139, 92, 246, 0.25), transparent 60%);
-  filter: blur(8px);
-  animation: ring-orbit 6s ease-in-out infinite;
-  z-index: 5;
-}
-
-body.dark-theme .voice-blob-ring {
-  background: radial-gradient(circle at 30% 30%, rgba(167, 139, 250, 0.2), transparent 60%);
-}
-
-.voice-blob-ring-2 {
-  width: 260px;
-  height: 260px;
-  background: radial-gradient(circle at 70% 70%, rgba(59, 130, 246, 0.15), transparent 60%);
-  animation: ring-orbit 8s ease-in-out infinite reverse;
-  filter: blur(10px);
-}
-
-body.dark-theme .voice-blob-ring-2 {
-  background: radial-gradient(circle at 70% 70%, rgba(96, 165, 250, 0.12), transparent 60%);
-}
-
-.voice-blob-ring-3 {
-  width: 220px;
-  height: 220px;
-  background: radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.12), transparent 60%);
-  animation: ring-orbit 7s ease-in-out infinite;
-  filter: blur(12px);
-}
-
-body.dark-theme .voice-blob-ring-3 {
-  background: radial-gradient(circle at 50% 50%, rgba(244, 114, 182, 0.1), transparent 60%);
-}
-
-@keyframes ring-orbit {
-  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
-  25% { transform: translate(8px, -12px) scale(1.05) rotate(90deg); }
-  50% { transform: translate(-6px, 8px) scale(0.95) rotate(180deg); }
-  75% { transform: translate(10px, 6px) scale(1.02) rotate(270deg); }
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
 /* Controles de chamada */

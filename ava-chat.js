@@ -1422,7 +1422,7 @@ function endVoiceCallUI() {
 
 function startBlobAnimation() {
   const voiceBlob = $('#voiceBlob');
-  const blobWrapper = $('.voice-blob-wrapper');
+  const blobWrapper = $('#voiceBlobWrapper');
   const overlayEl = $('#voiceCallOverlay');
 
   if (!voiceBlob || !blobWrapper) return;
