@@ -1736,76 +1736,111 @@ body.dark-theme .voice-status-text {
   justify-content: center;
 }
 
-.voice-blob-glow {
+/* ========== GOOEY EFFECT (líquido/orgânico) ========== */
+.voice-gooey {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  filter: blur(8px) contrast(10);
+  z-index: 1;
+}
+
+.gooey-blob {
   position: absolute;
   border-radius: 50%;
-  opacity: 0;
-  transition: opacity 1s ease;
+  background: rgba(0, 0, 0, 0.10);
+  will-change: transform;
 }
 
-.voice-overlay.active .voice-blob-glow {
-  opacity: 1;
+body.dark-theme .gooey-blob {
+  background: rgba(255, 255, 255, 0.10);
 }
 
-.vbg-1 {
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.03), transparent 70%);
-  animation: glow-drift-1 12s ease-in-out infinite;
+/* Blob 1 – grande, lento */
+.gb-1 {
+  width: 120px;
+  height: 120px;
+  top: 50%;
+  left: 50%;
+  margin-left: -60px;
+  margin-top: -60px;
+  animation: gooey-drift-1 6s ease-in-out infinite;
 }
 
-.vbg-2 {
-  width: 220px;
-  height: 220px;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.02), transparent 70%);
-  animation: glow-drift-2 15s ease-in-out infinite;
+/* Blob 2 – médio */
+.gb-2 {
+  width: 80px;
+  height: 80px;
+  top: 30%;
+  left: 20%;
+  animation: gooey-drift-2 8s ease-in-out infinite;
 }
 
-.vbg-3 {
-  width: 180px;
-  height: 180px;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.015), transparent 70%);
-  animation: glow-drift-3 18s ease-in-out infinite;
+/* Blob 3 – pequeno, mais rápido */
+.gb-3 {
+  width: 50px;
+  height: 50px;
+  top: 60%;
+  left: 70%;
+  animation: gooey-drift-3 5s ease-in-out infinite;
 }
 
-body.dark-theme .vbg-1 {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.04), transparent 70%);
-}
-body.dark-theme .vbg-2 {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.03), transparent 70%);
-}
-body.dark-theme .vbg-3 {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.02), transparent 70%);
-}
-
-.voice-overlay.speaking .vbg-1 {
-  animation-duration: 6s;
-}
-.voice-overlay.speaking .vbg-2 {
-  animation-duration: 8s;
-}
-.voice-overlay.speaking .vbg-3 {
-  animation-duration: 10s;
+/* Blob 4 – médio, outro lado */
+.gb-4 {
+  width: 70px;
+  height: 70px;
+  top: 25%;
+  left: 65%;
+  animation: gooey-drift-4 7s ease-in-out infinite;
 }
 
-@keyframes glow-drift-1 {
+/* Blob 5 – bem pequeno, órbita mais ampla */
+.gb-5 {
+  width: 40px;
+  height: 40px;
+  top: 65%;
+  left: 25%;
+  animation: gooey-drift-5 9s ease-in-out infinite;
+}
+
+/* Speaking: acelera as animações */
+.voice-overlay.speaking .gb-1 { animation-duration: 3s; }
+.voice-overlay.speaking .gb-2 { animation-duration: 4s; }
+.voice-overlay.speaking .gb-3 { animation-duration: 2.5s; }
+.voice-overlay.speaking .gb-4 { animation-duration: 3.5s; }
+.voice-overlay.speaking .gb-5 { animation-duration: 4.5s; }
+
+@keyframes gooey-drift-1 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(12px, -8px) scale(1.03); }
-  50% { transform: translate(-8px, 10px) scale(0.97); }
-  75% { transform: translate(-12px, -6px) scale(1.02); }
+  25%      { transform: translate(25px, -18px) scale(1.15); }
+  50%      { transform: translate(-15px, 22px) scale(0.9); }
+  75%      { transform: translate(-28px, -10px) scale(1.1); }
 }
 
-@keyframes glow-drift-2 {
+@keyframes gooey-drift-2 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-10px, 12px) scale(0.98); }
-  66% { transform: translate(14px, -10px) scale(1.04); }
+  33%      { transform: translate(35px, 20px) scale(1.2); }
+  66%      { transform: translate(-20px, -30px) scale(0.85); }
 }
 
-@keyframes glow-drift-3 {
+@keyframes gooey-drift-3 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(8px, -14px) scale(1.02); }
+  50%      { transform: translate(-40px, 35px) scale(1.3); }
 }
 
+@keyframes gooey-drift-4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(30px, -40px) scale(1.1); }
+}
+
+@keyframes gooey-drift-5 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(-35px, -25px) scale(1.25); }
+  66%      { transform: translate(40px, 30px) scale(0.8); }
+}
+
+/* Avatar central (limpo, sem filtro) */
 .voice-blob {
   width: 180px;
   height: 180px;
