@@ -1738,8 +1738,8 @@ body.dark-theme .voice-status-text {
 
 .voice-blob-wrapper {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 360px;
+  height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1747,50 +1747,50 @@ body.dark-theme .voice-status-text {
 
 .voice-fluid-layer {
   position: absolute;
-  width: 300px;
-  height: 300px;
+  width: 360px;
+  height: 360px;
   z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: blur(16px) contrast(20);
-  animation: fluid-breathe 4s ease-in-out infinite;
+  filter: blur(10px) contrast(14);
+  animation: fluid-breathe 6s ease-in-out infinite;
 }
 
 .voice-overlay.speaking .voice-fluid-layer {
-  animation: fluid-breathe 2s ease-in-out infinite;
+  animation: fluid-breathe 3s ease-in-out infinite;
 }
 
 .voice-overlay.listening .voice-fluid-layer {
-  animation: fluid-breathe 3s ease-in-out infinite;
+  animation: fluid-breathe 4s ease-in-out infinite;
 }
 
 @keyframes fluid-breathe {
   0%, 100% { transform: scale(1) rotate(0deg); }
-  33% { transform: scale(1.03) rotate(2deg); }
-  66% { transform: scale(0.97) rotate(-1deg); }
+  33% { transform: scale(1.02) rotate(1deg); }
+  66% { transform: scale(0.98) rotate(-0.5deg); }
 }
 
 #voiceBlobFluidCopy {
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   position: absolute;
   background-image: url('/ava-bubble-260.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.6;
+  opacity: 0.35;
 }
 
 body.dark-theme #voiceBlobFluidCopy {
-  opacity: 0.8;
-  filter: brightness(1.3);
+  opacity: 0.5;
+  filter: brightness(1.2);
 }
 
 .voice-blob {
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   position: absolute;
   z-index: 10;
@@ -1798,12 +1798,16 @@ body.dark-theme #voiceBlobFluidCopy {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 body.dark-theme .voice-blob {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .voice-blob-sub {
@@ -1817,62 +1821,57 @@ body.dark-theme .voice-blob-sub {
 }
 
 .vbs-1 {
-  width: 100px;
-  height: 100px;
-  animation: fluid-drift-1 6s ease-in-out infinite;
+  width: 70px;
+  height: 70px;
+  animation: fluid-drift-1 10s ease-in-out infinite;
 }
 
 .vbs-2 {
-  width: 80px;
-  height: 80px;
-  animation: fluid-drift-2 8s ease-in-out infinite;
+  width: 55px;
+  height: 55px;
+  animation: fluid-drift-2 12s ease-in-out infinite;
 }
 
 .vbs-3 {
-  width: 60px;
-  height: 60px;
-  animation: fluid-drift-3 7s ease-in-out infinite;
+  width: 45px;
+  height: 45px;
+  animation: fluid-drift-3 14s ease-in-out infinite;
 }
 
 .voice-overlay.speaking .vbs-1 {
-  animation-duration: 3s;
+  animation-duration: 5s;
 }
 .voice-overlay.speaking .vbs-2 {
-  animation-duration: 4s;
+  animation-duration: 6s;
 }
 .voice-overlay.speaking .vbs-3 {
-  animation-duration: 3.5s;
+  animation-duration: 7s;
 }
 
 @keyframes fluid-drift-1 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(45px, -25px) scale(1.15); }
-  50% { transform: translate(-20px, 35px) scale(0.9); }
-  75% { transform: translate(-40px, -15px) scale(1.05); }
+  33% { transform: translate(40px, -20px) scale(1.08); }
+  66% { transform: translate(-20px, 30px) scale(0.95); }
 }
 
 @keyframes fluid-drift-2 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(-40px, 35px) scale(0.9); }
-  50% { transform: translate(35px, -30px) scale(1.1); }
-  75% { transform: translate(-25px, 40px) scale(0.95); }
+  50% { transform: translate(-35px, 25px) scale(0.92); }
 }
 
 @keyframes fluid-drift-3 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(30px, 25px) scale(1.1); }
-  50% { transform: translate(-35px, -20px) scale(0.9); }
-  75% { transform: translate(20px, -35px) scale(1.05); }
+  50% { transform: translate(25px, -30px) scale(1.06); }
 }
 
 /* Pulsing when speaking */
 .voice-overlay.speaking .voice-blob {
-  animation: voice-pulse 2s ease-in-out infinite;
+  animation: voice-pulse 2.5s ease-in-out infinite;
 }
 
 @keyframes voice-pulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+  50% { transform: scale(1.05); }
 }
 
 /* Controles de chamada */
