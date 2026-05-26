@@ -1736,79 +1736,72 @@ body.dark-theme .voice-status-text {
   justify-content: center;
 }
 
-.voice-fluid-layer {
-  position: absolute;
-  width: 260px;
-  height: 260px;
-  z-index: 5;
+.voice-blob-wrapper {
+  position: relative;
+  width: 280px;
+  height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: blur(18px) contrast(20);
-  mix-blend-mode: normal;
-}
-
-.voice-blob-fluid-dot {
-  position: absolute;
-  border-radius: 50%;
-  background: #000;
-}
-
-body.dark-theme .voice-blob-fluid-dot {
-  background: #fff;
-}
-
-.vbfd-1 {
-  width: 120px;
-  height: 120px;
-  animation: fluid-drift-1 7s ease-in-out infinite;
-}
-
-.vbfd-2 {
-  width: 100px;
-  height: 100px;
-  animation: fluid-drift-2 9s ease-in-out infinite;
-}
-
-.vbfd-3 {
-  width: 90px;
-  height: 90px;
-  animation: fluid-drift-3 6s ease-in-out infinite;
-}
-
-@keyframes fluid-drift-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -20px) scale(1.15); }
-  66% { transform: translate(-20px, 25px) scale(0.88); }
-}
-
-@keyframes fluid-drift-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(-25px, 30px) scale(0.9); }
-  75% { transform: translate(25px, -25px) scale(1.12); }
-}
-
-@keyframes fluid-drift-3 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(15px, -30px) scale(1.18); }
+  filter: blur(16px) contrast(18);
 }
 
 .voice-blob {
-  width: 160px;
-  height: 160px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   position: absolute;
-  z-index: 10;
   background-image: url('/ava-bubble-260.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
-body.dark-theme .voice-blob {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+.voice-blob-sub {
+  position: absolute;
+  border-radius: 50%;
+  background: #000;
+  transition: transform 0.15s ease-out;
+}
+
+body.dark-theme .voice-blob-sub {
+  background: #fff;
+}
+
+.vbs-1 {
+  width: 100px;
+  height: 100px;
+  animation: fluid-drift-1 7s ease-in-out infinite;
+}
+
+.vbs-2 {
+  width: 85px;
+  height: 85px;
+  animation: fluid-drift-2 9s ease-in-out infinite;
+}
+
+.vbs-3 {
+  width: 70px;
+  height: 70px;
+  animation: fluid-drift-3 6s ease-in-out infinite;
+}
+
+@keyframes fluid-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -25px) scale(1.2); }
+  66% { transform: translate(-25px, 35px) scale(0.85); }
+}
+
+@keyframes fluid-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-35px, 35px) scale(0.88); }
+  75% { transform: translate(30px, -30px) scale(1.15); }
+}
+
+@keyframes fluid-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -40px) scale(1.25); }
 }
 
 /* Controles de chamada */
