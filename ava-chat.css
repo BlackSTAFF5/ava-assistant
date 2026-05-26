@@ -1729,15 +1729,6 @@ body.dark-theme .voice-status-text {
 
 .voice-blob-wrapper {
   position: relative;
-  width: 260px;
-  height: 260px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.voice-blob-wrapper {
-  position: relative;
   width: 360px;
   height: 360px;
   display: flex;
@@ -1753,22 +1744,27 @@ body.dark-theme .voice-status-text {
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: blur(10px) contrast(14);
-  animation: fluid-breathe 6s ease-in-out infinite;
+  filter: blur(8px) contrast(3.5);
+  opacity: 0.55;
+  animation: fluid-breathe 8s ease-in-out infinite;
+}
+
+body.dark-theme .voice-fluid-layer {
+  opacity: 0.7;
 }
 
 .voice-overlay.speaking .voice-fluid-layer {
-  animation: fluid-breathe 3s ease-in-out infinite;
+  animation: fluid-breathe 4s ease-in-out infinite;
+  opacity: 0.7;
 }
 
 .voice-overlay.listening .voice-fluid-layer {
-  animation: fluid-breathe 4s ease-in-out infinite;
+  animation: fluid-breathe 5s ease-in-out infinite;
 }
 
 @keyframes fluid-breathe {
   0%, 100% { transform: scale(1) rotate(0deg); }
-  33% { transform: scale(1.02) rotate(1deg); }
-  66% { transform: scale(0.98) rotate(-0.5deg); }
+  50% { transform: scale(1.01) rotate(0.5deg); }
 }
 
 #voiceBlobFluidCopy {
@@ -1780,12 +1776,11 @@ body.dark-theme .voice-status-text {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.35;
+  opacity: 0.25;
 }
 
 body.dark-theme #voiceBlobFluidCopy {
-  opacity: 0.5;
-  filter: brightness(1.2);
+  filter: brightness(1.4);
 }
 
 .voice-blob {
@@ -1799,15 +1794,11 @@ body.dark-theme #voiceBlobFluidCopy {
   background-position: center;
   background-repeat: no-repeat;
   transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.04),
-    0 8px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 body.dark-theme .voice-blob {
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .voice-blob-sub {
