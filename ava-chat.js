@@ -1203,12 +1203,6 @@ async function startVoiceCall() {
   if (mainEl) mainEl.classList.add('fade-out');
   if (overlayEl) overlayEl.classList.add('active');
   
-  // Iniciar vídeos da bolinha
-  document.querySelectorAll('.voice-gooey-video, .voice-face-video').forEach(v => {
-    v.currentTime = 0;
-    v.play().catch(() => {});
-  });
-  
   if (overlayEl) overlayEl.classList.remove('speaking', 'listening');
   if (statusIndicator) statusIndicator.classList.add('pulsing');
   if (statusText) statusText.textContent = 'Conectando Ava...';
@@ -1299,10 +1293,6 @@ function endVoiceCallUI() {
   const statusText = $('#voiceStatusText');
 
   if (overlayEl) overlayEl.classList.remove('active', 'speaking', 'listening');
-  // Pausar vídeos da bolinha
-  document.querySelectorAll('.voice-gooey-video, .voice-face-video').forEach(v => {
-    v.pause();
-  });
   if (statusIndicator) statusIndicator.classList.remove('pulsing');
   if (mainEl) mainEl.classList.remove('fade-out');
 
