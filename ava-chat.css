@@ -1736,51 +1736,74 @@ body.dark-theme .voice-status-text {
   justify-content: center;
 }
 
-.voice-fluid-layer {
+.voice-blob-glow {
   position: absolute;
-  width: 360px;
-  height: 360px;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: blur(8px) contrast(3.5);
-  opacity: 0.55;
-  animation: fluid-breathe 8s ease-in-out infinite;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 1s ease;
 }
 
-body.dark-theme .voice-fluid-layer {
-  opacity: 0.7;
+.voice-overlay.active .voice-blob-glow {
+  opacity: 1;
 }
 
-.voice-overlay.speaking .voice-fluid-layer {
-  animation: fluid-breathe 4s ease-in-out infinite;
-  opacity: 0.7;
+.vbg-1 {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.03), transparent 70%);
+  animation: glow-drift-1 12s ease-in-out infinite;
 }
 
-.voice-overlay.listening .voice-fluid-layer {
-  animation: fluid-breathe 5s ease-in-out infinite;
+.vbg-2 {
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.02), transparent 70%);
+  animation: glow-drift-2 15s ease-in-out infinite;
 }
 
-@keyframes fluid-breathe {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.01) rotate(0.5deg); }
-}
-
-#voiceBlobFluidCopy {
+.vbg-3 {
   width: 180px;
   height: 180px;
-  border-radius: 50%;
-  position: absolute;
-  background-image: url('/ava-bubble-260.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.25;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.015), transparent 70%);
+  animation: glow-drift-3 18s ease-in-out infinite;
 }
 
-body.dark-theme #voiceBlobFluidCopy {
-  filter: brightness(1.4);
+body.dark-theme .vbg-1 {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.04), transparent 70%);
+}
+body.dark-theme .vbg-2 {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.03), transparent 70%);
+}
+body.dark-theme .vbg-3 {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.02), transparent 70%);
+}
+
+.voice-overlay.speaking .vbg-1 {
+  animation-duration: 6s;
+}
+.voice-overlay.speaking .vbg-2 {
+  animation-duration: 8s;
+}
+.voice-overlay.speaking .vbg-3 {
+  animation-duration: 10s;
+}
+
+@keyframes glow-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(12px, -8px) scale(1.03); }
+  50% { transform: translate(-8px, 10px) scale(0.97); }
+  75% { transform: translate(-12px, -6px) scale(1.02); }
+}
+
+@keyframes glow-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-10px, 12px) scale(0.98); }
+  66% { transform: translate(14px, -10px) scale(1.04); }
+}
+
+@keyframes glow-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(8px, -14px) scale(1.02); }
 }
 
 .voice-blob {
@@ -1793,76 +1816,21 @@ body.dark-theme #voiceBlobFluidCopy {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
 }
 
 body.dark-theme .voice-blob {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
-.voice-blob-sub {
-  position: absolute;
-  border-radius: 50%;
-  background: #000;
-}
-
-body.dark-theme .voice-blob-sub {
-  background: #fff;
-}
-
-.vbs-1 {
-  width: 70px;
-  height: 70px;
-  animation: fluid-drift-1 10s ease-in-out infinite;
-}
-
-.vbs-2 {
-  width: 55px;
-  height: 55px;
-  animation: fluid-drift-2 12s ease-in-out infinite;
-}
-
-.vbs-3 {
-  width: 45px;
-  height: 45px;
-  animation: fluid-drift-3 14s ease-in-out infinite;
-}
-
-.voice-overlay.speaking .vbs-1 {
-  animation-duration: 5s;
-}
-.voice-overlay.speaking .vbs-2 {
-  animation-duration: 6s;
-}
-.voice-overlay.speaking .vbs-3 {
-  animation-duration: 7s;
-}
-
-@keyframes fluid-drift-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(40px, -20px) scale(1.08); }
-  66% { transform: translate(-20px, 30px) scale(0.95); }
-}
-
-@keyframes fluid-drift-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-35px, 25px) scale(0.92); }
-}
-
-@keyframes fluid-drift-3 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(25px, -30px) scale(1.06); }
-}
-
-/* Pulsing when speaking */
 .voice-overlay.speaking .voice-blob {
-  animation: voice-pulse 2.5s ease-in-out infinite;
+  animation: voice-pulse 3s ease-in-out infinite;
 }
 
 @keyframes voice-pulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.03); }
 }
 
 /* Controles de chamada */
