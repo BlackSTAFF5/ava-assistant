@@ -1717,7 +1717,7 @@ body.dark-theme .voice-status-text {
   color: rgba(245, 245, 247, 0.85);
 }
 
-/* Esfera animada líquida (Blob) */
+/* Esfera animada com avatar */
 .voice-visualizer-container {
   flex: 1;
   display: flex;
@@ -1734,45 +1734,44 @@ body.dark-theme .voice-status-text {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Efeito de blob orgânico usando blur e contraste elevado */
-  filter: blur(14px) contrast(20);
-  background: transparent;
-  mix-blend-mode: normal;
-}
-
-/* No dark-theme, como o fundo é preto, usamos mix-blend-mode light */
-body.dark-theme .voice-blob-wrapper {
-  filter: blur(14px) contrast(22);
 }
 
 .voice-blob {
-  width: 130px;
-  height: 130px;
-  background: #000000; /* Bola preta no tema claro */
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   position: absolute;
   z-index: 10;
+  background-image: url('/ava-bubble-260.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 0 40px rgba(0,0,0,0.05);
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.8),
+    0 0 30px rgba(0, 0, 0, 0.08),
+    inset 0 0 20px rgba(0, 0, 0, 0.05);
 }
 
 body.dark-theme .voice-blob {
-  background: #ffffff; /* Bola branca/brilhante no tema escuro para aparecer */
-  box-shadow: 0 0 40px rgba(255,255,255,0.05);
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.15),
+    0 0 40px rgba(255, 255, 255, 0.06),
+    inset 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .voice-blob-sub {
-  width: 110px;
-  height: 110px;
-  background: #000000;
+  width: 220px;
+  height: 220px;
   border-radius: 50%;
   position: absolute;
-  opacity: 0.85;
+  opacity: 0.12;
   transition: transform 0.15s ease-out;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent 70%);
 }
 
 body.dark-theme .voice-blob-sub {
-  background: #ffffff;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.2), transparent 70%);
 }
 
 /* Animação orgânica de floating */

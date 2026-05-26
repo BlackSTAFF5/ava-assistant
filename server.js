@@ -36,50 +36,92 @@ const voiceCallLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.post('/api/start-voice-call', voiceCallLimiter, async (req, res) => {
+async function checkRetellConcurrency() {
+  try {
+    const concurrency = await client.concurrency.retrieve();
+    return concurrency;
+  } catch {
+    return null;
+  }
+}
+
+async function createWebCallWithRetry(agentId, maxRetries = 3) {
+  let lastError;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch('https://api.retellai.com/v2/create-web-call', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${RETELL_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ agent_id: agentId })
+      });
+
+      if (response.ok) {
+        return await response.json();
+      }
+
+      if (response.status === 429 && attempt < maxRetries) {
+        const retryAfter = parseInt(response.headers.get('retry-after-ms') || response.headers.get('Retry-After') || '1000');
+        const delay = Math.min(retryAfter, 5000) + Math.random() * 1000;
+        console.log(`Rate limited (429). Tentativa ${attempt + 1}/${maxRetries}. Aguardando ${Math.round(delay)}ms...`);
+        await new Promise(r => setTimeout(r, delay));
+        lastError = { status: response.status, body: await response.text() };
+        continue;
+      }
+
+      const errBody = await response.text();
+      throw { status: response.status, body: errBody };
+    } catch (err) {
+      if (err.status === 429 && attempt < maxRetries) continue;
+      throw err;
+    }
+  }
+
+  throw lastError || { status: 429, body: 'Concurrency limit reached after retries.' };
+}
+
+async function createVoiceCall(req, res) {
   try {
     if (!RETELL_API_KEY || !RETELL_AGENT_ID) {
       return res.status(503).json({ error: 'Serviço de voz não configurado.' });
     }
 
-    const response = await fetch('https://api.retellai.com/v2/create-web-call', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RETELL_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ agent_id: RETELL_AGENT_ID })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Erro da API do Retell:', response.status, errText);
-      return res.status(response.status).json({ error: `Erro da Retell (${response.status}): ${errText}` });
+    const concurrency = await checkRetellConcurrency();
+    if (concurrency) {
+      const { current_concurrency, concurrency_limit } = concurrency;
+      if (current_concurrency >= concurrency_limit) {
+        console.warn(`Concorrência no limite: ${current_concurrency}/${concurrency_limit}`);
+        return res.status(503).json({
+          error: 'Limite de chamadas simultâneas atingido. Tente novamente em alguns instantes.',
+          current_concurrency,
+          concurrency_limit
+        });
+      }
+      console.log(`Concorrência Retell: ${current_concurrency}/${concurrency_limit}`);
     }
 
-    const data = await response.json();
+    const data = await createWebCallWithRetry(RETELL_AGENT_ID);
     res.json({ access_token: data.access_token });
   } catch (error) {
-    console.error('Erro interno no servidor proxy:', error.message);
-    res.status(500).json({ error: 'Erro interno do servidor ao iniciar a chamada.', detail: error.message });
-  }
-});
-
-app.post('/create-web-call', voiceCallLimiter, async (req, res) => {
-  try {
-    if (!RETELL_API_KEY || !RETELL_AGENT_ID) {
-      return res.status(503).json({ error: 'Serviço de voz não configurado.' });
+    if (error.status === 429) {
+      console.error('Concorrência excedida após retries:', error.body);
+      return res.status(503).json({
+        error: 'Serviço temporariamente indisponível. Muitas chamadas simultâneas. Tente novamente mais tarde.'
+      });
     }
-
-    const webCallResponse = await client.call.createWebCall({
-      agent_id: RETELL_AGENT_ID,
+    console.error('Erro ao criar chamada Retell:', error.status || error.message, error.body || '');
+    res.status(error.status || 500).json({
+      error: 'Erro ao criar chamada de voz.',
+      detail: error.body || error.message
     });
-    res.json({ access_token: webCallResponse.access_token });
-  } catch (err) {
-    console.error('Erro ao criar chamada Retell SDK:', err);
-    res.status(500).json({ error: 'Erro ao criar chamada', detail: err.message });
   }
-});
+}
+
+app.post('/api/start-voice-call', voiceCallLimiter, createVoiceCall);
+app.post('/create-web-call', voiceCallLimiter, createVoiceCall);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
