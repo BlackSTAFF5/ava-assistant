@@ -1115,7 +1115,6 @@ let targetVolumeScale = 1.0;
 function initAdvancedVoice() {
   const voiceBtn = $('#voiceBtn');
   const voiceCloseBtn = $('#voiceCloseBtn');
-  const avaVoiceBtn = $('#ava-voice-btn');
 
   if (voiceBtn) {
     voiceBtn.addEventListener('click', (e) => {
@@ -1128,13 +1127,6 @@ function initAdvancedVoice() {
     voiceCloseBtn.addEventListener('click', (e) => {
       e.preventDefault();
       endVoiceCall();
-    });
-  }
-
-  if (avaVoiceBtn) {
-    avaVoiceBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      startCall();
     });
   }
 }
@@ -1154,18 +1146,6 @@ function setupRetellListeners() {
       overlayEl.classList.add('listening');
     }
     if (statusText) statusText.textContent = 'Ava está ouvindo...';
-
-    // Atualizar estado do botão inline
-    const btn = document.getElementById('ava-voice-btn');
-    const label = document.getElementById('ava-voice-label');
-    const icon = document.getElementById('ava-voice-icon');
-    if (btn) {
-      btn.disabled = false;
-      btn.classList.remove('connecting');
-      btn.classList.add('active');
-    }
-    if (label) label.textContent = 'Encerrar chamada';
-    if (icon) icon.textContent = '📞';
   });
 
   retellWebClient.on("agent_start_talking", () => {
@@ -1227,17 +1207,6 @@ async function startVoiceCall() {
   if (statusIndicator) statusIndicator.classList.add('pulsing');
   if (statusText) statusText.textContent = 'Conectando Ava...';
 
-  // Mostrar também o estado de "conectando" no botão inline se ele estiver na tela
-  const inlineBtn = document.getElementById('ava-voice-btn');
-  const inlineLabel = document.getElementById('ava-voice-label');
-  const inlineIcon = document.getElementById('ava-voice-icon');
-  if (inlineBtn) {
-    inlineBtn.disabled = true;
-    inlineBtn.classList.add('connecting');
-  }
-  if (inlineLabel) inlineLabel.textContent = 'Conectando...';
-  if (inlineIcon) inlineIcon.textContent = '⏳';
-
   try {
     // 1. Usar a classe global RetellWebClient se já carregada, ou importar via esm.sh
     if (typeof RetellWebClient === 'undefined') {
@@ -1288,79 +1257,7 @@ async function startVoiceCall() {
   }
 }
 
-async function startCall() {
-  if (isCallActive) {
-    endVoiceCall();
-    return;
-  }
 
-  // Solicitar permissão de microfone
-  try {
-    await navigator.mediaDevices.getUserMedia({ audio: true });
-  } catch (e) {
-    console.error("Permissão de microfone negada:", e);
-    showFeedbackToast("Permissão de microfone necessária para falar com a Ava.");
-    return;
-  }
-
-  const btn = document.getElementById('ava-voice-btn');
-  const label = document.getElementById('ava-voice-label');
-  const icon = document.getElementById('ava-voice-icon');
-
-  if (btn) {
-    btn.disabled = true;
-    btn.classList.add('connecting');
-  }
-  if (label) label.textContent = 'Conectando...';
-  if (icon) icon.textContent = '⏳';
-
-  try {
-    // 1. Usar a classe global RetellWebClient se já carregada, ou importar via esm.sh
-    if (typeof RetellWebClient === 'undefined') {
-      const { RetellWebClient: ClientImport } = await import("https://esm.sh/retell-client-js-sdk@2.0.7");
-      window.RetellWebClient = ClientImport;
-    }
-
-    // 2. Buscar access_token do novo endpoint
-    const tokenRes = await fetch(CONFIG.CREATE_WEB_CALL_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: state.sessionId })
-    });
-
-    if (!tokenRes.ok) {
-      throw new Error(`Erro ao obter token de voz: ${tokenRes.status}`);
-    }
-
-    const tokenData = await tokenRes.json();
-    const accessToken = tokenData.access_token;
-
-    if (!accessToken) {
-      throw new Error("Token de acesso não retornado pelo backend.");
-    }
-
-    // 3. Instanciar o RetellWebClient se ainda não existir
-    if (!retellWebClient) {
-      retellWebClient = new RetellWebClient();
-      setupRetellListeners();
-    }
-
-    // 4. Iniciar chamada
-    isCallActive = true;
-    await retellWebClient.startCall({
-      accessToken: accessToken,
-      emitRawAudioSamples: true
-    });
-
-    // 5. Iniciar loop de animação do Blob (caso queira consistência visual)
-    startBlobAnimation();
-
-  } catch (err) {
-    console.error("Erro ao iniciar chamada de voz inline:", err);
-    showFeedbackToast('Não foi possível conectar com a Ava.');
-    endVoiceCallUI();
-  }
-}
 
 async function endVoiceCall() {
   if (!isCallActive) return;
@@ -1403,17 +1300,6 @@ function endVoiceCallUI() {
   if (voiceBlob) {
     voiceBlob.style.transform = '';
   }
-
-  // Resetar estado do botão inline
-  const btn = document.getElementById('ava-voice-btn');
-  const label = document.getElementById('ava-voice-label');
-  const icon = document.getElementById('ava-voice-icon');
-  if (btn) {
-    btn.disabled = false;
-    btn.classList.remove('connecting', 'active');
-  }
-  if (label) label.textContent = 'Falar com a Ava';
-  if (icon) icon.textContent = '🎙️';
 }
 
 function startBlobAnimation() {
