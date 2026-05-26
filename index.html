@@ -7,7 +7,7 @@
   <meta name="description" content="Ava Assistant - Assistente inteligente com IA">
 
   <!-- Security: Content-Security-Policy -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://esm.sh https://apis.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://n8n2.omelhorvendedoronline.com.br https://api.retellai.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://*.firebaseio.com https://esm.sh https://ava-assistant-production.up.railway.app wss://api.retellai.com; media-src 'self' mediastream: blob:; frame-src 'self' https://avaassistant-188d7.firebaseapp.com https://apis.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://esm.sh https://apis.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://n8n2.omelhorvendedoronline.com.br https://api.retellai.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://*.firebaseio.com https://esm.sh https://ava-assistant-production.up.railway.app wss://api.retellai.com wss://*.livekit.cloud https://*.livekit.cloud; media-src 'self' mediastream: blob:; frame-src 'self' https://avaassistant-188d7.firebaseapp.com https://apis.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
@@ -37,8 +37,7 @@
   <!-- CSS principal (síncrono — necessário para evitar FOUC) -->
   <link rel="stylesheet" href="ava-chat.css?v=38">
   
-  <!-- Retell AI Web SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/retell-client-js-sdk/dist/retell-client-js-sdk.js"></script>
+  <!-- Retell AI Web SDK (carregado via dynamic import no ava-chat.js) -->
 </head>
 <body>
   <!-- ========== SIDEBAR (Desktop / Mobile overlay) ========== -->

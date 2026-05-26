@@ -1241,7 +1241,7 @@ async function startVoiceCall() {
   try {
     // 1. Usar a classe global RetellWebClient se já carregada, ou importar via esm.sh
     if (typeof RetellWebClient === 'undefined') {
-      const { RetellWebClient: ClientImport } = await import("https://esm.sh/retell-client-js-sdk");
+      const { RetellWebClient: ClientImport } = await import("https://esm.sh/retell-client-js-sdk@2.0.7");
       window.RetellWebClient = ClientImport;
     }
 
@@ -1317,7 +1317,7 @@ async function startCall() {
   try {
     // 1. Usar a classe global RetellWebClient se já carregada, ou importar via esm.sh
     if (typeof RetellWebClient === 'undefined') {
-      const { RetellWebClient: ClientImport } = await import("https://esm.sh/retell-client-js-sdk");
+      const { RetellWebClient: ClientImport } = await import("https://esm.sh/retell-client-js-sdk@2.0.7");
       window.RetellWebClient = ClientImport;
     }
 
