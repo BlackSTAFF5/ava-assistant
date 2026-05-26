@@ -355,19 +355,17 @@
         <span class="voice-status-text" id="voiceStatusText">Conectando...</span>
       </div>
 
-      <!-- Avatar central com efeito gooey (líquido/orgânico) -->
+      <!-- Avatar central com vídeo do rosto + gooey fluido -->
       <div class="voice-visualizer-container">
         <div class="voice-blob-wrapper" id="voiceBlobWrapper">
-          <!-- Camada gooey: formas abstratas que se fundem -->
-          <div class="voice-gooey">
-            <div class="gooey-blob gb-1"></div>
-            <div class="gooey-blob gb-2"></div>
-            <div class="gooey-blob gb-3"></div>
-            <div class="gooey-blob gb-4"></div>
-            <div class="gooey-blob gb-5"></div>
+          <!-- Camada gooey: animação fluida do vídeo de referência -->
+          <div class="voice-gooey-layer">
+            <video class="voice-gooey-video" src="/bubble_contrast.mp4" muted loop playsinline></video>
           </div>
-          <!-- Avatar limpo (sem filtro) -->
-          <div class="voice-blob" id="voiceBlob"></div>
+          <!-- Avatar animado: vídeo do rosto (IMG_4160.MP4) -->
+          <div class="voice-blob" id="voiceBlob">
+            <video class="voice-face-video" src="/face_anim.mp4" muted loop playsinline></video>
+          </div>
         </div>
       </div>
 

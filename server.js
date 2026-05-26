@@ -14,7 +14,7 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: ['https://avaassistant.cloud', 'https://ava-assistant-production.up.railway.app', 'http://localhost:3000', 'http://127.0.0.1:5500', 'https://n8n2.omelhorvendedoronline.com.br'],
+  origin: ['https://avaassistant.cloud', 'https://ava-assistant-production.up.railway.app', 'http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:5500', 'https://n8n2.omelhorvendedoronline.com.br'],
   methods: ['POST', 'GET'],
   allowedHeaders: ['Content-Type'],
   maxAge: 86400,

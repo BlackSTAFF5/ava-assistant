@@ -1736,108 +1736,36 @@ body.dark-theme .voice-status-text {
   justify-content: center;
 }
 
-/* ========== GOOEY EFFECT (líquido/orgânico) ========== */
-.voice-gooey {
+/* ========== GOOEY LAYER (vídeo extraído + blur/contrast) ========== */
+.voice-gooey-layer {
   position: absolute;
-  width: 360px;
-  height: 360px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
-  filter: blur(8px) contrast(10);
+  overflow: hidden;
+  filter: blur(6px) contrast(8);
   z-index: 1;
-}
-
-.gooey-blob {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.10);
-  will-change: transform;
-}
-
-body.dark-theme .gooey-blob {
-  background: rgba(255, 255, 255, 0.10);
-}
-
-/* Blob 1 – grande, lento */
-.gb-1 {
-  width: 120px;
-  height: 120px;
-  top: 50%;
+  mix-blend-mode: multiply;
   left: 50%;
-  margin-left: -60px;
-  margin-top: -60px;
-  animation: gooey-drift-1 6s ease-in-out infinite;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
-/* Blob 2 – médio */
-.gb-2 {
-  width: 80px;
-  height: 80px;
-  top: 30%;
-  left: 20%;
-  animation: gooey-drift-2 8s ease-in-out infinite;
+body.dark-theme .voice-gooey-layer {
+  mix-blend-mode: screen;
 }
 
-/* Blob 3 – pequeno, mais rápido */
-.gb-3 {
-  width: 50px;
-  height: 50px;
-  top: 60%;
-  left: 70%;
-  animation: gooey-drift-3 5s ease-in-out infinite;
+.voice-gooey-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  display: block;
 }
 
-/* Blob 4 – médio, outro lado */
-.gb-4 {
-  width: 70px;
-  height: 70px;
-  top: 25%;
-  left: 65%;
-  animation: gooey-drift-4 7s ease-in-out infinite;
-}
-
-/* Blob 5 – bem pequeno, órbita mais ampla */
-.gb-5 {
-  width: 40px;
-  height: 40px;
-  top: 65%;
-  left: 25%;
-  animation: gooey-drift-5 9s ease-in-out infinite;
-}
-
-/* Speaking: acelera as animações */
-.voice-overlay.speaking .gb-1 { animation-duration: 3s; }
-.voice-overlay.speaking .gb-2 { animation-duration: 4s; }
-.voice-overlay.speaking .gb-3 { animation-duration: 2.5s; }
-.voice-overlay.speaking .gb-4 { animation-duration: 3.5s; }
-.voice-overlay.speaking .gb-5 { animation-duration: 4.5s; }
-
-@keyframes gooey-drift-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25%      { transform: translate(25px, -18px) scale(1.15); }
-  50%      { transform: translate(-15px, 22px) scale(0.9); }
-  75%      { transform: translate(-28px, -10px) scale(1.1); }
-}
-
-@keyframes gooey-drift-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(35px, 20px) scale(1.2); }
-  66%      { transform: translate(-20px, -30px) scale(0.85); }
-}
-
-@keyframes gooey-drift-3 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%      { transform: translate(-40px, 35px) scale(1.3); }
-}
-
-@keyframes gooey-drift-4 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%      { transform: translate(30px, -40px) scale(1.1); }
-}
-
-@keyframes gooey-drift-5 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(-35px, -25px) scale(1.25); }
-  66%      { transform: translate(40px, 30px) scale(0.8); }
+.voice-overlay.speaking .voice-gooey-layer {
+  filter: blur(8px) contrast(12);
+  transition: filter 0.5s ease;
 }
 
 /* Avatar central (limpo, sem filtro) */
@@ -1847,16 +1775,24 @@ body.dark-theme .gooey-blob {
   border-radius: 50%;
   position: absolute;
   z-index: 10;
-  background-image: url('/ava-bubble-260.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
 }
 
 body.dark-theme .voice-blob {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.voice-face-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  display: block;
 }
 
 .voice-overlay.speaking .voice-blob {
