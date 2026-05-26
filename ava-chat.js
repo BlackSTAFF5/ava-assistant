@@ -1403,6 +1403,10 @@ function endVoiceCallUI() {
   if (voiceBlob) {
     voiceBlob.style.transform = '';
   }
+  const blobWrapper = $('.voice-blob-wrapper');
+  if (blobWrapper) {
+    blobWrapper.style.transform = '';
+  }
 
   // Resetar estado do botão inline
   const btn = document.getElementById('ava-voice-btn');
@@ -1451,10 +1455,12 @@ function startBlobAnimation() {
       targetVolumeScale = 1.0 + Math.sin(Date.now() * 0.003) * 0.04;
     }
 
-    // Suavização por LERP
     currentVolumeScale += (targetVolumeScale - currentVolumeScale) * 0.15;
 
     voiceBlob.style.transform = `scale(${currentVolumeScale})`;
+
+    const wobble = Math.sin(Date.now() * 0.002) * 2;
+    blobWrapper.style.transform = `rotate(${wobble}deg)`;
 
     animationFrameId = requestAnimationFrame(update);
   }
