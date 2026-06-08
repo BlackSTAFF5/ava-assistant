@@ -21,13 +21,13 @@ const db = firebase.firestore();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.error("Auth Persistence Error:", e));
 
 const CONFIG = {
-  CHAT_WEBHOOK_URL: 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-chat',
-  LEAD_WEBHOOK_URL: 'https://n8n2.omelhorvendedoronline.com.br/webhook/ava-lead-capture',
+  CHAT_WEBHOOK_URL: 'https://avaassistant.cloud/webhook/ava-chat',
+  LEAD_WEBHOOK_URL: 'https://avaassistant.cloud/webhook/ava-lead-capture',
   WEBHOOK_AUTH_HEADER: 'X-AVA-Auth',
   WEBHOOK_AUTH_VALUE: 'ava-sec-k8x9Qm7Zp3wR5nL2vJ6',
   MSG_COOLDOWN_MS: 3000,
-  VOICE_BACKEND_URL: 'https://ava-assistant-production.up.railway.app/api/start-voice-call',
-  CREATE_WEB_CALL_URL: 'https://ava-assistant-production.up.railway.app/create-web-call',
+  VOICE_BACKEND_URL: 'https://avaassistant.cloud/api/start-voice-call',
+  CREATE_WEB_CALL_URL: 'https://avaassistant.cloud/create-web-call',
 };
 
 let state = {
