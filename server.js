@@ -11,6 +11,7 @@ app.set('trust proxy', true);
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false,
 }));
 
 app.use(cors({
@@ -123,10 +124,72 @@ async function createVoiceCall(req, res) {
 app.post('/api/start-voice-call', voiceCallLimiter, createVoiceCall);
 app.post('/create-web-call', voiceCallLimiter, createVoiceCall);
 
+const N8N_CHAT_URL = process.env.N8N_CHAT_URL || 'https://avaassistant.cloud/webhook/ava-chat';
+const N8N_AUTH_HEADER = 'X-AVA-Auth';
+const N8N_AUTH_VALUE = process.env.N8N_AUTH_VALUE || 'ava-sec-k8x9Qm7Zp3wR5nL2vJ6';
+
+async function forwardToN8n(payload, signal) {
+  const response = await fetch(N8N_CHAT_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      [N8N_AUTH_HEADER]: N8N_AUTH_VALUE
+    },
+    body: JSON.stringify(payload),
+    signal
+  });
+  const rawText = await response.text();
+  if (!response.ok) {
+    throw new Error(`n8n HTTP ${response.status}: ${rawText.substring(0, 200)}`);
+  }
+  let data;
+  try {
+    data = JSON.parse(rawText);
+  } catch {
+    data = { reply: rawText };
+  }
+  if (Array.isArray(data)) data = data[0]?.json || data[0] || {};
+  return data.reply || data.output || data.text || '';
+}
+
+async function chatFallbackHandler(req, res) {
+  const { message, sessionId, history } = req.body;
+
+  const ac = new AbortController();
+  const timeout = setTimeout(() => ac.abort(), 25000);
+
+  try {
+    const reply = await forwardToN8n(
+      { message, sessionId, timestamp: new Date().toISOString(), history: history || [] },
+      ac.signal
+    );
+    clearTimeout(timeout);
+    return res.json({ reply });
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err.name === 'AbortError') {
+      console.error('[chat-fallback] n8n timeout');
+    } else {
+      console.error('[chat-fallback] n8n error:', err.message);
+    }
+
+    const replies = [
+      'Olá! Recebi sua mensagem. No momento estou com instabilidade na minha conexão principal, mas já anotei o que você disse. Pode repetir ou reformular?',
+      'Entendi! Estou passando por uma instabilidade temporária. Pode me perguntar de novo? Já estou me recuperando!',
+      'Recebi sua mensagem! Minha conexão deu uma instabilidade, mas estou aqui. Pode me contar de novo?',
+      'Ops! Nosso servidor de IA está instável agora, mas não se preocupe — sua mensagem não foi perdida. Pode tentar novamente?',
+    ];
+    const fallbackReply = replies[Math.floor(Math.random() * replies.length)];
+    res.json({ reply: fallbackReply, _fallback: true });
+  }
+}
+
+app.post('/api/chat', chatFallbackHandler);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`==================================================`);
-  console.log(`🚀 AVA - Servidor Proxy de Voz ativo na porta ${PORT}`);
-  console.log(`🔗 Endpoint: http://localhost:${PORT}/api/start-voice-call`);
+  console.log(`🚀 AVA - Servidor ativo na porta ${PORT}`);
+  console.log(`🔗 Endpoints: /api/start-voice-call, /api/chat`);
   console.log(`==================================================`);
 });

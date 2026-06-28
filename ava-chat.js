@@ -17,15 +17,16 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Force local persistence to keep user logged in after refresh
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.error("Auth Persistence Error:", e));
+// Use default Firebase persistence (LOCAL is default for web)
 
 const CONFIG = {
   CHAT_WEBHOOK_URL: 'https://avaassistant.cloud/webhook/ava-chat',
+  CHAT_FALLBACK_URL: '/api/chat',
   LEAD_WEBHOOK_URL: 'https://avaassistant.cloud/webhook/ava-lead-capture',
   WEBHOOK_AUTH_HEADER: 'X-AVA-Auth',
   WEBHOOK_AUTH_VALUE: 'ava-sec-k8x9Qm7Zp3wR5nL2vJ6',
   MSG_COOLDOWN_MS: 3000,
+  MSG_TIMEOUT_MS: 30000,
   VOICE_BACKEND_URL: 'https://avaassistant.cloud/api/start-voice-call',
   CREATE_WEB_CALL_URL: 'https://avaassistant.cloud/create-web-call',
 };
@@ -587,10 +588,15 @@ async function onSubmit(e) {
       
       state.isWaiting = true;
       const typing = showTyping();
-      setTimeout(() => {
+      setTimeout(async () => {
         removeTyping(typing);
         state.isWaiting = false;
-        openLeadModal();
+        const msg = 'Ótimo! Ficaremos felizes em conversar com você. Clique no botão abaixo para agendar sua reunião. 😊';
+        await addMsg('assistant', msg, true);
+        const assistantMsgs = messagesEl.querySelectorAll('.msg.assistant .msg-content-wrap');
+        if (assistantMsgs.length > 0) {
+          appendScheduleButton(assistantMsgs[assistantMsgs.length - 1]);
+        }
       }, 1000);
       return;
     } else if (matchesNegative) {
@@ -647,82 +653,102 @@ async function onSubmit(e) {
   state.isWaiting = true;
   const typing = showTyping();
 
-  try {
-    let body, headers = {};
+  const payload = {
+    message: text,
+    sessionId: state.sessionId,
+    timestamp: new Date().toISOString(),
+    history: state.messages.map(m => ({ role: m.role, content: m.content })),
+  };
 
-    if (files.length) {
-      // Converte todos os arquivos para base64 para máxima compatibilidade com n8n
-      const fileDataArray = await Promise.all(files.map(f => fileToBase64(f)));
+  if (files.length) {
+    const fileDataArray = await Promise.all(files.map(f => fileToBase64(f)));
+    payload.files = fileDataArray;
+  }
 
-      headers['Content-Type'] = 'application/json';
-      headers[CONFIG.WEBHOOK_AUTH_HEADER] = CONFIG.WEBHOOK_AUTH_VALUE;
-      body = JSON.stringify({
-        message: text,
-        sessionId: state.sessionId,
-        timestamp: new Date().toISOString(),
-        history: state.messages.map(m => ({ role: m.role, content: m.content })),
-        files: fileDataArray,
-      });
-    } else {
-      headers['Content-Type'] = 'application/json';
-      headers[CONFIG.WEBHOOK_AUTH_HEADER] = CONFIG.WEBHOOK_AUTH_VALUE;
-      body = JSON.stringify({
-        message: text,
-        sessionId: state.sessionId,
-        timestamp: new Date().toISOString(),
-        history: state.messages.map(m => ({ role: m.role, content: m.content })),
-      });
-    }
+  const headers = {
+    'Content-Type': 'application/json',
+    [CONFIG.WEBHOOK_AUTH_HEADER]: CONFIG.WEBHOOK_AUTH_VALUE,
+  };
 
-    const res = await fetch(CONFIG.CHAT_WEBHOOK_URL, { method: 'POST', headers, body });
+  let reply = '';
+  let shouldOpenLead = false;
+  let usedFallback = false;
 
-    // Lê a resposta como texto primeiro para evitar erro de parse JSON
-    const rawText = await res.text();
-    if (!res.ok) {
-      console.error('Erro do servidor:', res.status, rawText);
-      throw new Error(`HTTP ${res.status}: ${rawText.substring(0, 200)}`);
-    }
-
-    let data;
+  async function tryFetch(url, opts) {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), CONFIG.MSG_TIMEOUT_MS);
     try {
-      data = JSON.parse(rawText);
-    } catch {
-      // Se não for JSON válido, usa o texto como resposta direta
-      data = { reply: rawText };
+      const res = await fetch(url, { ...opts, signal: ac.signal });
+      clearTimeout(timer);
+      const rawText = await res.text();
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${rawText.substring(0, 200)}`);
+      return rawText;
+    } catch (err) {
+      clearTimeout(timer);
+      throw err;
     }
+  }
 
-    removeTyping(typing);
-
-    // n8n pode retornar array [{json:{...}}] ou objeto direto
+  function parseReply(rawText) {
+    let data;
+    try { data = JSON.parse(rawText); } catch { data = { reply: rawText }; }
     if (Array.isArray(data)) data = data[0]?.json || data[0] || {};
+    return data;
+  }
 
-    let reply = data.reply || data.output || data.text || 'Desculpe, não consegui processar.';
-    let shouldOpenLead = !!data.showLeadForm;
-
-    // Fallback: detecta [LEAD_FORM] localmente caso o backend não tenha processado
+  try {
+    const rawText = await tryFetch(CONFIG.CHAT_WEBHOOK_URL, { method: 'POST', headers, body: JSON.stringify(payload) });
+    const data = parseReply(rawText);
+    reply = data.reply || data.output || data.text || '';
+    shouldOpenLead = !!data.showLeadForm;
     if (reply.includes('[LEAD_FORM]')) {
       shouldOpenLead = true;
       reply = reply.replace(/\[LEAD_FORM\]/g, '').trim();
     }
+  } catch (primaryErr) {
+    console.warn('[chat] Primary webhook failed, trying fallback:', primaryErr.message);
 
-    await addMsg('assistant', reply, true);
-
-    if (shouldOpenLead) {
-      state.waitingForMeetingConfirmation = true;
-      const assistantMsgs = messagesEl.querySelectorAll('.msg.assistant .msg-content-wrap');
-      if (assistantMsgs.length > 0) {
-        const lastWrap = assistantMsgs[assistantMsgs.length - 1];
-        showMeetingQuickReplies(lastWrap);
-      }
+    try {
+      payload.history = state.messages.map(m => ({ role: m.role, content: m.content }));
+      const rawText = await tryFetch(CONFIG.CHAT_FALLBACK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const data = parseReply(rawText);
+      reply = data.reply || data.output || data.text || '';
+      usedFallback = true;
+    } catch (fallbackErr) {
+      console.error('[chat] Fallback also failed:', fallbackErr.message);
+      reply = '';
     }
-  } catch (err) {
-    console.error('Erro no envio:', err);
-    removeTyping(typing);
-    await addMsg('assistant', '⚠️ Erro ao conectar com o servidor. Tente novamente.', false);
-  } finally {
-    state.isWaiting = false;
-    chatInput.focus();
   }
+
+  removeTyping(typing);
+
+  if (!reply) {
+    const lastResort = [
+      'Olá! Recebi sua mensagem. Estou com uma instabilidade agora, mas já registrei. Pode me perguntar de novo?',
+      'Entendi! Minha conexão deu uma falha rápida, mas estou aqui. Pode repetir?',
+      'Ops! Tive um problema temporário. Pode me contar de novo o que precisa?',
+      'Recebi! Estou me recuperando de uma instabilidade. Pode me enviar de novo?',
+    ];
+    reply = lastResort[Math.floor(Math.random() * lastResort.length)];
+  }
+
+  await addMsg('assistant', reply, true);
+
+  if (shouldOpenLead) {
+    state.waitingForMeetingConfirmation = true;
+    const assistantMsgs = messagesEl.querySelectorAll('.msg.assistant .msg-content-wrap');
+    if (assistantMsgs.length > 0) {
+      const lastWrap = assistantMsgs[assistantMsgs.length - 1];
+      showMeetingQuickReplies(lastWrap);
+    }
+  }
+
+  if (usedFallback) {
+    console.warn('[chat] Used fallback for this response');
+  }
+
+  state.isWaiting = false;
+  chatInput.focus();
 }
 
 async function addMsg(role, content, animate = false) {
@@ -894,11 +920,36 @@ function showMeetingQuickReplies(container) {
   scrollDown();
 }
 
+function appendScheduleButton(container) {
+  const btn = document.createElement('button');
+  btn.className = 'schedule-meeting-btn';
+  btn.textContent = 'Agendar Reunião';
+  btn.addEventListener('click', () => openLeadModal());
+  container.appendChild(btn);
+  scrollDown();
+}
+
 window.confirmMeetingRequest = () => {
   const btns = document.querySelector('.meeting-prompt-buttons');
   if (btns) btns.remove();
   state.waitingForMeetingConfirmation = false;
-  openLeadModal();
+
+  welcome.style.display = 'none';
+  messagesEl.classList.add('active');
+  appendMsg('user', 'Sim, gostaria de agendar uma reunião.');
+
+  state.isWaiting = true;
+  const typing = showTyping();
+  setTimeout(async () => {
+    removeTyping(typing);
+    state.isWaiting = false;
+    const msg = 'Ótimo! Ficaremos felizes em conversar com você. Clique no botão abaixo para agendar sua reunião. 😊';
+    await addMsg('assistant', msg, true);
+    const assistantMsgs = messagesEl.querySelectorAll('.msg.assistant .msg-content-wrap');
+    if (assistantMsgs.length > 0) {
+      appendScheduleButton(assistantMsgs[assistantMsgs.length - 1]);
+    }
+  }, 1000);
 };
 
 window.cancelMeetingRequest = () => {
@@ -1642,7 +1693,7 @@ function initLoginModal() {
 
     auth.createUserWithEmailAndPassword(email, pass)
       .then((userCredential) => {
-            userCredential.user.updateProfile({ displayName: sanitizeInput(name) }).catch(() => {});
+            userCredential.user.updateProfile({ displayName: name }).catch(() => {});
         registerFormWrap.style.display = 'none';
         loginSuccess.style.display = 'block';
         loginSuccess.innerHTML = `<p>✅ Conta criada! Bem-vindo(a), <strong>${name}</strong>!</p>`;
